@@ -14,8 +14,10 @@ struct GeneratedCommitMessageView: View {
     
     var body: some View {
         HStack {
-            Text(suggestedCommitMessage)
-                .lineLimit(1)
+            ScrollView(.horizontal) {
+                Text(suggestedCommitMessage)
+                    .frame(height: 40)
+            }
             Button {
                 commitMessage = suggestedCommitMessage
                 suggestedCommitMessage = ""
