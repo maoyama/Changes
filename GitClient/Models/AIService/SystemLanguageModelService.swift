@@ -8,28 +8,24 @@
 import Foundation
 import FoundationModels
 
-@available(macOS 26.0, *)
 @Generable
 struct GeneratedCommitMessage {
     @Guide(description: "The commit message")
     var commitMessage: String
 }
 
-@available(macOS 26.0, *)
 @Generable
 struct GeneratedStagingChanges {
     @Guide(description: "The hunk to stage list")
     var hunksToStage: [Bool]
 }
 
-@available(macOS 26.0, *)
 @Generable
 struct GeneratedCommitHashes {
     @Guide(description: "The commit hashes")
     var commitHashes: [String]
 }
 
-@available(macOS 26.0, *)
 struct SystemLanguageModelService {
     func commitMessage(stagedDiff: String) async throws -> String {
         let instructions = """
@@ -104,7 +100,6 @@ You are a good software engineer. A hunk starts from @@ -start,count +start,coun
     }
 }
 
-@available(macOS 26.0, *)
 @Generable
 struct UncommitedChanges {
     @Guide(description: "The staged changes")
@@ -113,7 +108,6 @@ struct UncommitedChanges {
     var unstagedChanges: [String]
 }
 
-@available(macOS 26.0, *)
 struct UncommitedChangesTool: Tool {
     @Generable
     struct Arguments {}
@@ -131,7 +125,6 @@ struct UncommitedChangesTool: Tool {
     }
 }
 
-@available(macOS 26.0, *)
 struct StagedChangesTool: Tool {
     @Generable
     struct Arguments {}
@@ -147,7 +140,6 @@ struct StagedChangesTool: Tool {
     }
 }
 
-@available(macOS 26.0, *)
 struct UnstagedChangesTool: Tool {
     @Generable
     struct Arguments {}
@@ -163,7 +155,6 @@ struct UnstagedChangesTool: Tool {
     }
 }
 
-@available(macOS 26.0, *)
 struct GitLogTool: Tool {
     @Generable
     struct Arguments {

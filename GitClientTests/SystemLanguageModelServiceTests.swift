@@ -12,7 +12,6 @@ import Foundation
 
 struct SystemLanguageModelServiceTests {
     
-    @available(macOS 26.0, *)
     @Test func commitMessage() async throws {
         let message = try await SystemLanguageModelService().commitMessage(stagedDiff: """
             diff --git a/GitClient/Views/Folder/CommitGraphView.swift b/GitClient/Views/Folder/CommitGraphView.swift
@@ -65,8 +64,7 @@ struct SystemLanguageModelServiceTests {
         print(message2)
         #expect(!message2.isEmpty)
     }
-    
-    @available(macOS 26.0, *)
+
     @Test func commitMessageWithTool() async throws {
         let stagedDiffRaw = """
                     diff --git a/GitClient/Views/Folder/CommitGraphView.swift b/GitClient/Views/Folder/CommitGraphView.swift
@@ -122,7 +120,6 @@ struct SystemLanguageModelServiceTests {
         #expect(!message2.isEmpty)
     }
     
-    @available(macOS 26.0, *)
     @Test func commitMessageWithStagedChangesTool() async throws {
         let stagedDiffRaw = """
                     diff --git a/GitClient/Views/Folder/CommitGraphView.swift b/GitClient/Views/Folder/CommitGraphView.swift
@@ -178,7 +175,6 @@ struct SystemLanguageModelServiceTests {
         #expect(!message2.isEmpty)
     }
     
-    @available(macOS 26.0, *)
     @Test func stagingChanges() async throws {
         let hunksToStages = try await SystemLanguageModelService().stagingChanges(unstagedDiff: """
             diff --git a/GitClient/Views/Folder/CommitGraphView.swift b/GitClient/Views/Folder/CommitGraphView.swift
@@ -198,7 +194,6 @@ struct SystemLanguageModelServiceTests {
         #expect(!hunksToStages.isEmpty)
     }
     
-    @available(macOS 26.0, *)
     @Test func stagingChangesWithTool() async throws {
         let hunksToStages = try await SystemLanguageModelService().stagingChanges(tools: [UnstagedChangesToolStub(diffRaw: """
             diff --git a/GitClient/Views/Folder/CommitGraphView.swift b/GitClient/Views/Folder/CommitGraphView.swift
@@ -217,7 +212,6 @@ struct SystemLanguageModelServiceTests {
         print(hunksToStages)
     }
     
-    @available(macOS 26.0, *)
     @Test func commitHashes() async throws {
         let commitHashes = try await SystemLanguageModelService().commitHashes(
             SearchArguments(),
@@ -227,7 +221,6 @@ struct SystemLanguageModelServiceTests {
         print(commitHashes)
     }
     
-    @available(macOS 26.0, *)
     @Test func commitHashes2() async throws {
         let commitHashes = try await SystemLanguageModelService().commitHashes(
             SearchArguments(),
@@ -239,7 +232,6 @@ struct SystemLanguageModelServiceTests {
 }
 
 
-@available(macOS 26.0, *)
 struct UncommitedChangesStubTool: Tool {
     @Generable
     struct Arguments {}
@@ -256,7 +248,6 @@ struct UncommitedChangesStubTool: Tool {
     }
 }
 
-@available(macOS 26.0, *)
 struct StagedChangesToolStub: Tool {
     @Generable
     struct Arguments {}
@@ -271,7 +262,6 @@ struct StagedChangesToolStub: Tool {
     }
 }
 
-@available(macOS 26.0, *)
 struct UnstagedChangesToolStub: Tool {
     @Generable
     struct Arguments {}

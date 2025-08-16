@@ -211,18 +211,11 @@ struct FolderView: View {
         .navigationTitle(branch?.name ?? "")
         .toolbar {
             if isLoading {
-                if #available(macOS 26.0, *) {
-                    ToolbarItem(placement: .primaryAction) {
-                        ProgressView()
-                            .scaleEffect(x: 0.5, y: 0.5, anchor: .center)
-                    }
-                    .sharedBackgroundVisibility(.hidden)
-                } else {
-                    ToolbarItem(placement: .primaryAction) {
-                        ProgressView()
-                            .scaleEffect(x: 0.5, y: 0.5, anchor: .center)
-                    }
+                ToolbarItem(placement: .primaryAction) {
+                    ProgressView()
+                        .scaleEffect(x: 0.5, y: 0.5, anchor: .center)
                 }
+                .sharedBackgroundVisibility(.hidden)
             } else {
                 ToolbarItem(placement: .principal) {
                     branchesButton()
@@ -230,15 +223,11 @@ struct FolderView: View {
                 ToolbarItem(placement: .principal) {
                     addBranchButton()
                 }
-                if #available(macOS 26.0, *) {
-                    ToolbarSpacer(.fixed, placement: .principal)
-                }
+                ToolbarSpacer(.fixed, placement: .principal)
                 ToolbarItem(placement: .principal) {
                     tagButton()
                 }
-                if #available(macOS 26.0, *) {
-                    ToolbarSpacer(.fixed, placement: .principal)
-                }
+                ToolbarSpacer(.fixed, placement: .principal)
                 ToolbarItem(placement: .principal) {
                     stashButton()
                 }
