@@ -170,7 +170,7 @@
 		6130BDE92C958B710050E70F /* GitStashList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitStashList.swift; sourceTree = "<group>"; };
 		6131AC862DF268BF00DFBCB5 /* GitStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitStatusTests.swift; sourceTree = "<group>"; };
 		61326BBB2BC27A3300472D64 /* Diff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Diff.swift; sourceTree = "<group>"; };
-		61347EEA28D5D16C00625FC4 /* Tempo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tempo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		61347EEA28D5D16C00625FC4 /* Changes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Changes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		61347EED28D5D16C00625FC4 /* GitClientApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitClientApp.swift; sourceTree = "<group>"; };
 		61347EEF28D5D16C00625FC4 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		61347EF128D5D16D00625FC4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -332,7 +332,7 @@
 		61347EEB28D5D16C00625FC4 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				61347EEA28D5D16C00625FC4 /* Tempo.app */,
+				61347EEA28D5D16C00625FC4 /* Changes.app */,
 				61347EFB28D5D16D00625FC4 /* GitClientTests.xctest */,
 			);
 			name = Products;
@@ -629,7 +629,7 @@
 				61DE74112CCFCEA70085E8A4 /* Sourceful */,
 			);
 			productName = GitClient;
-			productReference = 61347EEA28D5D16C00625FC4 /* Tempo.app */;
+			productReference = 61347EEA28D5D16C00625FC4 /* Changes.app */;
 			productType = "com.apple.product-type.application";
 		};
 		61347EFA28D5D16D00625FC4 /* GitClientTests */ = {
@@ -1012,8 +1012,8 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 2.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.aoyama.tempo;
-				PRODUCT_NAME = Tempo;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.aoyama.changes;
+				PRODUCT_NAME = Changes;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
@@ -1045,8 +1045,8 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 2.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.aoyama.tempo;
-				PRODUCT_NAME = Tempo;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.aoyama.changes;
+				PRODUCT_NAME = Changes;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
