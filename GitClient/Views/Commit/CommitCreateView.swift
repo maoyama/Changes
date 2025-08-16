@@ -63,7 +63,6 @@ struct CommitCreateView: View {
     @State private var isAmend = false
     @State private var amendCommit: Commit?
     @State private var isStagingChanges = false
-    @State private var isGeneratingCommitMessage = false
     @Binding var isRefresh: Bool
     var onCommit: () -> Void
     var onStash: () -> Void
@@ -217,33 +216,8 @@ struct CommitCreateView: View {
                                 .padding(.horizontal)
                         }
                     }
-                    HStack(spacing: 0) {
-                        CommitMessageSuggestionView()
-                        Button {
-                            Task {
-                                isGeneratingCommitMessage = true
-                                do {
-                                    commitMessage = try await SystemLanguageModelService().commitMessage(stagedDiff: cachedDiffRaw)
-                                } catch {
-                                    self.error = error
-                                }
-                                isGeneratingCommitMessage = false
-                            }
-                        } label: {
-                            if isGeneratingCommitMessage {
-                                ProgressView()
-                                    .scaleEffect(x: 0.4, y: 0.4, anchor: .center)
-                                    .frame(width: 15, height: 10)
-                            } else {
-                                Image(systemName: "sparkle")
-                                    .foregroundStyle(.primary)
-                                    .frame(width: 15, height: 10)
-                            }
-                        }
-                        .help("Generate Commit Message with AI")
-                        .padding(.horizontal)
-                        .disabled(cachedDiffRaw.isEmpty)
-                    }
+                    CommitMessageSuggestionView()
+                        .padding(.trailing)
                 }
                 Divider()
                 VStack(alignment: .trailing, spacing: 11) {
