@@ -205,7 +205,7 @@ struct CommitCreateView: View {
                     }
                     .overlay(alignment: .bottom) {
                         if !generatedCommitMessage.isEmpty {
-                            GeneratedCommitMessageView(
+                            CommitMessageGenerationView(
                                 commitMessage: $commitMessage,
                                 suggestedCommitMessage: $generatedCommitMessage
                             ) {

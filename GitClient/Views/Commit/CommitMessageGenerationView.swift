@@ -1,5 +1,5 @@
 //
-//  GeneratedCommitMessageView.swift
+//  CommitMessageGenerationView.swift
 //  GitClient
 //
 //  Created by Makoto Aoyama on 2025/08/16.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct GeneratedCommitMessageView: View {
+struct CommitMessageGenerationView: View {
     @Binding var commitMessage: String
     @Binding var suggestedCommitMessage: String
     var reloadAction: () -> Void
@@ -37,7 +37,7 @@ struct GeneratedCommitMessageView: View {
     @Previewable @State var commitMessage = "Hello"
     @Previewable @State var suggestedCommitMessage = "Hello"
     
-    GeneratedCommitMessageView(
+    CommitMessageGenerationView(
         commitMessage: $commitMessage,
         suggestedCommitMessage: $suggestedCommitMessage
     ) {}
