@@ -58,7 +58,7 @@ struct CommitCreateView: View {
     @State private var cachedDiffStat: DiffStat?
     @State private var updateChangesError: Error?
     @State private var commitMessage = ""
-    @State private var suggestedCommitMessage = ""
+    @State private var generatedCommitMessage = ""
     @State private var error: Error?
     @State private var isAmend = false
     @State private var amendCommit: Commit?
@@ -204,10 +204,10 @@ struct CommitCreateView: View {
                             }
                     }
                     .overlay(alignment: .bottom) {
-                        if !suggestedCommitMessage.isEmpty {
+                        if !generatedCommitMessage.isEmpty {
                             GeneratedCommitMessageView(
                                 commitMessage: $commitMessage,
-                                suggestedCommitMessage: $suggestedCommitMessage
+                                suggestedCommitMessage: $generatedCommitMessage
                             ) {
                                 Task {
                                     await generateCommitMessage()
@@ -340,12 +340,12 @@ struct CommitCreateView: View {
     }
     
     private func generateCommitMessage() async {
-        suggestedCommitMessage = ""
+        generatedCommitMessage = ""
         do {
             if !cachedDiffRaw.isEmpty {
                 let message = try await SystemLanguageModelService().commitMessage(stagedDiff: cachedDiffRaw)
                 if !Task.isCancelled {
-                    suggestedCommitMessage = message
+                    generatedCommitMessage = message
                 }
             }
         } catch {
