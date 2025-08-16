@@ -58,6 +58,7 @@ struct CommitCreateView: View {
     @State private var cachedDiffStat: DiffStat?
     @State private var updateChangesError: Error?
     @State private var commitMessage = ""
+    @State private var suggestedCommitMessage = ""
     @State private var error: Error?
     @State private var isAmend = false
     @State private var amendCommit: Commit?
@@ -66,7 +67,7 @@ struct CommitCreateView: View {
     @Binding var isRefresh: Bool
     var onCommit: () -> Void
     var onStash: () -> Void
-
+    
     var body: some View {
         VStack(spacing: 0) {
             ScrollView {
@@ -203,6 +204,19 @@ struct CommitCreateView: View {
                                     .allowsHitTesting(false)
                             }
                     }
+                    .overlay(alignment: .bottom) {
+                        if !suggestedCommitMessage.isEmpty {
+                            GeneratedCommitMessageView(
+                                commitMessage: $commitMessage,
+                                suggestedCommitMessage: $suggestedCommitMessage
+                            ) {
+                                Task {
+                                    await generateCommitMessage()
+                                }
+                            }
+                                .padding(.horizontal)
+                        }
+                    }
                     HStack(spacing: 0) {
                         CommitMessageSuggestionView()
                         Button {
@@ -291,16 +305,7 @@ struct CommitCreateView: View {
             }
         })
         .task(id: cachedDiffRaw) {
-            do {
-                if cachedDiffRaw.isEmpty {
-                    
-                } else {
-                    let message = try await SystemLanguageModelService().commitMessage(stagedDiff: cachedDiffRaw)
-                    print(message)
-                }
-            } catch {
-                Logger().info("\(error.localizedDescription)")
-            }
+            await generateCommitMessage()
         }
         .task {
             await updateChanges()
@@ -357,6 +362,20 @@ struct CommitCreateView: View {
             } catch {
                 self.error = error
             }
+        }
+    }
+    
+    private func generateCommitMessage() async {
+        suggestedCommitMessage = ""
+        do {
+            if !cachedDiffRaw.isEmpty {
+                let message = try await SystemLanguageModelService().commitMessage(stagedDiff: cachedDiffRaw)
+                if !Task.isCancelled {
+                    suggestedCommitMessage = message
+                }
+            }
+        } catch {
+            Logger().info("\(error.localizedDescription)")
         }
     }
 }
