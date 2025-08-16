@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct CommitCreateView: View {
-    @Environment(\.openAIAPISecretKey) var openAIAPISecretKey: String
     @Environment(\.openSettings) var openSettings: OpenSettingsAction
     @Environment(\.appearsActive) private var appearsActive
 
@@ -164,21 +163,6 @@ struct CommitCreateView: View {
                         }
                         .disabled(!canStage)
                         .layoutPriority(2)
-                        Button {
-                            stageWithAIButtonAction()
-                        } label: {
-                            if isStagingChanges {
-                                ProgressView()
-                                    .scaleEffect(x: 0.4, y: 0.4, anchor: .center)
-                                    .frame(width: 15, height: 10)
-                            } else {
-                                Image(systemName: "sparkle")
-                                    .foregroundStyle(openAIAPISecretKey.isEmpty ? .secondary : .primary)
-                                    .frame(width: 15, height: 10)
-                            }
-                        }
-                        .help("Stage with AI")
-                        .disabled(!canStage || status?.unmergedFiles.isEmpty == false)
 
                         Button("Unstage All") {
                             Task {
@@ -221,10 +205,6 @@ struct CommitCreateView: View {
                     HStack(spacing: 0) {
                         CommitMessageSuggestionView()
                         Button {
-                            guard !openAIAPISecretKey.isEmpty else {
-                                openSettings()
-                                return
-                            }
                             Task {
                                 isGeneratingCommitMessage = true
                                 do {
@@ -241,7 +221,7 @@ struct CommitCreateView: View {
                                     .frame(width: 15, height: 10)
                             } else {
                                 Image(systemName: "sparkle")
-                                    .foregroundStyle(openAIAPISecretKey.isEmpty ? .secondary : .primary)
+                                    .foregroundStyle(.primary)
                                     .frame(width: 15, height: 10)
                             }
                         }
@@ -364,42 +344,6 @@ struct CommitCreateView: View {
             } catch {
                 self.error = error
             }
-        }
-    }
-
-    private func stageWithAIButtonAction() {
-        guard !openAIAPISecretKey.isEmpty else {
-            openSettings()
-            return
-        }
-
-        Task {
-            isStagingChanges = true
-            do {
-                let res = try await AIService(bearer: openAIAPISecretKey).stagingChanges(
-                    stagedDiff: cachedDiffRaw,
-                    notStagedDiff: diffRaw,
-                    untrackedFiles: status?.untrackedFiles ?? []
-                )
-                let _ = try await Process.output(GitAddPatch(directory: folder.url, inputs: res.hunksToStage.map { $0 ? "y" : "n" }))
-                let files = status?.untrackedFiles.enumerated().map({ e in
-                    if let needsStage = res.filesToStage[safe: e.offset], needsStage {
-                        return e.element
-                    }
-                    return ""
-                })
-                if let files {
-                    let filterd = files.filter { !$0.isEmpty }
-                    for pathspec in filterd {
-                        try await Process.output(GitAddPathspec(directory: folder.url, pathspec: pathspec))
-                    }
-                }
-                await updateChanges()
-                commitMessage = res.commitMessage
-            } catch {
-                self.error = error
-            }
-            isStagingChanges = false
         }
     }
 }
