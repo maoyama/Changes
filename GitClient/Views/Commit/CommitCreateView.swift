@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import os
 
 struct CommitCreateView: View {
     @Environment(\.openSettings) var openSettings: OpenSettingsAction
@@ -289,6 +290,18 @@ struct CommitCreateView: View {
                 }
             }
         })
+        .task(id: cachedDiffRaw) {
+            do {
+                if cachedDiffRaw.isEmpty {
+                    
+                } else {
+                    let message = try await SystemLanguageModelService().commitMessage(stagedDiff: cachedDiffRaw)
+                    print(message)
+                }
+            } catch {
+                Logger().info("\(error.localizedDescription)")
+            }
+        }
         .task {
             await updateChanges()
 
