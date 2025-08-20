@@ -193,14 +193,16 @@ struct CommitCreateView: View {
             Divider()
             HStack(alignment: .bottom, spacing: 0) {
                 VStack(spacing: 0) {
-                    ZStack {
+                    ZStack(alignment: .topLeading) {
                             TextEditor(text: $commitMessage)
                                 .padding(.top, 16)
                                 .padding(.horizontal, 12)
                             if commitMessage.isEmpty {
-                                Label("Enter commit message here", systemImage: "plus.bubble")
+                                Text("Commit Message")
                                     .foregroundColor(.secondary)
                                     .allowsHitTesting(false)
+                                    .padding(.top, 14)
+                                    .padding(.horizontal, 17)
                             }
                     }
                     .overlay(alignment: .bottom) {
