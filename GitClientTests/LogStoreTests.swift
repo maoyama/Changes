@@ -7,7 +7,7 @@
 
 import Testing
 import Foundation
-@testable import Tempo
+@testable import Changes
 
 @MainActor
 struct LogStoreTests {

@@ -6,7 +6,7 @@
 //
 
 import Testing
-@testable import Tempo
+@testable import Changes
 
 struct ExpandableModelTests {
 
