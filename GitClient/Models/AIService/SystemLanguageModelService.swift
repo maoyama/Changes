@@ -29,7 +29,7 @@ struct GeneratedCommitHashes {
 struct SystemLanguageModelService {
     func commitMessageStream(stagedDiff: String) -> LanguageModelSession.ResponseStream<GeneratedCommitMessage> {
         let instructions = """
-You are a good software engineer. When creating a commit message, it is not the initial commit. 
+You are a good software engineer. When writing a commit message, it is not the initial commit. Write commit messages in the imperative mood.
 The output format of git diff is as follows:
 ```
 diff --git a/filename b/filename
@@ -42,7 +42,7 @@ index abc1234..def5678 100644
   unchanged line (context)
 ```
 """
-        let prompt = "Generate a commit message (imperative mood) for the following changes: \(stagedDiff)"
+        let prompt = "Generate a commit message　for the following changes: \(stagedDiff)"
         let session = LanguageModelSession(instructions: instructions)
         return session.streamResponse(to: prompt, generating: GeneratedCommitMessage.self)
     }
