@@ -27,6 +27,26 @@ struct GeneratedCommitHashes {
 }
 
 struct SystemLanguageModelService {
+    func commitMessageStream(stagedDiff: String) -> LanguageModelSession.ResponseStream<GeneratedCommitMessage> {
+        let instructions = """
+You are a good software engineer. When creating a commit message, it is not the initial commit. 
+The output format of git diff is as follows:
+```
+diff --git a/filename b/filename
+index abc1234..def5678 100644
+--- a/filename
++++ b/filename
+@@ -start,count +start,count @@ optional context or function name
+- line that was removed
++ line that was added
+  unchanged line (context)
+```
+"""
+        let prompt = "Generate a commit message (imperative mood) for the following changes: \(stagedDiff)"
+        let session = LanguageModelSession(instructions: instructions)
+        return session.streamResponse(to: prompt, generating: GeneratedCommitMessage.self)
+    }
+    
     func commitMessage(stagedDiff: String) async throws -> String {
         let instructions = """
 You are a good software engineer. When creating a commit message, it is not the initial commit. 
