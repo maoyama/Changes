@@ -6,14 +6,15 @@
 //
 
 import Testing
-@testable import Tempo
+@testable import Changes
 import FoundationModels
 import Foundation
 
 struct SystemLanguageModelServiceTests {
     
     @Test func commitMessage() async throws {
-        let message = try await SystemLanguageModelService().commitMessage(stagedDiff: """
+        var generatedCommitMessage = ""
+        let messages = SystemLanguageModelService().commitMessageStream(stagedDiff: """
             diff --git a/GitClient/Views/Folder/CommitGraphView.swift b/GitClient/Views/Folder/CommitGraphView.swift
             index 5f79207..4660cf4 100644
             --- a/GitClient/Views/Folder/CommitGraphView.swift
@@ -27,10 +28,13 @@ struct SystemLanguageModelServiceTests {
                      .focusEffectDisabled()
                      .onMoveCommand { direction in
             """)
-        print(message)
-        #expect(!message.isEmpty)
+        for try await message in messages {
+            generatedCommitMessage = message.content.commitMessage ?? ""
+        }
+        print(generatedCommitMessage)
+        #expect(!generatedCommitMessage.isEmpty)
         
-        let message2 = try await SystemLanguageModelService().commitMessage(stagedDiff: """
+        let messages2 = SystemLanguageModelService().commitMessageStream(stagedDiff: """
             diff --git a/GitClient/Models/Observables/LogStore.swift b/GitClient/Models/Observables/LogStore.swift
             index 8a43562..226c84e 100644
             --- a/GitClient/Models/Observables/LogStore.swift
@@ -61,8 +65,12 @@ struct SystemLanguageModelServiceTests {
                      let gitDiff = try await Process.output(GitDiff(directory: directory))
                      let gitDiffCached = try await Process.output(GitDiffCached(directory: directory))
             """)
-        print(message2)
-        #expect(!message2.isEmpty)
+        var generatedCommitMessage2 = ""
+        
+        for try await message2 in messages2 {
+            generatedCommitMessage2 = message2.content.commitMessage ?? ""
+        }
+        #expect(!generatedCommitMessage2.isEmpty)
     }
 
     @Test func commitMessageWithTool() async throws {

@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import Tempo
+@testable import Changes
 
 final class DiffTests: XCTestCase {
     let raw = """

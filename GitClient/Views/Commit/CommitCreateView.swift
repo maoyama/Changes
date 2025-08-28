@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import os
 
 struct CommitCreateView: View {
     @Environment(\.openSettings) var openSettings: OpenSettingsAction
@@ -57,15 +58,15 @@ struct CommitCreateView: View {
     @State private var cachedDiffStat: DiffStat?
     @State private var updateChangesError: Error?
     @State private var commitMessage = ""
+    @State private var generatedCommitMessage = ""
     @State private var error: Error?
     @State private var isAmend = false
     @State private var amendCommit: Commit?
     @State private var isStagingChanges = false
-    @State private var isGeneratingCommitMessage = false
     @Binding var isRefresh: Bool
     var onCommit: () -> Void
     var onStash: () -> Void
-
+    
     var body: some View {
         VStack(spacing: 0) {
             ScrollView {
@@ -192,43 +193,33 @@ struct CommitCreateView: View {
             Divider()
             HStack(alignment: .bottom, spacing: 0) {
                 VStack(spacing: 0) {
-                    ZStack {
+                    ZStack(alignment: .topLeading) {
                             TextEditor(text: $commitMessage)
                                 .padding(.top, 16)
                                 .padding(.horizontal, 12)
                             if commitMessage.isEmpty {
-                                Label("Enter commit message here", systemImage: "plus.bubble")
+                                Text("Commit Message")
                                     .foregroundColor(.secondary)
                                     .allowsHitTesting(false)
+                                    .padding(.top, 14)
+                                    .padding(.horizontal, 17)
                             }
                     }
-                    HStack(spacing: 0) {
-                        CommitMessageSuggestionView()
-                        Button {
-                            Task {
-                                isGeneratingCommitMessage = true
-                                do {
-                                    commitMessage = try await SystemLanguageModelService().commitMessage(stagedDiff: cachedDiffRaw)
-                                } catch {
-                                    self.error = error
+                    .overlay(alignment: .bottom) {
+                        if !generatedCommitMessage.isEmpty {
+                            CommitMessageGenerationView(
+                                commitMessage: $commitMessage,
+                                suggestedCommitMessage: $generatedCommitMessage
+                            ) {
+                                Task {
+                                    await generateCommitMessage()
                                 }
-                                isGeneratingCommitMessage = false
                             }
-                        } label: {
-                            if isGeneratingCommitMessage {
-                                ProgressView()
-                                    .scaleEffect(x: 0.4, y: 0.4, anchor: .center)
-                                    .frame(width: 15, height: 10)
-                            } else {
-                                Image(systemName: "sparkle")
-                                    .foregroundStyle(.primary)
-                                    .frame(width: 15, height: 10)
-                            }
+                                .padding(.horizontal)
                         }
-                        .help("Generate Commit Message with AI")
-                        .padding(.horizontal)
-                        .disabled(cachedDiffRaw.isEmpty)
                     }
+                    CommitMessageSuggestionView()
+                        .padding(.trailing)
                 }
                 Divider()
                 VStack(alignment: .trailing, spacing: 11) {
@@ -289,6 +280,9 @@ struct CommitCreateView: View {
                 }
             }
         })
+        .task(id: cachedDiffRaw) {
+            await generateCommitMessage()
+        }
         .task {
             await updateChanges()
 
@@ -344,6 +338,22 @@ struct CommitCreateView: View {
             } catch {
                 self.error = error
             }
+        }
+    }
+    
+    private func generateCommitMessage() async {
+        generatedCommitMessage = ""
+        do {
+            if !cachedDiffRaw.isEmpty {
+                 let stream = SystemLanguageModelService().commitMessageStream(stagedDiff: cachedDiffRaw)
+                for try await message in stream {
+                    if !Task.isCancelled {
+                        generatedCommitMessage = message.content.commitMessage ?? ""
+                    }
+                }
+            }
+        } catch {
+            Logger().info("\(error.localizedDescription)")
         }
     }
 }
