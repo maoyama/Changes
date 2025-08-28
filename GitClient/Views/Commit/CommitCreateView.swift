@@ -345,9 +345,11 @@ struct CommitCreateView: View {
         generatedCommitMessage = ""
         do {
             if !cachedDiffRaw.isEmpty {
-                let message = try await SystemLanguageModelService().commitMessage(stagedDiff: cachedDiffRaw)
-                if !Task.isCancelled {
-                    generatedCommitMessage = message
+                 let stream = SystemLanguageModelService().commitMessageStream(stagedDiff: cachedDiffRaw)
+                for try await message in stream {
+                    if !Task.isCancelled {
+                        generatedCommitMessage = message.content.commitMessage ?? ""
+                    }
                 }
             }
         } catch {
