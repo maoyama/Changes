@@ -1,0 +1,52 @@
+{
+  "fill" : {
+    "solid" : "extended-gray:1.00000,1.00000"
+  },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "blend-mode" : "normal",
+          "image-name" : "Oval.svg",
+          "name" : "Oval",
+          "opacity" : 0.95,
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              -97.828125
+            ]
+          }
+        },
+        {
+          "glass" : true,
+          "hidden" : false,
+          "image-name" : "Oval2.svg",
+          "name" : "Oval2",
+          "opacity" : 0.95,
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              -4.828125,
+              96.2
+            ]
+          }
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}
