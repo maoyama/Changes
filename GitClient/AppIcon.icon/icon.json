@@ -1,6 +1,6 @@
 {
   "fill" : {
-    "solid" : "extended-gray:1.00000,1.00000"
+    "automatic-gradient" : "extended-gray:1.00000,1.00000"
   },
   "groups" : [
     {
@@ -10,7 +10,7 @@
         {
           "blend-mode" : "normal",
           "fill" : {
-            "solid" : "extended-srgb:0.00000,0.53333,1.00000,1.00000"
+            "automatic-gradient" : "extended-srgb:0.00000,0.53333,1.00000,1.00000"
           },
           "glass" : true,
           "hidden" : false,
@@ -28,7 +28,7 @@
         {
           "blend-mode" : "normal",
           "fill" : {
-            "solid" : "srgb:0.46202,0.83828,1.00000,1.00000"
+            "automatic-gradient" : "srgb:0.46202,0.83828,1.00000,1.00000"
           },
           "glass" : true,
           "hidden" : false,
@@ -46,7 +46,7 @@
       ],
       "lighting" : "individual",
       "shadow" : {
-        "kind" : "layer-color",
+        "kind" : "neutral",
         "opacity" : 0.5
       },
       "specular" : true,
