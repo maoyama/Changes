@@ -16,7 +16,7 @@
           "hidden" : false,
           "image-name" : "Oval.svg",
           "name" : "Oval",
-          "opacity" : 0.75,
+          "opacity" : 0.85,
           "position" : {
             "scale" : 1,
             "translation-in-points" : [
@@ -34,7 +34,7 @@
           "hidden" : false,
           "image-name" : "Oval2.svg",
           "name" : "Oval2",
-          "opacity" : 0.75,
+          "opacity" : 0.85,
           "position" : {
             "scale" : 1,
             "translation-in-points" : [
@@ -46,12 +46,12 @@
       ],
       "lighting" : "individual",
       "shadow" : {
-        "kind" : "neutral",
+        "kind" : "layer-color",
         "opacity" : 0.5
       },
       "specular" : true,
       "translucency" : {
-        "enabled" : true,
+        "enabled" : false,
         "value" : 0.1
       }
     }
