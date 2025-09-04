@@ -59,17 +59,13 @@ struct FolderView: View {
                 )
             }
         }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            VStack(spacing: 0) {
-                Divider()
-                Spacer()
+        .scrollEdgeEffectStyle(.soft, for: .bottom)
+        .safeAreaBar(edge: .bottom, spacing: 0) {
+            HStack(spacing: 0) {
                 countText()
                     .font(.callout)
+                    .padding(.horizontal, 16)
                 Spacer()
-            }
-            .frame(height: 40)
-            .background(Color(nsColor: .textBackgroundColor))
-            .overlay(alignment: .trailing) {
                 Button(action: {
                     showGraph.toggle()
                 }) {
@@ -82,6 +78,7 @@ struct FolderView: View {
                 .padding(.horizontal, 8)
                 .help("Commit Graph")
             }
+            .frame(height: 40)
         }
         .overlay(content: {
             if logStore.commits.isEmpty && !searchTokens.isEmpty {
