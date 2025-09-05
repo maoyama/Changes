@@ -62,11 +62,12 @@ struct FolderView: View {
         .scrollEdgeEffectStyle(.soft, for: .bottom)
         .safeAreaBar(edge: .bottom, spacing: 0) {
             HStack(spacing: 0) {
+                Spacer()
                 countText()
                     .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 16)
                 Spacer()
+            }
+            .overlay(alignment: .trailing, content: {
                 Button(action: {
                     showGraph.toggle()
                 }) {
@@ -78,7 +79,7 @@ struct FolderView: View {
                 .buttonStyle(.accessoryBar)
                 .padding(.horizontal, 8)
                 .help("Commit Graph")
-            }
+            })
             .frame(height: 40)
         }
         .overlay(content: {
