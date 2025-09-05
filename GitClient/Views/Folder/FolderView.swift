@@ -64,6 +64,7 @@ struct FolderView: View {
             HStack(spacing: 0) {
                 countText()
                     .font(.callout)
+                    .foregroundStyle(.secondary)
                     .padding(.horizontal, 16)
                 Spacer()
                 Button(action: {
