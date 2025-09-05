@@ -119,9 +119,9 @@ struct CommitDetailContentView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(NSColor.textBackgroundColor))
         .textSelection(.enabled)
-        .safeAreaInset(edge: .bottom, spacing: 0, content: {
+        .scrollEdgeEffectStyle(.soft, for: .bottom)
+        .safeAreaBar(edge: .bottom, spacing: 0, content: {
             VStack(spacing: 0) {
-                Divider()
                 Spacer()
                 HStack {
                     Text(shortstat)
@@ -131,7 +131,6 @@ struct CommitDetailContentView: View {
                 .font(.callout)
                 Spacer()
             }
-            .background(Color(nsColor: .textBackgroundColor))
             .frame(height: 40)
         })
         .onChange(of: commit, initial: true, { _, commit in
