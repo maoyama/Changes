@@ -35,9 +35,9 @@ struct CommitDiffView: View {
                 .padding(.horizontal)
         }
         .background(Color(NSColor.textBackgroundColor))
-        .safeAreaInset(edge: .bottom, spacing: 0, content: {
+        .scrollEdgeEffectStyle(.soft, for: .bottom)
+        .safeAreaBar(edge: .bottom, spacing: 0, content: {
             VStack(spacing: 0) {
-                Divider()
                 Spacer()
                 HStack(spacing: 0) {
                     HStack {
@@ -68,7 +68,6 @@ struct CommitDiffView: View {
 
                 Spacer()
             }
-            .background(Color(nsColor: .textBackgroundColor))
             .frame(height: 40)
         })
         .onChange(of: selectionLogID + subSelectionLogID, initial: true) { oldValue, newValue in
