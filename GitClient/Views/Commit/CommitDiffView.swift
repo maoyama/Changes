@@ -35,56 +35,56 @@ struct CommitDiffView: View {
                 .padding(.horizontal)
         }
         .background(Color(NSColor.textBackgroundColor))
-            .safeAreaInset(edge: .bottom, spacing: 0, content: {
-                VStack(spacing: 0) {
+        .safeAreaInset(edge: .bottom, spacing: 0, content: {
+            VStack(spacing: 0) {
+                Divider()
+                Spacer()
+                HStack(spacing: 0) {
+                    HStack {
+                        Text("Diff")
+                            .foregroundStyle(.secondary)
+                        Text(commitFirst == Log.notCommitted.id ? "Staged Changes" : commitFirst.prefix(5))
+                        Text(commitSecond == Log.notCommitted.id ? "Staged Changes" : commitSecond.prefix(5))
+                        Button {
+                            let first = commitFirst
+                            let second = commitSecond
+                            commitFirst = second
+                            commitSecond = first
+                        } label: {
+                            Image(systemName: "arrow.left.arrow.right")
+                        }
+                            .buttonStyle(.accessoryBar)
+                            .help("Swap the Commits")
+                    }
+                    .padding(.horizontal)
                     Divider()
                     Spacer()
-                    HStack(spacing: 0) {
-                        HStack {
-                            Text("Diff")
-                                .foregroundStyle(.secondary)
-                            Text(commitFirst == Log.notCommitted.id ? "Staged Changes" : commitFirst.prefix(5))
-                            Text(commitSecond == Log.notCommitted.id ? "Staged Changes" : commitSecond.prefix(5))
-                            Button {
-                                let first = commitFirst
-                                let second = commitSecond
-                                commitFirst = second
-                                commitSecond = first
-                            } label: {
-                                Image(systemName: "arrow.left.arrow.right")
-                            }
-                                .buttonStyle(.accessoryBar)
-                                .help("Swap the Commits")
-                        }
-                        .padding(.horizontal)
-                        Divider()
-                        Spacer()
-                        Text(shortstat)
-                            .minimumScaleFactor(0.3)
-                            .foregroundStyle(.primary)
-                        Spacer()
-                    }
-                    .font(.callout)
-
+                    Text(shortstat)
+                        .minimumScaleFactor(0.3)
+                        .foregroundStyle(.primary)
                     Spacer()
                 }
-                .background(Color(nsColor: .textBackgroundColor))
-                .frame(height: 40)
-            })
-            .onChange(of: selectionLogID + subSelectionLogID, initial: true) { oldValue, newValue in
-                commitFirst = selectionLogID
-                commitSecond = subSelectionLogID
+                .font(.callout)
+
+                Spacer()
             }
-            .onChange(of: commitFirst + commitSecond, initial: true) { _, _ in
-                if commitFirst == Log.notCommitted.id {
-                    updateDiff(commitRange: commitSecond)
-                } else if commitSecond == Log.notCommitted.id {
-                    updateDiff(commitRange: commitFirst)
-                } else {
-                    updateDiff(commitRange: commitFirst + ".." + commitSecond)
-                }
+            .background(Color(nsColor: .textBackgroundColor))
+            .frame(height: 40)
+        })
+        .onChange(of: selectionLogID + subSelectionLogID, initial: true) { oldValue, newValue in
+            commitFirst = selectionLogID
+            commitSecond = subSelectionLogID
+        }
+        .onChange(of: commitFirst + commitSecond, initial: true) { _, _ in
+            if commitFirst == Log.notCommitted.id {
+                updateDiff(commitRange: commitSecond)
+            } else if commitSecond == Log.notCommitted.id {
+                updateDiff(commitRange: commitFirst)
+            } else {
+                updateDiff(commitRange: commitFirst + ".." + commitSecond)
             }
-            .errorSheet($error)
+        }
+        .errorSheet($error)
     }
 
     private func updateDiff(commitRange: String) {
