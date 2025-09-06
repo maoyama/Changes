@@ -32,14 +32,18 @@ struct ContentView: View {
             VStack {
                 if decodedFolders.isEmpty {
                     VStack {
+                        Spacer()
+                        Spacer()
+                            .frame(height: 60)
                         Text("No Project Folder Added")
                         Text("Please add a folder that contains a Git repository.")
                             .font(.caption)
                             .padding(.top, 2)
+                        Spacer()
                     }
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)
-                    .padding(.horizontal)
+                    .padding()
                 } else {
                     List(decodedFolders, id: \.url, selection: $selectionFolderURL) { folder in
                         Label(folder.displayName, systemImage: "folder")
@@ -58,8 +62,8 @@ struct ContentView: View {
                     }
                 }
             }
-            .toolbar {
-                ToolbarItemGroup {
+            .safeAreaBar(edge: .bottom, content: {
+                HStack {
                     Button {
                         let panel = NSOpenPanel()
                         panel.canChooseFiles = false
@@ -83,11 +87,14 @@ struct ContentView: View {
                             }
                         }
                     } label: {
-                        Image(systemName: "plus.rectangle.on.folder")
+                        Image(systemName: "plus")
                     }
+                    .buttonStyle(.plain)
                     .help("Add Project Folder")
+                    .padding()
+                    Spacer()
                 }
-            }
+            })
         } content: {
             if let folder = selectionFolder {
                 FolderView(
