@@ -38,7 +38,7 @@ struct CommitMessageSnippetSuggestionView: View {
                     }
                 }
                 .font(.callout)
-                .padding(.leading, 12)
+                .padding(.leading)
             }
             .frame(height: 40)
             Button(action: {
