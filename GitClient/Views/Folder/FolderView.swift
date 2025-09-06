@@ -74,7 +74,7 @@ struct FolderView: View {
                     Image(systemName: showGraph ? "point.3.filled.connected.trianglepath.dotted" : "point.3.connected.trianglepath.dotted")
                         .font(.title3)
                         .rotationEffect(.init(degrees: 270))
-                        .foregroundStyle( showGraph ? Color.accentColor : Color.secondary)
+                        .foregroundStyle( showGraph ? Color.accentColor : Color.primary)
                 }
                 .buttonStyle(.plain)
                 .padding(.horizontal)

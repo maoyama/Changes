@@ -53,7 +53,7 @@ struct CommitDiffView: View {
                         } label: {
                             Image(systemName: "arrow.left.arrow.right")
                         }
-                            .buttonStyle(.accessoryBar)
+                            .buttonStyle(.plain)
                             .help("Swap the Commits")
                     }
                     .padding(.horizontal)

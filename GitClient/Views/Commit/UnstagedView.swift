@@ -53,7 +53,7 @@ struct UnstagedView: View {
                             } label: {
                                 Image(systemName: "plus.circle")
                             }
-                            .buttonStyle(.accessoryBar)
+                            .buttonStyle(.plain)
                             .help("Stage This File")
                             .padding(.horizontal)
                         }
