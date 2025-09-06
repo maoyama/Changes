@@ -122,9 +122,9 @@ struct CommitCreateView: View {
                         .font(Font.system(.body, design: .monospaced))
                 }
             }
-            .safeAreaInset(edge: .top, spacing: 0, content: {
+            .safeAreaBar(edge: .top, spacing: 0, content: {
                 VStack(spacing: 0) {
-                    HStack {
+                    HStack(spacing: 0) {
                         Button {
                             Task {
                                 do {
@@ -184,7 +184,6 @@ struct CommitCreateView: View {
                     .padding(.horizontal)
                     Divider()
                 }
-                .background(Color(nsColor: .textBackgroundColor))
             })
             .textSelection(.enabled)
             .frame(maxWidth: .infinity, alignment: .leading)
