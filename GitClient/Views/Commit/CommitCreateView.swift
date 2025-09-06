@@ -186,7 +186,7 @@ struct CommitCreateView: View {
         })
         .scrollEdgeEffectStyle(.hard, for: .vertical)
         .safeAreaBar(edge: .bottom, content: {
-            CommitMessageEditorView(
+            CommitMessageEditor(
                 folder: folder,
                 commitMessage: $commitMessage,
                 generatedCommitMessage: $generatedCommitMessage,

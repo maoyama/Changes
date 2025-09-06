@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct CommitMessageEditorView: View {
+struct CommitMessageEditor: View {
     var folder: Folder
     @Binding var commitMessage: String
     @Binding var generatedCommitMessage: String
