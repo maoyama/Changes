@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct CommitMessageSuggestionView: View {
+struct CommitMessageSnippetSuggestionView: View {
     @State private var error: Error?
     @State private var isPresenting = false
     @Environment(\.openWindow) private var openWindow
@@ -52,5 +52,5 @@ struct CommitMessageSuggestionView: View {
 }
 
 #Preview {
-    CommitMessageSuggestionView()
+    CommitMessageSnippetSuggestionView()
 }

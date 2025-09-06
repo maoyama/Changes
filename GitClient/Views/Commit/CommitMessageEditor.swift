@@ -48,7 +48,7 @@ struct CommitMessageEditor: View {
                                 .padding(.horizontal)
                         }
                     }
-                    CommitMessageSuggestionView()
+                    CommitMessageSnippetSuggestionView()
                         .padding(.trailing)
                 }
                 Divider()
