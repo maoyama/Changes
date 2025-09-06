@@ -68,128 +68,124 @@ struct CommitCreateView: View {
     var onStash: () -> Void
     
     var body: some View {
-        VStack(spacing: 0) {
-            ScrollView {
-                if cachedDiff != nil {
-                    StagedView(
-                        fileDiffs: $cachedExpandableFileDiffs,
-                        onSelectFileDiff: { fileDiff in
-                            if let newDiff = self.cachedDiff?.updateFileDiffStage(fileDiff, stage: false) {
-                                restorePatch(newDiff)
-                            }
-                        },
-                        onSelectChunk: status?.unmergedFiles.isEmpty == false ? nil : { fileDiff, chunk in
-                            if let newDiff = self.cachedDiff?.updateChunkStage(chunk, in: fileDiff, stage: false) {
-                                restorePatch(newDiff)
-                            }
+        ScrollView {
+            if cachedDiff != nil {
+                StagedView(
+                    fileDiffs: $cachedExpandableFileDiffs,
+                    onSelectFileDiff: { fileDiff in
+                        if let newDiff = self.cachedDiff?.updateFileDiffStage(fileDiff, stage: false) {
+                            restorePatch(newDiff)
                         }
-                    )
-                    .padding(.top)
-                }
-
-                if diff != nil {
-                    UnstagedView(
-                        fileDiffs: $expandableFileDiffs,
-                        untrackedFiles: status?.untrackedFiles ?? [],
-                        onSelectFileDiff: { fileDiff in
-                            if let newDiff = self.diff?.updateFileDiffStage(fileDiff, stage: true) {
-                                addPatch(newDiff)
-                            }
-                        },
-                        onSelectChunk: status?.unmergedFiles.isEmpty == false ? nil : { fileDiff, chunk in
-                            if let newDiff = self.diff?.updateChunkStage(chunk, in: fileDiff, stage: true) {
-                                addPatch(newDiff)
-                            }
-                        },
-                        onSelectUntrackedFile: { file in
-                            Task {
-                                do {
-                                    try await Process.output(GitAddPathspec(directory: folder.url, pathspec: file))
-                                    await updateChanges()
-                                } catch {
-                                    self.error = error
-                                }
-                            }
+                    },
+                    onSelectChunk: status?.unmergedFiles.isEmpty == false ? nil : { fileDiff, chunk in
+                        if let newDiff = self.cachedDiff?.updateChunkStage(chunk, in: fileDiff, stage: false) {
+                            restorePatch(newDiff)
                         }
-                    )
-                    .padding(.bottom)
-                }
-
-                if let updateChangesError {
-                    Label(updateChangesError.localizedDescription, systemImage: "exclamationmark.octagon")
-                    Text(cachedDiffRaw + diffRaw)
-                        .padding()
-                        .font(Font.system(.body, design: .monospaced))
-                }
-            }
-            .safeAreaBar(edge: .top, spacing: 0, content: {
-                VStack(spacing: 0) {
-                    HStack(spacing: 0) {
-                        Button {
-                            Task {
-                                do {
-                                    try await Process.output(GitStash(directory: folder.url))
-                                    onStash()
-                                } catch {
-                                    self.error = error
-                                }
-                            }
-                        } label: {
-                            Image(systemName: "tray.and.arrow.down")
-                        }
-                        .help("Stash Include Untracked")
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 16) {
-                                HStack(spacing: 6) {
-                                    Text("Staged ").foregroundStyle(.secondary)
-                                    Text(stagedHeaderCaption)
-                                }
-                                HStack(spacing: 6) {
-                                    Text("Unstaged ").foregroundStyle(.secondary)
-                                    Text(notStagedHeaderCaption)
-                                }
-                            }
-                            .font(.callout)
-                        }
-                        .padding(.horizontal)
-                        Button("Stage All") {
-                            Task {
-                                do {
-                                    try await Process.output(GitAdd(directory: folder.url))
-                                    await updateChanges()
-                                } catch {
-                                    self.error = error
-                                }
-                            }
-                        }
-                        .disabled(!canStage)
-                        .layoutPriority(2)
-
-                        Button("Unstage All") {
-                            Task {
-                                do {
-                                    try await Process.output(GitRestore(directory: folder.url))
-                                    await updateChanges()
-                                } catch {
-                                    self.error = error
-                                }
-                            }
-                        }
-                        .disabled(cachedDiffRaw.isEmpty)
-                        .padding(.leading, 7)
-                        .layoutPriority(2)
                     }
-                    .textSelection(.disabled)
-                    .padding(.vertical, 10)
+                )
+                .padding(.top)
+            }
+
+            if diff != nil {
+                UnstagedView(
+                    fileDiffs: $expandableFileDiffs,
+                    untrackedFiles: status?.untrackedFiles ?? [],
+                    onSelectFileDiff: { fileDiff in
+                        if let newDiff = self.diff?.updateFileDiffStage(fileDiff, stage: true) {
+                            addPatch(newDiff)
+                        }
+                    },
+                    onSelectChunk: status?.unmergedFiles.isEmpty == false ? nil : { fileDiff, chunk in
+                        if let newDiff = self.diff?.updateChunkStage(chunk, in: fileDiff, stage: true) {
+                            addPatch(newDiff)
+                        }
+                    },
+                    onSelectUntrackedFile: { file in
+                        Task {
+                            do {
+                                try await Process.output(GitAddPathspec(directory: folder.url, pathspec: file))
+                                await updateChanges()
+                            } catch {
+                                self.error = error
+                            }
+                        }
+                    }
+                )
+                .padding(.bottom)
+            }
+
+            if let updateChangesError {
+                Label(updateChangesError.localizedDescription, systemImage: "exclamationmark.octagon")
+                Text(cachedDiffRaw + diffRaw)
+                    .padding()
+                    .font(Font.system(.body, design: .monospaced))
+            }
+        }
+        .safeAreaBar(edge: .top, spacing: 0, content: {
+            VStack(spacing: 0) {
+                HStack(spacing: 0) {
+                    Button {
+                        Task {
+                            do {
+                                try await Process.output(GitStash(directory: folder.url))
+                                onStash()
+                            } catch {
+                                self.error = error
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "tray.and.arrow.down")
+                    }
+                    .help("Stash Include Untracked")
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 16) {
+                            HStack(spacing: 6) {
+                                Text("Staged ").foregroundStyle(.secondary)
+                                Text(stagedHeaderCaption)
+                            }
+                            HStack(spacing: 6) {
+                                Text("Unstaged ").foregroundStyle(.secondary)
+                                Text(notStagedHeaderCaption)
+                            }
+                        }
+                        .font(.callout)
+                    }
                     .padding(.horizontal)
-                    Divider()
+                    Button("Stage All") {
+                        Task {
+                            do {
+                                try await Process.output(GitAdd(directory: folder.url))
+                                await updateChanges()
+                            } catch {
+                                self.error = error
+                            }
+                        }
+                    }
+                    .disabled(!canStage)
+                    .layoutPriority(2)
+
+                    Button("Unstage All") {
+                        Task {
+                            do {
+                                try await Process.output(GitRestore(directory: folder.url))
+                                await updateChanges()
+                            } catch {
+                                self.error = error
+                            }
+                        }
+                    }
+                    .disabled(cachedDiffRaw.isEmpty)
+                    .padding(.leading, 7)
+                    .layoutPriority(2)
                 }
-            })
-            .textSelection(.enabled)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .layoutPriority(1)
-            .background(Color(NSColor.textBackgroundColor))
-            Divider()
+                .textSelection(.disabled)
+                .padding(.vertical, 10)
+                .padding(.horizontal)
+                Divider()
+            }
+        })
+        .scrollEdgeEffectStyle(.hard, for: .vertical)
+        .safeAreaBar(edge: .bottom, content: {
             CommitMessageEditorView(
                 folder: folder,
                 commitMessage: $commitMessage,
@@ -205,7 +201,11 @@ struct CommitCreateView: View {
                 } onCommit: {
                     onCommit()
                 }
-        }
+                .frame(height: 140)
+        })
+        .textSelection(.enabled)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(NSColor.textBackgroundColor))
         .onChange(of: isRefresh, { oldValue, newValue in
             if newValue {
                 Task {
