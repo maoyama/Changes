@@ -76,8 +76,8 @@ struct FolderView: View {
                         .rotationEffect(.init(degrees: 270))
                         .foregroundStyle( showGraph ? Color.accentColor : Color.secondary)
                 }
-                .buttonStyle(.accessoryBar)
-                .padding(.horizontal, 8)
+                .buttonStyle(.plain)
+                .padding(.horizontal)
                 .help("Commit Graph")
             })
             .frame(height: 40)
