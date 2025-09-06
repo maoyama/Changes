@@ -38,7 +38,7 @@ struct ContentView: View {
                             .padding(.top, 2)
                     }
                     .multilineTextAlignment(.center)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                     .padding(.horizontal)
                 } else {
                     List(decodedFolders, id: \.url, selection: $selectionFolderURL) { folder in
@@ -88,7 +88,6 @@ struct ContentView: View {
                     .help("Add Project Folder")
                 }
             }
-
         } content: {
             if let folder = selectionFolder {
                 FolderView(
