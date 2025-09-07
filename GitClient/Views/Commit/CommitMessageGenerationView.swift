@@ -14,22 +14,37 @@ struct CommitMessageGenerationView: View {
     
     var body: some View {
         HStack {
-            ScrollView(.horizontal) {
-                Text(suggestedCommitMessage)
-                    .frame(height: 40)
+            HStack(spacing: 16) {
+                ScrollView(.horizontal) {
+                    Text(suggestedCommitMessage)
+                        .frame(height: 40)
+                }
+                Button {
+                    commitMessage = suggestedCommitMessage
+                    suggestedCommitMessage = ""
+                } label: {
+                    Image(systemName: "arrow.up")
+                }
             }
-            Button {
-                commitMessage = suggestedCommitMessage
-                suggestedCommitMessage = ""
-            } label: {
-                Image(systemName: "arrow.up")
+            .padding(.horizontal)
+            .glassEffect()
+            HStack {
+                Button {
+                    reloadAction()
+                } label: {
+                    Image(systemName: "arrow.clockwise")
+                }
+                Button {
+                    suggestedCommitMessage = ""
+                } label: {
+                    Image(systemName: "xmark")
+                }
             }
-            Button {
-                reloadAction()
-            } label: {
-                Image(systemName: "arrow.clockwise")
-            }
+            .frame(height: 40)
+            .padding(.horizontal)
+            .glassEffect()
         }
+        .buttonStyle(.plain)
     }
 }
 
