@@ -6,52 +6,78 @@
 //
 
 import SwiftUI
+import os
 
 struct CommitMessageGenerationView: View {
+    @Binding var cachedDiffRaw: String
     @Binding var commitMessage: String
     @Binding var commitMessageIsReponding: Bool
-    @Binding var suggestedCommitMessage: String
-    var reloadAction: () -> Void
+    @Binding var generatedCommitMessage: String
     
     var body: some View {
         HStack {
             HStack {
                 Button {
-                    reloadAction()
+                    Task {
+                        await generateCommitMessage()
+                    }
                 } label: {
                     Image(systemName: "arrow.clockwise")
                 }
                 Button {
-                    suggestedCommitMessage = ""
+                    generatedCommitMessage = ""
                 } label: {
                     Image(systemName: "xmark")
                 }
                 ScrollView(.horizontal) {
-                    Text(suggestedCommitMessage)
+                    Text(generatedCommitMessage)
                         .frame(height: 38)
                 }
                 Button {
-                    commitMessage = suggestedCommitMessage
-                    suggestedCommitMessage = ""
+                    commitMessage = generatedCommitMessage
+                    generatedCommitMessage = ""
                 } label: {
                     Image(systemName: "arrow.up")
                 }
             }
             .padding(.horizontal)
         }
+        .task(id: cachedDiffRaw) {
+            await generateCommitMessage()
+        }
         .glassEffect()
         .buttonStyle(.plain)
+    }
+    
+    private func generateCommitMessage() async {
+        generatedCommitMessage = ""
+        commitMessageIsReponding = true
+        do {
+            if !cachedDiffRaw.isEmpty {
+                 let stream = SystemLanguageModelService().commitMessageStream(stagedDiff: cachedDiffRaw)
+                for try await message in stream {
+                    if !Task.isCancelled {
+                        generatedCommitMessage = message.content.commitMessage ?? ""
+                    }
+                }
+            }
+        } catch {
+            Logger().info("\(error.localizedDescription)")
+        }
+        commitMessageIsReponding = false
     }
 }
 
 #Preview {
+    @Previewable @State var cachedDiffRaw = ""
     @Previewable @State var commitMessage = "Hello"
-    @Previewable @State var suggestedCommitMessage = "Hello"
+    @Previewable @State var generatedCommitMessage = "Hello"
     @Previewable @State var isRespofing = false
 
     CommitMessageGenerationView(
+        cachedDiffRaw: $cachedDiffRaw,
         commitMessage: $commitMessage,
         commitMessageIsReponding: $isRespofing,
-        suggestedCommitMessage: $suggestedCommitMessage
-    ) {}
+        generatedCommitMessage: $generatedCommitMessage
+    )
 }

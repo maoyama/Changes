@@ -17,8 +17,6 @@ struct CommitMessageEditor: View {
     @Binding var error: Error?
     @Binding var cachedDiffRaw: String
     @Binding var amendCommit: Commit?
-
-    var generatedCommitMessageReloadAction: () -> Void
     var onCommit: () -> Void
 
     var body: some View {
@@ -41,16 +39,14 @@ struct CommitMessageEditor: View {
                             }
                     }
                     .safeAreaBar(edge: .bottom) {
-                        if !generatedCommitMessage.isEmpty {
-                            CommitMessageGenerationView(
-                                commitMessage: $commitMessage,
-                                commitMessageIsReponding: $generatedCommitMessageIsResponding,
-                                suggestedCommitMessage: $generatedCommitMessage,
-                                reloadAction: generatedCommitMessageReloadAction
-                            )
-                                .font(.callout)
-                                .padding(.horizontal)
-                        }
+                        CommitMessageGenerationView(
+                            cachedDiffRaw: $cachedDiffRaw,
+                            commitMessage: $commitMessage,
+                            commitMessageIsReponding: $generatedCommitMessageIsResponding,
+                            generatedCommitMessage: $generatedCommitMessage,
+                        )
+                            .font(.callout)
+                            .padding(.horizontal)
                     }
                     CommitMessageSnippetSuggestionView()
                         .padding(.trailing)

@@ -197,10 +197,6 @@ struct CommitCreateView: View {
                 error: $error,
                 cachedDiffRaw: $cachedDiffRaw,
                 amendCommit: $amendCommit) {
-                    Task {
-                        await generateCommitMessage()
-                    }
-                } onCommit: {
                     onCommit()
                 }
                 .frame(height: 140)
@@ -222,9 +218,6 @@ struct CommitCreateView: View {
                 }
             }
         })
-        .task(id: cachedDiffRaw) {
-            await generateCommitMessage()
-        }
         .task {
             await updateChanges()
 
@@ -281,23 +274,5 @@ struct CommitCreateView: View {
                 self.error = error
             }
         }
-    }
-    
-    private func generateCommitMessage() async {
-        generatedCommitMessage = ""
-        generatedCommitMessageIsResponding = true
-        do {
-            if !cachedDiffRaw.isEmpty {
-                 let stream = SystemLanguageModelService().commitMessageStream(stagedDiff: cachedDiffRaw)
-                for try await message in stream {
-                    if !Task.isCancelled {
-                        generatedCommitMessage = message.content.commitMessage ?? ""
-                    }
-                }
-            }
-        } catch {
-            Logger().info("\(error.localizedDescription)")
-        }
-        generatedCommitMessageIsResponding = false
     }
 }
