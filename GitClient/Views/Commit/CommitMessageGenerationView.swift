@@ -29,6 +29,10 @@ struct CommitMessageGenerationView: View {
                 } label: {
                     Image(systemName: "xmark")
                 }
+                if commitMessageIsReponding && generatedCommitMessage.isEmpty {
+                    ProgressView()
+                        .scaleEffect(x: 0.4, y: 0.4, anchor: .center)
+                }
                 ScrollView(.horizontal) {
                     Text(generatedCommitMessage)
                         .frame(height: 38)
