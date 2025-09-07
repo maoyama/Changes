@@ -30,6 +30,7 @@ struct CommitMessageEditor: View {
                                 .scrollContentBackground(.hidden)
                                 .padding(.top, 16)
                                 .padding(.horizontal, 12)
+                                .font(.body)
                             if commitMessage.isEmpty {
                                 Text("Commit Message")
                                     .foregroundColor(.secondary)
@@ -45,11 +46,13 @@ struct CommitMessageEditor: View {
                                 suggestedCommitMessage: $generatedCommitMessage,
                                 reloadAction: generatedCommitMessageReloadAction
                             )
+                                .font(.callout)
                                 .padding(.horizontal)
                         }
                     }
                     CommitMessageSnippetSuggestionView()
                         .padding(.trailing)
+                        .font(.callout)
                 }
                 Divider()
                 VStack(alignment: .trailing, spacing: 11) {

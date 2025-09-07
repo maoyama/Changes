@@ -14,20 +14,6 @@ struct CommitMessageGenerationView: View {
     
     var body: some View {
         HStack {
-            HStack(spacing: 16) {
-                ScrollView(.horizontal) {
-                    Text(suggestedCommitMessage)
-                        .frame(height: 40)
-                }
-                Button {
-                    commitMessage = suggestedCommitMessage
-                    suggestedCommitMessage = ""
-                } label: {
-                    Image(systemName: "arrow.up")
-                }
-            }
-            .padding(.horizontal)
-            .glassEffect()
             HStack {
                 Button {
                     reloadAction()
@@ -39,11 +25,20 @@ struct CommitMessageGenerationView: View {
                 } label: {
                     Image(systemName: "xmark")
                 }
+                ScrollView(.horizontal) {
+                    Text(suggestedCommitMessage)
+                        .frame(height: 38)
+                }
+                Button {
+                    commitMessage = suggestedCommitMessage
+                    suggestedCommitMessage = ""
+                } label: {
+                    Image(systemName: "arrow.up")
+                }
             }
-            .frame(height: 40)
             .padding(.horizontal)
-            .glassEffect()
         }
+        .glassEffect()
         .buttonStyle(.plain)
     }
 }
