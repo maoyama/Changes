@@ -11,6 +11,7 @@ struct CommitMessageEditor: View {
     var folder: Folder
     @Binding var commitMessage: String
     @Binding var generatedCommitMessage: String
+    @Binding var generatedCommitMessageIsResponding: Bool
     @Binding var cachedDiffStat: DiffStat?
     @Binding var isAmend: Bool
     @Binding var error: Error?
@@ -43,6 +44,7 @@ struct CommitMessageEditor: View {
                         if !generatedCommitMessage.isEmpty {
                             CommitMessageGenerationView(
                                 commitMessage: $commitMessage,
+                                commitMessageIsReponding: $generatedCommitMessageIsResponding,
                                 suggestedCommitMessage: $generatedCommitMessage,
                                 reloadAction: generatedCommitMessageReloadAction
                             )

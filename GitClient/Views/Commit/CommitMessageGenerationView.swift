@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CommitMessageGenerationView: View {
     @Binding var commitMessage: String
+    @Binding var commitMessageIsReponding: Bool
     @Binding var suggestedCommitMessage: String
     var reloadAction: () -> Void
     
@@ -46,9 +47,11 @@ struct CommitMessageGenerationView: View {
 #Preview {
     @Previewable @State var commitMessage = "Hello"
     @Previewable @State var suggestedCommitMessage = "Hello"
-    
+    @Previewable @State var isRespofing = false
+
     CommitMessageGenerationView(
         commitMessage: $commitMessage,
+        commitMessageIsReponding: $isRespofing,
         suggestedCommitMessage: $suggestedCommitMessage
     ) {}
 }

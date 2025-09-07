@@ -59,6 +59,7 @@ struct CommitCreateView: View {
     @State private var updateChangesError: Error?
     @State private var commitMessage = ""
     @State private var generatedCommitMessage = ""
+    @State private var generatedCommitMessageIsResponding = false
     @State private var error: Error?
     @State private var isAmend = false
     @State private var amendCommit: Commit?
@@ -190,6 +191,7 @@ struct CommitCreateView: View {
                 folder: folder,
                 commitMessage: $commitMessage,
                 generatedCommitMessage: $generatedCommitMessage,
+                generatedCommitMessageIsResponding: $generatedCommitMessageIsResponding,
                 cachedDiffStat: $cachedDiffStat,
                 isAmend: $isAmend,
                 error: $error,
@@ -283,6 +285,7 @@ struct CommitCreateView: View {
     
     private func generateCommitMessage() async {
         generatedCommitMessage = ""
+        generatedCommitMessageIsResponding = true
         do {
             if !cachedDiffRaw.isEmpty {
                  let stream = SystemLanguageModelService().commitMessageStream(stagedDiff: cachedDiffRaw)
@@ -295,5 +298,6 @@ struct CommitCreateView: View {
         } catch {
             Logger().info("\(error.localizedDescription)")
         }
+        generatedCommitMessageIsResponding = false
     }
 }
