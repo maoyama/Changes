@@ -16,35 +16,39 @@ struct CommitMessageGenerationView: View {
     
     var body: some View {
         HStack {
-            HStack {
-                Button {
-                    Task {
-                        await generateCommitMessage()
+            if commitMessageIsReponding || !generatedCommitMessage.isEmpty {
+                HStack {
+                    Button {
+                        Task {
+                            await generateCommitMessage()
+                        }
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
                     }
-                } label: {
-                    Image(systemName: "arrow.clockwise")
+                    Button {
+                        generatedCommitMessage = ""
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    if commitMessageIsReponding && generatedCommitMessage.isEmpty {
+                        ProgressView()
+                            .scaleEffect(x: 0.4, y: 0.4, anchor: .center)
+                    }
+                    ScrollView(.horizontal) {
+                        Text(generatedCommitMessage)
+                            .frame(height: 38)
+                    }
+                    Button {
+                        commitMessage = generatedCommitMessage
+                        generatedCommitMessage = ""
+                    } label: {
+                        Image(systemName: "arrow.up")
+                    }
                 }
-                Button {
-                    generatedCommitMessage = ""
-                } label: {
-                    Image(systemName: "xmark")
-                }
-                if commitMessageIsReponding && generatedCommitMessage.isEmpty {
-                    ProgressView()
-                        .scaleEffect(x: 0.4, y: 0.4, anchor: .center)
-                }
-                ScrollView(.horizontal) {
-                    Text(generatedCommitMessage)
-                        .frame(height: 38)
-                }
-                Button {
-                    commitMessage = generatedCommitMessage
-                    generatedCommitMessage = ""
-                } label: {
-                    Image(systemName: "arrow.up")
-                }
+                .padding(.horizontal)
+            } else {
+                
             }
-            .padding(.horizontal)
         }
         .task(id: cachedDiffRaw) {
             await generateCommitMessage()
