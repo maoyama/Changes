@@ -38,7 +38,7 @@ struct CommitMessageEditor: View {
                                     .padding(.horizontal, 17)
                             }
                     }
-                    .overlay(alignment: .bottom) {
+                    .safeAreaBar(edge: .bottom) {
                         if !generatedCommitMessage.isEmpty {
                             CommitMessageGenerationView(
                                 commitMessage: $commitMessage,
