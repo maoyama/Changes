@@ -35,7 +35,7 @@ struct CommitMessageEditor: View {
                                 Text("Commit Message")
                                     .foregroundColor(.secondary)
                                     .allowsHitTesting(false)
-                                    .padding(.top, 14)
+                                    .padding(.top, 16)
                                     .padding(.horizontal, 17)
                             }
                     }
