@@ -56,8 +56,6 @@ struct CommitMessageGenerationView: View {
                     }
                 }
                 .padding(.horizontal)
-            } else {
-                
             }
         }
         .task(id: cachedDiffRaw) {
