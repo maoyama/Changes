@@ -6,17 +6,17 @@
 //
 
 import SwiftUI
-import os
 
 struct CommitMessageGenerationView: View {
     @Binding var cachedDiffRaw: String
     @Binding var commitMessage: String
     @Binding var commitMessageIsReponding: Bool
     @Binding var generatedCommitMessage: String
+    @State private var error: Error?
     
     var body: some View {
         HStack {
-            if commitMessageIsReponding || !generatedCommitMessage.isEmpty {
+            if commitMessageIsReponding || !generatedCommitMessage.isEmpty || error != nil {
                 HStack {
                     Button {
                         Task {
@@ -35,16 +35,25 @@ struct CommitMessageGenerationView: View {
                             .scaleEffect(x: 0.4, y: 0.4, anchor: .center)
                     }
                     ScrollView(.horizontal) {
-                        Text(generatedCommitMessage)
-                            .frame(height: 38)
+                        HStack {
+                            Text(generatedCommitMessage)
+                            if error != nil {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundStyle(.yellow)
+                                Text(error?.localizedDescription ?? "")
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .frame(height: 38)
                     }
-                    Button {
-                        commitMessage = generatedCommitMessage
-                        generatedCommitMessage = ""
-                    } label: {
-                        Image(systemName: "arrow.up")
+                    if !generatedCommitMessage.isEmpty {
+                        Button {
+                            commitMessage = generatedCommitMessage
+                            generatedCommitMessage = ""
+                        } label: {
+                            Image(systemName: "arrow.up")
+                        }
                     }
-                    .disabled(generatedCommitMessage.isEmpty)
                 }
                 .padding(.horizontal)
             } else {
@@ -61,6 +70,7 @@ struct CommitMessageGenerationView: View {
     private func generateCommitMessage() async {
         generatedCommitMessage = ""
         commitMessageIsReponding = true
+        error = nil
         do {
             if !cachedDiffRaw.isEmpty {
                  let stream = SystemLanguageModelService().commitMessageStream(stagedDiff: cachedDiffRaw)
@@ -71,7 +81,7 @@ struct CommitMessageGenerationView: View {
                 }
             }
         } catch {
-            Logger().info("\(error.localizedDescription)")
+            self.error = error
         }
         commitMessageIsReponding = false
     }
