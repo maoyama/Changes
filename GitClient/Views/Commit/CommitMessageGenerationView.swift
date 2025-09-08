@@ -44,6 +44,7 @@ struct CommitMessageGenerationView: View {
                     } label: {
                         Image(systemName: "arrow.up")
                     }
+                    .disabled(generatedCommitMessage.isEmpty)
                 }
                 .padding(.horizontal)
             } else {
@@ -89,3 +90,4 @@ struct CommitMessageGenerationView: View {
         generatedCommitMessage: $generatedCommitMessage
     )
 }
+
