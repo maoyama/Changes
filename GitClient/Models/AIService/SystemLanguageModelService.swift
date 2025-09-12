@@ -27,6 +27,10 @@ struct GeneratedCommitHashes {
 }
 
 struct SystemLanguageModelService {
+    var availability: SystemLanguageModel.Availability {
+        SystemLanguageModel.default.availability
+    }
+    
     func commitMessageStream(stagedDiff: String) -> LanguageModelSession.ResponseStream<GeneratedCommitMessage> {
         let instructions = """
 You are a good software engineer. When writing a commit message, it is not the initial commit. Write commit messages in the imperative mood.
