@@ -11,11 +11,11 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - name: Select Xcode
         run: |
-          sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+          sudo xcode-select -s /Applications/Xcode_26.0.app/Contents/Developer
       - name: Checkout
         uses: actions/checkout@v4
         with:
