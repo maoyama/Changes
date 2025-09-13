@@ -84,6 +84,7 @@ struct StashChangedContentView: View {
                 }
             })
         }
+        .background(Color(NSColor.textBackgroundColor))
         .onChange(of: selectionStashID, {
             Task {
                 await updateDiff()
