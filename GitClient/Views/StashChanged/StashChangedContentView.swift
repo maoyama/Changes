@@ -42,6 +42,7 @@ struct StashChangedContentView: View {
                     }
                 }
             }
+            .navigationSplitViewColumnWidth(ideal: 200)
         } detail: {
             ScrollView {
                 VStack(spacing: 0) {
