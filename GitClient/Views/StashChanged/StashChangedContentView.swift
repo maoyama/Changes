@@ -57,9 +57,9 @@ struct StashChangedContentView: View {
                     Spacer(minLength: 0)
                 }
             }
-            .safeAreaInset(edge: .bottom, content: {
+            .scrollEdgeEffectStyle(.soft, for: .bottom)
+            .safeAreaBar(edge: .bottom, content: {
                 VStack (spacing: 0) {
-                    Divider()
                     HStack {
                         Spacer()
                         Button("Cancel") {
@@ -80,7 +80,6 @@ struct StashChangedContentView: View {
                         .disabled(selectionStashID == nil)
                     }
                     .padding()
-                    .background(.bar)
                 }
             })
         }
