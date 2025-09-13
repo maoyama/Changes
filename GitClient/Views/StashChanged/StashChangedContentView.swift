@@ -89,7 +89,7 @@ struct StashChangedContentView: View {
                 await updateDiff()
             }
         })
-        .frame(minWidth: 800, minHeight: 700)
+        .frame(width: 800, height: 700)
         .errorSheet($error)
     }
 
