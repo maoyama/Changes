@@ -27,9 +27,11 @@ struct CommitMessageGenerationView: View {
                     generatedCommitMessage: $generatedCommitMessage
                 )
             case .unavailable(let reason):
-                CommitMessageGenerationUnavailableView(reason: reason)
+                HStack {
+                    Spacer()
+                    CommitMessageGenerationUnavailableView(reason: reason)
+                }.buttonStyle(.plain)
             }
-//            CommitMessageGenerationUnavailableView(reason: .deviceNotEligible)
         }
         .onChange(of: appearsActive) {
             modelAvailability = SystemLanguageModelService().availability
