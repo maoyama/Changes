@@ -27,7 +27,7 @@ jobs:
     #   - https://gh.io/supported-runners-and-hardware-resources
     #   - https://gh.io/using-larger-runners (GitHub.com only)
     # Consider using larger runners or machines with greater resources for possible analysis time improvements.
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    runs-on: ${{ (matrix.language == 'swift' && 'macos-26') || 'ubuntu-latest' }}
     permissions:
       # required for all workflows
       security-events: write
@@ -87,7 +87,7 @@ jobs:
     - if: matrix.build-mode == 'manual'
       shell: bash
       run: |
-        sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+        sudo xcode-select -s /Applications/Xcode_26.0.app/Contents/Developer
         xcodebuild -scheme GitClient CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO -destination "platform=macOS" -disableAutomaticPackageResolution
 
     - name: Perform CodeQL Analysis
