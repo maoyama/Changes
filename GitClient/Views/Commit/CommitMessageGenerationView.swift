@@ -8,7 +8,6 @@
 import SwiftUI
 import FoundationModels
 
-
 struct CommitMessageGenerationView: View {
     @Environment(\.appearsActive) private var appearsActive
     @Binding var cachedDiffRaw: String
@@ -28,17 +27,9 @@ struct CommitMessageGenerationView: View {
                     generatedCommitMessage: $generatedCommitMessage
                 )
             case .unavailable(let reason):
-                switch reason {
-                case .modelNotReady:
-                    Text("The model(s) aren’t available on this device. Models are downloaded automatically based on factors like network status, battery level, and system load.")
-                case .appleIntelligenceNotEnabled:
-                    Text("Apple Intelligence is not enabled on this system.")
-                case .deviceNotEligible:
-                    Text("This device does not support Apple Intelligence.")
-                @unknown default:
-                    Text("The model is unavailable for unknown reasons.")
-                }
+                CommitMessageGenerationUnavailableView(reason: reason)
             }
+//            CommitMessageGenerationUnavailableView(reason: .deviceNotEligible)
         }
         .onChange(of: appearsActive) {
             modelAvailability = SystemLanguageModelService().availability
