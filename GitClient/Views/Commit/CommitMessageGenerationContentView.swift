@@ -19,16 +19,16 @@ struct CommitMessageGenerationContentView: View {
             if commitMessageIsReponding || !generatedCommitMessage.isEmpty || error != nil {
                 HStack {
                     Button {
+                        generatedCommitMessage = ""
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    Button {
                         Task {
                             await generateCommitMessage()
                         }
                     } label: {
                         Image(systemName: "arrow.clockwise")
-                    }
-                    Button {
-                        generatedCommitMessage = ""
-                    } label: {
-                        Image(systemName: "xmark")
                     }
                     if commitMessageIsReponding && generatedCommitMessage.isEmpty {
                         ProgressView()
