@@ -32,7 +32,7 @@ struct CommitMessageGenerationContentView: View {
                     }
                     if commitMessageIsReponding && generatedCommitMessage.isEmpty {
                         ProgressView()
-                            .scaleEffect(x: 0.4, y: 0.4, anchor: .center)
+                            .scaleEffect(x: 0.4, y: 0.4, anchor: .leading)
                     }
                     ScrollView(.horizontal) {
                         HStack {
