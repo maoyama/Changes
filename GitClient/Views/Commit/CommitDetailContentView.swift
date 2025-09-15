@@ -124,14 +124,32 @@ struct CommitDetailContentView: View {
             VStack(spacing: 0) {
                 Spacer()
                 HStack {
+                    Spacer()
                     Text(shortstat)
                         .minimumScaleFactor(0.3)
                         .foregroundStyle(.primary)
+                    Spacer()
                 }
                 .font(.callout)
                 Spacer()
             }
             .frame(height: 40)
+//            .overlay(alignment: .leading) {
+//                HStack {
+//                    Button {
+//                        
+//                    } label: {
+//                        Image(systemName: "arrow.up.and.line.horizontal.and.arrow.down")
+//                    }
+//                    Button {
+//                        
+//                    } label: {
+//                        Image(systemName: "arrow.down.and.line.horizontal.and.arrow.up")
+//                    }
+//                }
+//                .padding()
+//                .buttonStyle(.plain)
+//            }
         })
         .onChange(of: commit, initial: true, { _, commit in
             Task {

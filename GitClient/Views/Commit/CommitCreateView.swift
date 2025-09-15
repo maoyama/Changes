@@ -138,20 +138,7 @@ struct CommitCreateView: View {
                         Image(systemName: "tray.and.arrow.down")
                     }
                     .help("Stash Include Untracked")
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 16) {
-                            HStack(spacing: 6) {
-                                Text("Staged ").foregroundStyle(.secondary)
-                                Text(stagedHeaderCaption)
-                            }
-                            HStack(spacing: 6) {
-                                Text("Unstaged ").foregroundStyle(.secondary)
-                                Text(notStagedHeaderCaption)
-                            }
-                        }
-                        .font(.callout)
-                    }
-                    .padding(.horizontal)
+                    Spacer()
                     Button("Stage All") {
                         Task {
                             do {
@@ -187,19 +174,53 @@ struct CommitCreateView: View {
         })
         .scrollEdgeEffectStyle(.hard, for: .vertical)
         .safeAreaBar(edge: .bottom, content: {
-            CommitMessageEditor(
-                folder: folder,
-                commitMessage: $commitMessage,
-                generatedCommitMessage: $generatedCommitMessage,
-                generatedCommitMessageIsResponding: $generatedCommitMessageIsResponding,
-                cachedDiffStat: $cachedDiffStat,
-                isAmend: $isAmend,
-                error: $error,
-                cachedDiffRaw: $cachedDiffRaw,
-                amendCommit: $amendCommit) {
-                    onCommit()
+            VStack(spacing: 0) {
+                Divider()
+                HStack {
+                    Button {
+
+                    } label: {
+                        Image(systemName: "arrow.up.and.line.horizontal.and.arrow.down")
+                    }
+                    Button {
+
+                    } label: {
+                        Image(systemName: "arrow.down.and.line.horizontal.and.arrow.up")
+                    }
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 16) {
+                            HStack(spacing: 6) {
+                                Text("Staged ").foregroundStyle(.secondary)
+                                Text(stagedHeaderCaption)
+                            }
+                            HStack(spacing: 6) {
+                                Text("Unstaged ").foregroundStyle(.secondary)
+                                Text(notStagedHeaderCaption)
+                            }
+                        }
+                        .font(.callout)
+                    }
+                    .padding(.leading)
+
+                    Spacer()
                 }
-                .frame(height: 140)
+                .padding(.vertical, 6)
+                .padding(.horizontal)
+                .buttonStyle(.plain)
+                CommitMessageEditor(
+                    folder: folder,
+                    commitMessage: $commitMessage,
+                    generatedCommitMessage: $generatedCommitMessage,
+                    generatedCommitMessageIsResponding: $generatedCommitMessageIsResponding,
+                    cachedDiffStat: $cachedDiffStat,
+                    isAmend: $isAmend,
+                    error: $error,
+                    cachedDiffRaw: $cachedDiffRaw,
+                    amendCommit: $amendCommit) {
+                        onCommit()
+                    }
+                    .frame(height: 140)
+            }
         })
         .textSelection(.enabled)
         .frame(maxWidth: .infinity, alignment: .leading)
