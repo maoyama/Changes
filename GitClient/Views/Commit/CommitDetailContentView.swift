@@ -20,7 +20,7 @@ struct CommitDetailContentView: View {
         ScrollView {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    Text(commit.hash.prefix(10))
+                    Text(commit.hash.prefix(5))
                         .textSelection(.disabled)
                         .help(commit.hash)
                         .contextMenu {
