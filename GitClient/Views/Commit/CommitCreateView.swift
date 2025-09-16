@@ -115,7 +115,30 @@ struct CommitCreateView: View {
         }
         .safeAreaBar(edge: .top, spacing: 0, content: {
             VStack(spacing: 0) {
-                HStack(spacing: 0) {
+                HStack {
+                    Button {
+                        cachedExpandableFileDiffs = cachedExpandableFileDiffs.map {
+                            ExpandableModel(isExpanded: true, model: $0.model)
+                        }
+                        expandableFileDiffs = expandableFileDiffs.map { ExpandableModel(isExpanded: true, model: $0.model)
+                        }
+                    } label: {
+                        Image(systemName: "arrow.up.and.line.horizontal.and.arrow.down")
+                    }
+                    .buttonStyle(.plain)
+                    .help("Expand All Files")
+                    Button {
+                        cachedExpandableFileDiffs = cachedExpandableFileDiffs.map {
+                            ExpandableModel(isExpanded: false, model: $0.model)
+                        }
+                        expandableFileDiffs = expandableFileDiffs.map { ExpandableModel(isExpanded: false, model: $0.model)
+                        }
+                    } label: {
+                        Image(systemName: "arrow.down.and.line.horizontal.and.arrow.up")
+                    }
+                    .buttonStyle(.plain)
+                    .help("Collapse All Files")
+                    Spacer()
                     Button {
                         Task {
                             do {
@@ -129,7 +152,11 @@ struct CommitCreateView: View {
                         Image(systemName: "tray.and.arrow.down")
                     }
                     .help("Stash Include Untracked")
-                    Spacer()
+
+                    
+                    Divider()
+                        .frame(height: 16)
+                    
                     Button("Stage All") {
                         Task {
                             do {
@@ -154,7 +181,6 @@ struct CommitCreateView: View {
                         }
                     }
                     .disabled(cachedDiffRaw.isEmpty)
-                    .padding(.leading, 7)
                     .layoutPriority(2)
                 }
                 .textSelection(.disabled)
