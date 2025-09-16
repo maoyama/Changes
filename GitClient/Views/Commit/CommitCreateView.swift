@@ -15,13 +15,6 @@ struct CommitCreateView: View {
     var folder: Folder
     @State private var cachedDiffShortStat = ""
     @State private var diffShortStat = ""
-    private var stagedHeaderCaption: String {
-        if cachedDiffShortStat.isEmpty {
-            return " No Changes"
-        } else {
-            return cachedDiffShortStat
-        }
-    }
     private var notStagedHeaderCaption: String {
         if let untrackedStat = status?.untrackedFilesShortStat, !untrackedStat.isEmpty {
             if diffShortStat.isEmpty {
@@ -30,11 +23,7 @@ struct CommitCreateView: View {
                 return diffShortStat + ", " + untrackedStat
             }
         }
-        if diffShortStat.isEmpty {
-            return " No Changes"
-        } else {
-            return diffShortStat
-        }
+        return diffShortStat
     }
     private var canStage: Bool {
         if !diffRaw.isEmpty {
@@ -73,6 +62,7 @@ struct CommitCreateView: View {
             if cachedDiff != nil {
                 StagedView(
                     fileDiffs: $cachedExpandableFileDiffs,
+                    status: cachedDiffShortStat,
                     onSelectFileDiff: { fileDiff in
                         if let newDiff = self.cachedDiff?.updateFileDiffStage(fileDiff, stage: false) {
                             restorePatch(newDiff)
@@ -90,6 +80,7 @@ struct CommitCreateView: View {
             if diff != nil {
                 UnstagedView(
                     fileDiffs: $expandableFileDiffs,
+                    status: notStagedHeaderCaption,
                     untrackedFiles: status?.untrackedFiles ?? [],
                     onSelectFileDiff: { fileDiff in
                         if let newDiff = self.diff?.updateFileDiffStage(fileDiff, stage: true) {
@@ -174,53 +165,19 @@ struct CommitCreateView: View {
         })
         .scrollEdgeEffectStyle(.hard, for: .vertical)
         .safeAreaBar(edge: .bottom, content: {
-            VStack(spacing: 0) {
-                Divider()
-                HStack {
-                    Button {
-
-                    } label: {
-                        Image(systemName: "arrow.up.and.line.horizontal.and.arrow.down")
-                    }
-                    Button {
-
-                    } label: {
-                        Image(systemName: "arrow.down.and.line.horizontal.and.arrow.up")
-                    }
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 16) {
-                            HStack(spacing: 6) {
-                                Text("Staged ").foregroundStyle(.secondary)
-                                Text(stagedHeaderCaption)
-                            }
-                            HStack(spacing: 6) {
-                                Text("Unstaged ").foregroundStyle(.secondary)
-                                Text(notStagedHeaderCaption)
-                            }
-                        }
-                        .font(.callout)
-                    }
-                    .padding(.leading)
-
-                    Spacer()
+            CommitMessageEditor(
+                folder: folder,
+                commitMessage: $commitMessage,
+                generatedCommitMessage: $generatedCommitMessage,
+                generatedCommitMessageIsResponding: $generatedCommitMessageIsResponding,
+                cachedDiffStat: $cachedDiffStat,
+                isAmend: $isAmend,
+                error: $error,
+                cachedDiffRaw: $cachedDiffRaw,
+                amendCommit: $amendCommit) {
+                    onCommit()
                 }
-                .padding(.vertical, 6)
-                .padding(.horizontal)
-                .buttonStyle(.plain)
-                CommitMessageEditor(
-                    folder: folder,
-                    commitMessage: $commitMessage,
-                    generatedCommitMessage: $generatedCommitMessage,
-                    generatedCommitMessageIsResponding: $generatedCommitMessageIsResponding,
-                    cachedDiffStat: $cachedDiffStat,
-                    isAmend: $isAmend,
-                    error: $error,
-                    cachedDiffRaw: $cachedDiffRaw,
-                    amendCommit: $amendCommit) {
-                        onCommit()
-                    }
-                    .frame(height: 140)
-            }
+                .frame(height: 140)
         })
         .textSelection(.enabled)
         .frame(maxWidth: .infinity, alignment: .leading)

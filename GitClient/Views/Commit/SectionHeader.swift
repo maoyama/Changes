@@ -9,17 +9,18 @@ import SwiftUI
 
 struct SectionHeader: View {
     var title: String
-
+    var callout: String
+    
     var body: some View {
-        Text(title)
-            .font(.title)
-            .fontWeight(.bold)
-            .textSelection(.disabled)
+        HStack {
+            Text(title)
+                .font(.title)
+                .fontWeight(.bold)
+                .textSelection(.disabled)
+            Spacer()
+            Text(callout)
+                .font(.callout)
+                .foregroundStyle(.tertiary)
+        }
     }
-}
-
-#Preview {
-    return SectionHeader(
-        title: "Staged"
-    )
 }
