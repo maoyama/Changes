@@ -53,14 +53,13 @@ struct CommitMessageEditor: View {
                         .font(.callout)
                 }
                 Divider()
-                VStack(alignment: .center, spacing: 14) {
-//                    VStack(alignment: .trailing, spacing: 2) {
-//                        Label(cachedDiffStat?.files.count.formatted() ?? "-" , systemImage: "doc")
-//                        Label(cachedDiffStat?.insertionsTotal.formatted() ?? "-", systemImage: "plus")
-//                        Label(cachedDiffStat?.deletionsTotal.formatted() ?? "-", systemImage: "minus")
-//                    }
-//                    .font(.caption)
-                    Spacer()
+                VStack(alignment: .center, spacing: 11) {
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Label(cachedDiffStat?.files.count.formatted() ?? "-" , systemImage: "doc")
+                        Label(cachedDiffStat?.insertionsTotal.formatted() ?? "-", systemImage: "plus")
+                        Label(cachedDiffStat?.deletionsTotal.formatted() ?? "-", systemImage: "minus")
+                    }
+                    .font(.caption)
                     Button("Commit") {
                         Task {
                             do {
@@ -81,7 +80,6 @@ struct CommitMessageEditor: View {
                     Toggle("Amend", isOn: $isAmend)
                         .font(.caption)
                         .padding(.trailing, 6)
-                    Spacer()
                 }
                 .onChange(of: isAmend) {
                     if isAmend {
