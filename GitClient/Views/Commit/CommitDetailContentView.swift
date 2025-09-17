@@ -134,22 +134,28 @@ struct CommitDetailContentView: View {
                 Spacer()
             }
             .frame(height: 40)
-//            .overlay(alignment: .leading) {
-//                HStack {
-//                    Button {
-//                        
-//                    } label: {
-//                        Image(systemName: "arrow.up.and.line.horizontal.and.arrow.down")
-//                    }
-//                    Button {
-//                        
-//                    } label: {
-//                        Image(systemName: "arrow.down.and.line.horizontal.and.arrow.up")
-//                    }
-//                }
-//                .padding()
-//                .buttonStyle(.plain)
-//            }
+            .overlay(alignment: .leading) {
+                HStack {
+                    Button {
+                        fileDiffs = fileDiffs.map {
+                            ExpandableModel(isExpanded: true, model: $0.model)
+                        }
+                    } label: {
+                        Image(systemName: "arrow.up.and.line.horizontal.and.arrow.down")
+                    }
+                    .help("Expand All Files")
+                    Button {
+                        fileDiffs = fileDiffs.map {
+                            ExpandableModel(isExpanded: false, model: $0.model)
+                        }
+                    } label: {
+                        Image(systemName: "arrow.down.and.line.horizontal.and.arrow.up")
+                    }
+                    .help("Collapse All Files")
+                }
+                .padding()
+                .buttonStyle(.plain)
+            }
         })
         .onChange(of: commit, initial: true, { _, commit in
             Task {
