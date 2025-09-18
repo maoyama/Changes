@@ -67,25 +67,11 @@ struct CommitDetailContentView: View {
         .textSelection(.enabled)
         .scrollEdgeEffectStyle(.soft, for: .bottom)
         .safeAreaBar(edge: .bottom, spacing: 0, content: {
-            if commit.parentHashes.count == 2 && mergeCommitViewTab == 0 {
-                CommitDetailBottomBar(
-                    commit: commit,
-                    folder: folder,
-                    fileDiffs: .constant([])
-                )
-            } else if commit.parentHashes.count == 2 && mergeCommitViewTab == 1 {
-                CommitDetailBottomBar(
-                    commit: commit,
-                    folder: folder,
-                    fileDiffs: $mergeCommitFilesChanged
-                )
-            } else {
-                CommitDetailBottomBar(
-                    commit: commit,
-                    folder: folder,
-                    fileDiffs: $fileDiffs
-                )
-            }
+            CommitDetailBottomBar(
+                commit: commit,
+                folder: folder,
+                fileDiffs: bottomBarFileDiff()
+            )
         })
         .onChange(of: commit, initial: true, { _, commit in
             Task {
@@ -127,5 +113,14 @@ struct CommitDetailContentView: View {
             }
         })
         .errorSheet($error)
+    }
+    
+    private func bottomBarFileDiff() -> Binding<[ExpandableModel<FileDiff>]> {
+        if commit.parentHashes.count == 2 {
+            return mergeCommitViewTab == 0 ? .constant([]) : $mergeCommitFilesChanged
+        
+        } else {
+            return $fileDiffs
+        }
     }
 }
