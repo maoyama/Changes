@@ -14,72 +14,13 @@ struct CommitDetailContentView: View {
     @State private var shortstat = ""
     @State private var fileDiffs: [ExpandableModel<FileDiff>] = []
     @State private var mergedIn: Commit?
+    @State private var mergeCommitViewTab = 0
+    @State private var mergeCommitFilesChanged: [ExpandableModel<FileDiff>] = []
     @State private var error: Error?
 
     var body: some View {
         ScrollView {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
-                    Text(commit.hash.prefix(5))
-                        .textSelection(.disabled)
-                        .help(commit.hash)
-                        .contextMenu {
-                            Button("Copy " + commit.hash) {
-                                let pasteboard = NSPasteboard.general
-                                pasteboard.declareTypes([.string], owner: nil)
-                                pasteboard.setString(commit.hash, forType: .string)
-                            }
-                        }
-                    Image(systemName: "arrow.left")
-                    HStack(spacing: 0) {
-                        ForEach(commit.parentHashes, id: \.self) { hash in
-                            if hash == commit.parentHashes.first {
-                                NavigationLink(commit.parentHashes[0].prefix(5), value: commit.parentHashes[0])
-                                    .foregroundColor(.accentColor)
-                            } else {
-                                Text(",")
-                                    .padding(.trailing, 2)
-                                NavigationLink(commit.parentHashes[1].prefix(5), value: commit.parentHashes[1])
-                                    .foregroundColor(.accentColor)
-                            }
-                        }
-                    }
-                    .textSelection(.disabled)
-                    if let mergedIn {
-                        Divider()
-                            .frame(height: 10)
-                        HStack {
-                            Image(systemName: "arrow.triangle.pull")
-                            NavigationLink(mergedIn.hash.prefix(5), value: mergedIn.hash)
-                                .foregroundColor(.accentColor)
-                        }
-                        .help("Merged in \(mergedIn.hash.prefix(5))")
-                    }
-                    if !commit.tags.isEmpty {
-                        Divider()
-                            .frame(height: 10)
-                        HStack(spacing: 14) {
-                            ForEach(commit.tags, id: \.self) { tag in
-                                Label(tag, systemImage: "tag")
-                            }
-                        }
-                    }
-                    if !commit.branches.isEmpty {
-                        Divider()
-                            .frame(height: 10)
-                        HStack(spacing: 14) {
-                            ForEach(commit.branches, id: \.self) { branch in
-                                Label(branch, systemImage: "arrow.triangle.branch")
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                    }
-                }
-                .foregroundColor(.secondary)
-                .buttonStyle(.link)
-            }
-            .padding(.top, 14)
-            .padding(.horizontal)
+            CommitDetailHeaderView(commit: commit, mergedIn: $mergedIn)
             HStack {
                 VStack (alignment: .leading, spacing: 0) {
                     Text(commit.title.trimmingCharacters(in: .whitespacesAndNewlines))
@@ -107,7 +48,12 @@ struct CommitDetailContentView: View {
                     Divider()
                         .padding(.top)
                     if commit.parentHashes.count == 2 {
-                        MergeCommitContentView(mergeCommit: commit, directoryURL: folder.url)
+                        MergeCommitContentView(
+                            mergeCommit: commit,
+                            directoryURL: folder.url,
+                            tab: $mergeCommitViewTab,
+                            filesChanged: $mergeCommitFilesChanged
+                        )
                     } else {
                         FileDiffsView(expandableFileDiffs: $fileDiffs)
                     }
@@ -121,40 +67,24 @@ struct CommitDetailContentView: View {
         .textSelection(.enabled)
         .scrollEdgeEffectStyle(.soft, for: .bottom)
         .safeAreaBar(edge: .bottom, spacing: 0, content: {
-            VStack(spacing: 0) {
-                Spacer()
-                HStack {
-                    Spacer()
-                    Text(shortstat)
-                        .minimumScaleFactor(0.3)
-                        .foregroundStyle(.primary)
-                    Spacer()
-                }
-                .font(.callout)
-                Spacer()
-            }
-            .frame(height: 40)
-            .overlay(alignment: .leading) {
-                HStack {
-                    Button {
-                        fileDiffs = fileDiffs.map {
-                            ExpandableModel(isExpanded: true, model: $0.model)
-                        }
-                    } label: {
-                        Image(systemName: "arrow.up.and.line.horizontal.and.arrow.down")
-                    }
-                    .help("Expand All Files")
-                    Button {
-                        fileDiffs = fileDiffs.map {
-                            ExpandableModel(isExpanded: false, model: $0.model)
-                        }
-                    } label: {
-                        Image(systemName: "arrow.down.and.line.horizontal.and.arrow.up")
-                    }
-                    .help("Collapse All Files")
-                }
-                .padding()
-                .buttonStyle(.plain)
+            if commit.parentHashes.count == 2 && mergeCommitViewTab == 0 {
+                CommitDetailBottomBar(
+                    commit: commit,
+                    folder: folder,
+                    fileDiffs: .constant([])
+                )
+            } else if commit.parentHashes.count == 2 && mergeCommitViewTab == 1 {
+                CommitDetailBottomBar(
+                    commit: commit,
+                    folder: folder,
+                    fileDiffs: $mergeCommitFilesChanged
+                )
+            } else {
+                CommitDetailBottomBar(
+                    commit: commit,
+                    folder: folder,
+                    fileDiffs: $fileDiffs
+                )
             }
         })
         .onChange(of: commit, initial: true, { _, commit in
@@ -194,11 +124,6 @@ struct CommitDetailContentView: View {
                 fileDiffs = newValue.diff.fileDiffs.map { .init(isExpanded: true, model: $0) }
             } else {
                 fileDiffs = []
-            }
-        })
-        .onChange(of: commit, initial: true, { _, commit in
-            Task {
-                shortstat = (try? await Process.output(GitShowShortstat(directory: folder.url, object: commit.hash))) ?? ""
             }
         })
         .errorSheet($error)

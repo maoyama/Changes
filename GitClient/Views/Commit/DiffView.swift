@@ -10,7 +10,7 @@ import SwiftUI
 struct DiffView: View {
     @Binding var commits: [Commit]
     @Binding var filesChanged: [ExpandableModel<FileDiff>]
-    @State private var tab = 0
+    @Binding var tab: Int
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
