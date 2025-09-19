@@ -61,6 +61,24 @@ struct StashChangedContentView: View {
             .safeAreaBar(edge: .bottom, content: {
                 VStack (spacing: 0) {
                     HStack {
+                        Button {
+                            fileDiffs = fileDiffs.map {
+                            ExpandableModel(isExpanded: true, model: $0.model)
+                            }
+                        } label: {
+                            Image(systemName: "arrow.up.and.line.horizontal.and.arrow.down")
+                        }
+                        .help("Expand All Files")
+                        .buttonStyle(.plain)
+                        Button {
+                            fileDiffs = fileDiffs.map {
+                                ExpandableModel(isExpanded: false, model: $0.model)
+                            }
+                        } label: {
+                            Image(systemName: "arrow.down.and.line.horizontal.and.arrow.up")
+                        }
+                        .help("Collapse All Files")
+                        .buttonStyle(.plain)
                         Spacer()
                         Button("Cancel") {
                             showingStashChanged.toggle()
