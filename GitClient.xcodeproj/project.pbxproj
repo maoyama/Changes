@@ -356,6 +356,7 @@
 			isa = PBXGroup;
 			children = (
 				61A2D35828DE9D79009A3EEC /* Extensions */,
+				61D34C852CA91F400032A22A /* AIService */,
 				6172E4C728D70EEC0015C958 /* Models */,
 				6172E4C828D76BAB0015C958 /* Views */,
 				61347EED28D5D16C00625FC4 /* GitClientApp.swift */,
@@ -458,7 +459,6 @@
 		6172E4C728D70EEC0015C958 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				61D34C852CA91F400032A22A /* AIService */,
 				61E290DC28E884C200BCEB04 /* Commands */,
 				613D140D2DA7B7B6008D561E /* Observables */,
 				6172E4C328D70B3C0015C958 /* Folder.swift */,
