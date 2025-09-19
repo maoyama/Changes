@@ -139,7 +139,7 @@ struct CommitCreateView: View {
                     .buttonStyle(.plain)
                     .help("Collapse All Files")
                     Spacer()
-                    Button("Stash All") {
+                    Button {
                         Task {
                             do {
                                 try await Process.output(GitStash(directory: folder.url))
@@ -148,9 +148,12 @@ struct CommitCreateView: View {
                                 self.error = error
                             }
                         }
+                    } label: {
+                        Image(systemName: "tray.and.arrow.down")
                     }
-                    .help("Stash all changes including untracked files")
+                    .help("Stash Include Untracked")
 
+                    
                     Divider()
                         .frame(height: 16)
                     
