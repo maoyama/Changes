@@ -154,7 +154,7 @@ struct CommitCreateView: View {
                     } label: {
                         Image(systemName: "tray.and.arrow.down")
                     }
-                    .help("Stash Include Untracked")
+                    .help("Stash All Changes")
 
                     Spacer()
                     
