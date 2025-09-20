@@ -9,16 +9,15 @@ import SwiftUI
 import FoundationModels
 
 struct CommitMessageGenerationView: View {
-    @Environment(\.appearsActive) private var appearsActive
+    @Environment(\.systemLanguageModelAvailability) private var systemLanguageModelAvailability
     @Binding var cachedDiffRaw: String
     @Binding var commitMessage: String
     @Binding var commitMessageIsReponding: Bool
     @Binding var generatedCommitMessage: String
-    @State private var modelAvailability = SystemLanguageModelService().availability
     
     var body: some View {
         HStack {
-            switch modelAvailability {
+            switch systemLanguageModelAvailability {
             case .available:
                 CommitMessageGenerationContentView(
                     cachedDiffRaw: $cachedDiffRaw,
@@ -32,9 +31,6 @@ struct CommitMessageGenerationView: View {
                     CommitMessageGenerationUnavailableView(reason: reason)
                 }.buttonStyle(.plain)
             }
-        }
-        .onChange(of: appearsActive) {
-            modelAvailability = SystemLanguageModelService().availability
         }
     }
 }
