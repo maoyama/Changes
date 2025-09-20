@@ -71,7 +71,7 @@ struct CommitMessageGenerationContentView: View {
         error = nil
         do {
             if !cachedDiffRaw.isEmpty {
-                 let stream = SystemLanguageModelService().commitMessageStream(stagedDiff: cachedDiffRaw)
+                 let stream = SystemLanguageModelService().commitMessage(stagedDiff: cachedDiffRaw)
                 for try await message in stream {
                     if !Task.isCancelled {
                         generatedCommitMessage = message.content.commitMessage ?? ""

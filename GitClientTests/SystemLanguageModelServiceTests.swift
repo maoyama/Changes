@@ -14,7 +14,7 @@ struct SystemLanguageModelServiceTests {
     
     @Test func commitMessage() async throws {
         var generatedCommitMessage = ""
-        let messages = SystemLanguageModelService().commitMessageStream(stagedDiff: """
+        let messages = SystemLanguageModelService().commitMessage(stagedDiff: """
             diff --git a/GitClient/Views/Folder/CommitGraphView.swift b/GitClient/Views/Folder/CommitGraphView.swift
             index 5f79207..4660cf4 100644
             --- a/GitClient/Views/Folder/CommitGraphView.swift
@@ -34,7 +34,7 @@ struct SystemLanguageModelServiceTests {
         print(generatedCommitMessage)
         #expect(!generatedCommitMessage.isEmpty)
         
-        let messages2 = SystemLanguageModelService().commitMessageStream(stagedDiff: """
+        let messages2 = SystemLanguageModelService().commitMessage(stagedDiff: """
             diff --git a/GitClient/Models/Observables/LogStore.swift b/GitClient/Models/Observables/LogStore.swift
             index 8a43562..226c84e 100644
             --- a/GitClient/Models/Observables/LogStore.swift
