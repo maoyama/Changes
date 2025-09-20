@@ -8,14 +8,19 @@
 import SwiftUI
 
 struct StashChangedContentView: View {
+    
     var folder: Folder
     @Binding var showingStashChanged: Bool
     var stashList: [Stash]?
     var onTapDropButton: ((Stash) -> Void)?
     @State private var selectionStashID: Int?
     @State private var fileDiffs: [ExpandableModel<FileDiff>] = []
+    @State private var summary = ""
+    @State private var summaryIsResponding = false
     @State private var error: Error?
-
+    @State private var summaryGenerationError: Error?
+    @Environment(\.systemLanguageModelAvailability) private var systemLanguageModelAvailability
+    
     var body: some View {
         NavigationSplitView {
             List(selection: $selectionStashID) {
@@ -60,6 +65,47 @@ struct StashChangedContentView: View {
             .scrollEdgeEffectStyle(.soft, for: .bottom)
             .safeAreaBar(edge: .bottom, content: {
                 VStack (spacing: 0) {
+                    if systemLanguageModelAvailability == .available && (!summary.isEmpty || summaryIsResponding) {
+                        VStack(spacing: 0) {
+                            ScrollView(.vertical) {
+                                VStack(alignment: .leading) {
+                                    HStack {
+                                        Text("Summary")
+                                            .foregroundStyle(.tertiary)
+                                        Spacer()
+                                        Button {
+                                            Task {
+                                                await generateSummary()
+                                            }
+                                        } label: {
+                                            Image(systemName: "arrow.clockwise")
+                                        }
+                                        Button {
+                                            summary = ""
+                                        } label: {
+                                            Image(systemName: "xmark")
+                                        }
+                                    }
+                                    .buttonStyle(.plain)
+                                    .font(.callout)
+                                    if summaryGenerationError != nil {
+                                        Image(systemName: "exclamationmark.triangle.fill")
+                                            .foregroundStyle(.yellow)
+                                        Text(summaryGenerationError?.localizedDescription ?? "")
+                                            .foregroundStyle(.secondary)
+                                            .textSelection(.enabled)
+                                    }
+                                    Text(summary)
+                                        .textSelection(.enabled)
+                                }
+                            }
+                            .scrollIndicators(.hidden)
+                            .padding()
+                        }
+                        .frame(height: 80)
+                        .glassEffect()
+                        .padding(.horizontal)
+                    }
                     HStack {
                         Button {
                             fileDiffs = fileDiffs.map {
@@ -105,6 +151,9 @@ struct StashChangedContentView: View {
         .task(id: selectionStashID, {
             await updateDiff()
         })
+        .task(id: fileDiffs, {
+            await generateSummary()
+        })
         .frame(width: 800, height: 700)
         .errorSheet($error)
     }
@@ -121,6 +170,29 @@ struct StashChangedContentView: View {
             self.error = error
         }
     }
+    
+    private func generateSummary() async {
+        summary = ""
+        summaryIsResponding = true
+        summaryGenerationError = nil
+        do {
+            let diffRaw = fileDiffs.map { fileDiff in
+                    fileDiff.model.raw
+                }.joined(separator: "\n")
+            if !diffRaw.isEmpty {
+                 let stream = SystemLanguageModelService().diffSummary(diffRaw)
+                for try await text in stream {
+                    if !Task.isCancelled {
+                        summary = text.content.summary ?? ""
+                    }
+                }
+            }
+        } catch {
+            summaryGenerationError = error
+        }
+        summaryIsResponding = false
+    }
+
 }
 
 #Preview {
