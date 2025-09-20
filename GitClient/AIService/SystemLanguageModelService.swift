@@ -15,6 +15,12 @@ struct GeneratedCommitMessage {
 }
 
 @Generable
+struct GeneratedDiffSummary {
+    @Guide(description: "The summary of diff")
+    var summary: String
+}
+
+@Generable
 struct GeneratedStagingChanges {
     @Guide(description: "The hunk to stage list")
     var hunksToStage: [Bool]
@@ -51,7 +57,7 @@ index abc1234..def5678 100644
         return session.streamResponse(to: prompt, generating: GeneratedCommitMessage.self)
     }
 
-    func diffSummary(_ diff: String) -> LanguageModelSession.ResponseStream<String> {
+    func diffSummary(_ diff: String) -> LanguageModelSession.ResponseStream<GeneratedDiffSummary> {
         let instructions = """
 You are a good software engineer.
 The output format of git diff is as follows:
@@ -68,7 +74,7 @@ index abc1234..def5678 100644
 """
         let prompt = "Generate a concise summary for the following changes in approximately 300 characters or less: \(diff)"
         let session = LanguageModelSession(instructions: instructions)
-        return session.streamResponse(to: prompt, generating: String.self)
+        return session.streamResponse(to: prompt, generating: GeneratedDiffSummary.self)
     }
 
     /// Prefer commitMessage(stagedDiff: String)

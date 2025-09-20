@@ -91,7 +91,7 @@ struct SystemLanguageModelServiceTests {
                      .onMoveCommand { direction in
             """)
         for try await text in summary {
-            generated = text.content
+            generated = text.content.summary ?? ""
         }
         print(generated)
         #expect(!generated.isEmpty)
@@ -130,7 +130,7 @@ struct SystemLanguageModelServiceTests {
         var generated2 = ""
         
         for try await text in summary2 {
-            generated2 = text.content
+            generated2 = text.content.summary ?? ""
         }
         print(generated2)
         #expect(!generated2.isEmpty)
