@@ -11,10 +11,10 @@ struct StashChangedContentView: View {
     var folder: Folder
     @Binding var showingStashChanged: Bool
     var stashList: [Stash]?
+    var onTapDropButton: ((Stash) -> Void)?
     @State private var selectionStashID: Int?
     @State private var fileDiffs: [ExpandableModel<FileDiff>] = []
     @State private var error: Error?
-    var onTapDropButton: ((Stash) -> Void)?
 
     var body: some View {
         NavigationSplitView {
@@ -102,10 +102,8 @@ struct StashChangedContentView: View {
             })
         }
         .background(Color(NSColor.textBackgroundColor))
-        .onChange(of: selectionStashID, {
-            Task {
-                await updateDiff()
-            }
+        .task(id: selectionStashID, {
+            await updateDiff()
         })
         .frame(width: 800, height: 700)
         .errorSheet($error)
