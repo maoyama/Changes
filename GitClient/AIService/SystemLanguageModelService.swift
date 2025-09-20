@@ -50,7 +50,27 @@ index abc1234..def5678 100644
         let session = LanguageModelSession(instructions: instructions)
         return session.streamResponse(to: prompt, generating: GeneratedCommitMessage.self)
     }
-            
+
+    func diffSummary(_ diff: String) -> LanguageModelSession.ResponseStream<String> {
+        let instructions = """
+You are a good software engineer.
+The output format of git diff is as follows:
+```
+diff --git a/filename b/filename
+index abc1234..def5678 100644
+--- a/filename
++++ b/filename
+@@ -start,count +start,count @@ optional context or function name
+- line that was removed
++ line that was added
+  unchanged line (context)
+```
+"""
+        let prompt = "Generate a summary　for the following changes: \(diff)"
+        let session = LanguageModelSession(instructions: instructions)
+        return session.streamResponse(to: prompt, generating: String.self)
+    }
+
     /// Prefer commitMessage(stagedDiff: String)
     /// Using the tool didn’t particularly improve accuracy. I thought it would at least help organize the input information, though...
     func commitMessage(tools: [any Tool]) async throws -> String {
