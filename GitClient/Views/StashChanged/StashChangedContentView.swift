@@ -68,46 +68,44 @@ struct StashChangedContentView: View {
                 VStack (spacing: 0) {
                     if systemLanguageModelAvailability == .available && (!summary.isEmpty || summaryIsResponding) {
                         VStack(spacing: 0) {
-                            ScrollView(.vertical) {
-                                VStack(alignment: .leading) {
-                                    HStack {
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    HStack(spacing: 2) {
+                                        Image(systemName: "apple.intelligence")
                                         Text("Summary")
-                                            .foregroundStyle(.tertiary)
-                                        Spacer()
-                                        Button {
-                                            generateSummaryTask?.cancel()
-                                            generateSummaryTask = Task {
-                                                await generateSummary()
-                                            }
-                                        } label: {
-                                            Image(systemName: "arrow.clockwise")
-                                        }
-                                        Button {
-                                            generateSummaryTask?.cancel()
-                                            summary = ""
-                                        } label: {
-                                            Image(systemName: "xmark")
-                                        }
                                     }
-                                    .buttonStyle(.plain)
-                                    .font(.callout)
-                                    if summaryGenerationError != nil {
-                                        Image(systemName: "exclamationmark.triangle.fill")
-                                            .foregroundStyle(.yellow)
-                                        Text(summaryGenerationError?.localizedDescription ?? "")
-                                            .foregroundStyle(.secondary)
-                                            .textSelection(.enabled)
+                                        .foregroundStyle(.tertiary)
+                                    Spacer()
+                                    Button {
+                                        generateSummaryTask?.cancel()
+                                        generateSummaryTask = Task {
+                                            await generateSummary()
+                                        }
+                                    } label: {
+                                        Image(systemName: "arrow.clockwise")
                                     }
-                                    Text(summary)
+                                    Button {
+                                        generateSummaryTask?.cancel()
+                                        summary = ""
+                                    } label: {
+                                        Image(systemName: "xmark")
+                                    }
+                                }
+                                .buttonStyle(.plain)
+                                .font(.callout)
+                                if summaryGenerationError != nil {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .foregroundStyle(.yellow)
+                                    Text(summaryGenerationError?.localizedDescription ?? "")
+                                        .foregroundStyle(.secondary)
                                         .textSelection(.enabled)
                                 }
+                                Text(summary)
+                                    .textSelection(.enabled)
                             }
-                            .scrollIndicators(.hidden)
-                            .contentMargins(12)
-                            .padding(.horizontal)
+                            Divider()
+                                .padding(.top)
                         }
-                        .frame(height: 72)
-                        .glassEffect()
                         .padding(.horizontal)
                     }
                     HStack {
