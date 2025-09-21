@@ -19,6 +19,7 @@ struct StashChangedContentView: View {
     @State private var summaryIsResponding = false
     @State private var error: Error?
     @State private var summaryGenerationError: Error?
+    @State private var generateSummaryTask: Task<(), Never>?
     @Environment(\.systemLanguageModelAvailability) private var systemLanguageModelAvailability
     
     var body: some View {
@@ -74,13 +75,15 @@ struct StashChangedContentView: View {
                                             .foregroundStyle(.tertiary)
                                         Spacer()
                                         Button {
-                                            Task {
+                                            generateSummaryTask?.cancel()
+                                            generateSummaryTask = Task {
                                                 await generateSummary()
                                             }
                                         } label: {
                                             Image(systemName: "arrow.clockwise")
                                         }
                                         Button {
+                                            generateSummaryTask?.cancel()
                                             summary = ""
                                         } label: {
                                             Image(systemName: "xmark")
@@ -152,8 +155,10 @@ struct StashChangedContentView: View {
         .task(id: selectionStashID, {
             await updateDiff()
         })
-        .task(id: fileDiffs, {
-            await generateSummary()
+        .onChange(of: fileDiffs, initial: true, { _, _ in
+            generateSummaryTask = Task {
+                await generateSummary()
+            }
         })
         .frame(width: 800, height: 700)
         .errorSheet($error)
