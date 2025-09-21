@@ -12,6 +12,7 @@ struct CommitMessageGenerationContentView: View {
     @Binding var commitMessage: String
     @Binding var commitMessageIsReponding: Bool
     @Binding var generatedCommitMessage: String
+    @State private var generateCommitMessageTask : Task<(), Never>?
     @State private var error: Error?
     
     var body: some View {
@@ -19,12 +20,14 @@ struct CommitMessageGenerationContentView: View {
             if commitMessageIsReponding || !generatedCommitMessage.isEmpty || error != nil {
                 HStack {
                     Button {
+                        generateCommitMessageTask?.cancel()
                         generatedCommitMessage = ""
                     } label: {
                         Image(systemName: "xmark")
                     }
                     Button {
-                        Task {
+                        generateCommitMessageTask?.cancel()
+                        generateCommitMessageTask = Task {
                             await generateCommitMessage()
                         }
                     } label: {
@@ -58,9 +61,12 @@ struct CommitMessageGenerationContentView: View {
                 .padding(.horizontal)
             }
         }
-        .task(id: cachedDiffRaw) {
-            await generateCommitMessage()
-        }
+        .onChange(of: cachedDiffRaw, initial: true, { oldValue, newValue in
+            generateCommitMessageTask?.cancel()
+            generateCommitMessageTask = Task {
+                await generateCommitMessage()
+            }
+        })
         .glassEffect()
         .buttonStyle(.plain)
     }
