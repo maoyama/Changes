@@ -100,9 +100,10 @@ struct StashChangedContentView: View {
                                 }
                             }
                             .scrollIndicators(.hidden)
-                            .padding()
+                            .contentMargins(12)
+                            .padding(.horizontal)
                         }
-                        .frame(height: 80)
+                        .frame(height: 72)
                         .glassEffect()
                         .padding(.horizontal)
                     }
