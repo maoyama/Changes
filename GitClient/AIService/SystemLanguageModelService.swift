@@ -72,7 +72,7 @@ index abc1234..def5678 100644
   unchanged line (context)
 ```
 """
-        let prompt = "Generate a concise summary for the following changes in approximately 300 characters or less: \(diff)"
+        let prompt = "Generate a concise summary for the following changes in 200 characters or less: \(diff)"
         let session = LanguageModelSession(instructions: instructions)
         return session.streamResponse(to: prompt, generating: GeneratedDiffSummary.self)
     }
