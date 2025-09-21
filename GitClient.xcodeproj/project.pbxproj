@@ -123,7 +123,6 @@
 		61CAEDEC2DCEE266009AADD9 /* ExpandableModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61CAEDEB2DCEE266009AADD9 /* ExpandableModelTests.swift */; };
 		61D140D72D640122007BD12D /* ChunkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61D140D62D640122007BD12D /* ChunkView.swift */; };
 		61D2BC3D2C8D8BB10059317E /* SectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61D2BC3C2C8D8BB10059317E /* SectionHeader.swift */; };
-		61D34C802CA8548F0032A22A /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 61D34C7F2CA8548F0032A22A /* KeychainAccess */; };
 		61D34C822CA85DC70032A22A /* EnviromentValues+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61D34C812CA85DBF0032A22A /* EnviromentValues+.swift */; };
 		61D34C872CA91F620032A22A /* CommitMessageProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61D34C862CA91F5F0032A22A /* CommitMessageProperties.swift */; };
 		61D34C8B2CA943540032A22A /* StagingChangesProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61D34C8A2CA943380032A22A /* StagingChangesProperties.swift */; };
@@ -317,7 +316,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				61D34C802CA8548F0032A22A /* KeychainAccess in Frameworks */,
 				61DE74122CCFCEA70085E8A4 /* Sourceful in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -646,7 +644,6 @@
 			);
 			name = GitClient;
 			packageProductDependencies = (
-				61D34C7F2CA8548F0032A22A /* KeychainAccess */,
 				61DE74112CCFCEA70085E8A4 /* Sourceful */,
 			);
 			productName = GitClient;
@@ -700,7 +697,6 @@
 			);
 			mainGroup = 61347EE128D5D16C00625FC4;
 			packageReferences = (
-				61D34C7E2CA8548F0032A22A /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 				61CA2ACA2D69BAC5007B8E56 /* XCRemoteSwiftPackageReference "Sourceful" */,
 			);
 			productRefGroup = 61347EEB28D5D16C00625FC4 /* Products */;
@@ -1161,22 +1157,9 @@
 				minimumVersion = 1.1.0;
 			};
 		};
-		61D34C7E2CA8548F0032A22A /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess";
-			requirement = {
-				kind = exactVersion;
-				version = 4.2.2;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		61D34C7F2CA8548F0032A22A /* KeychainAccess */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 61D34C7E2CA8548F0032A22A /* XCRemoteSwiftPackageReference "KeychainAccess" */;
-			productName = KeychainAccess;
-		};
 		61DE74112CCFCEA70085E8A4 /* Sourceful */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Sourceful;
