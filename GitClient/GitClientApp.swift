@@ -9,8 +9,8 @@ import SwiftUI
 
 @main
 struct GitClientApp: App {
-    @State var expandAllFiles: UUID?
-    @State var collapseAllFiles: UUID?
+    @State private var expandAllFiles: UUID?
+    @State private var collapseAllFiles: UUID?
 
     var body: some Scene {
         WindowGroup {
@@ -31,6 +31,7 @@ struct GitClientApp: App {
                 Divider()
             }
         }
+
         Window("Commit Message Snippets", id: WindowID.commitMessageSnippets.rawValue) {
             CommitMessageSnippetView()
         }

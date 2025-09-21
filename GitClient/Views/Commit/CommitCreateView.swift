@@ -138,7 +138,10 @@ struct CommitCreateView: View {
                     }
                     .buttonStyle(.plain)
                     .help("Collapse All Files")
-                    Spacer()
+
+                    Divider()
+                        .frame(height: 16)
+
                     Button {
                         Task {
                             do {
@@ -151,11 +154,9 @@ struct CommitCreateView: View {
                     } label: {
                         Image(systemName: "tray.and.arrow.down")
                     }
-                    .help("Stash Include Untracked")
+                    .help("Stash All Changes")
 
-                    
-                    Divider()
-                        .frame(height: 16)
+                    Spacer()
                     
                     Button("Stage All") {
                         Task {

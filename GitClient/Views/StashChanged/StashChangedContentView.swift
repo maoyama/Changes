@@ -8,14 +8,20 @@
 import SwiftUI
 
 struct StashChangedContentView: View {
+    
     var folder: Folder
     @Binding var showingStashChanged: Bool
     var stashList: [Stash]?
+    var onTapDropButton: ((Stash) -> Void)?
     @State private var selectionStashID: Int?
     @State private var fileDiffs: [ExpandableModel<FileDiff>] = []
+    @State private var summary = ""
+    @State private var summaryIsResponding = false
     @State private var error: Error?
-    var onTapDropButton: ((Stash) -> Void)?
-
+    @State private var summaryGenerationError: Error?
+    @State private var generateSummaryTask: Task<(), Never>?
+    @Environment(\.systemLanguageModelAvailability) private var systemLanguageModelAvailability
+    
     var body: some View {
         NavigationSplitView {
             List(selection: $selectionStashID) {
@@ -60,7 +66,69 @@ struct StashChangedContentView: View {
             .scrollEdgeEffectStyle(.soft, for: .bottom)
             .safeAreaBar(edge: .bottom, content: {
                 VStack (spacing: 0) {
+                    if systemLanguageModelAvailability == .available && (!summary.isEmpty || summaryIsResponding) {
+                        VStack(spacing: 0) {
+                            ScrollView(.vertical) {
+                                VStack(alignment: .leading) {
+                                    HStack {
+                                        Text("Summary")
+                                            .foregroundStyle(.tertiary)
+                                        Spacer()
+                                        Button {
+                                            generateSummaryTask?.cancel()
+                                            generateSummaryTask = Task {
+                                                await generateSummary()
+                                            }
+                                        } label: {
+                                            Image(systemName: "arrow.clockwise")
+                                        }
+                                        Button {
+                                            generateSummaryTask?.cancel()
+                                            summary = ""
+                                        } label: {
+                                            Image(systemName: "xmark")
+                                        }
+                                    }
+                                    .buttonStyle(.plain)
+                                    .font(.callout)
+                                    if summaryGenerationError != nil {
+                                        Image(systemName: "exclamationmark.triangle.fill")
+                                            .foregroundStyle(.yellow)
+                                        Text(summaryGenerationError?.localizedDescription ?? "")
+                                            .foregroundStyle(.secondary)
+                                            .textSelection(.enabled)
+                                    }
+                                    Text(summary)
+                                        .textSelection(.enabled)
+                                }
+                            }
+                            .scrollIndicators(.hidden)
+                            .contentMargins(12)
+                            .padding(.horizontal)
+                        }
+                        .frame(height: 72)
+                        .glassEffect()
+                        .padding(.horizontal)
+                    }
                     HStack {
+                        Button {
+                            fileDiffs = fileDiffs.map {
+                            ExpandableModel(isExpanded: true, model: $0.model)
+                            }
+                        } label: {
+                            Image(systemName: "arrow.up.and.line.horizontal.and.arrow.down")
+                        }
+                        .help("Expand All Files")
+                        .buttonStyle(.plain)
+                        Button {
+                            fileDiffs = fileDiffs.map {
+                                ExpandableModel(isExpanded: false, model: $0.model)
+                            }
+                        } label: {
+                            Image(systemName: "arrow.down.and.line.horizontal.and.arrow.up")
+                        }
+                        .help("Collapse All Files")
+                        .buttonStyle(.plain)
                         Spacer()
                         Button("Cancel") {
                             showingStashChanged.toggle()
@@ -84,9 +152,12 @@ struct StashChangedContentView: View {
             })
         }
         .background(Color(NSColor.textBackgroundColor))
-        .onChange(of: selectionStashID, {
-            Task {
-                await updateDiff()
+        .task(id: selectionStashID, {
+            await updateDiff()
+        })
+        .onChange(of: fileDiffs, initial: true, { _, _ in
+            generateSummaryTask = Task {
+                await generateSummary()
             }
         })
         .frame(width: 800, height: 700)
@@ -105,6 +176,29 @@ struct StashChangedContentView: View {
             self.error = error
         }
     }
+    
+    private func generateSummary() async {
+        summary = ""
+        summaryIsResponding = true
+        summaryGenerationError = nil
+        do {
+            let diffRaw = fileDiffs.map { fileDiff in
+                    fileDiff.model.raw
+                }.joined(separator: "\n")
+            if !diffRaw.isEmpty {
+                 let stream = SystemLanguageModelService().diffSummary(diffRaw)
+                for try await text in stream {
+                    if !Task.isCancelled {
+                        summary = text.content.summary ?? ""
+                    }
+                }
+            }
+        } catch {
+            summaryGenerationError = error
+        }
+        summaryIsResponding = false
+    }
+
 }
 
 #Preview {

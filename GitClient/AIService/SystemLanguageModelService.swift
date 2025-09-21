@@ -15,6 +15,12 @@ struct GeneratedCommitMessage {
 }
 
 @Generable
+struct GeneratedDiffSummary {
+    @Guide(description: "The summary of diff")
+    var summary: String
+}
+
+@Generable
 struct GeneratedStagingChanges {
     @Guide(description: "The hunk to stage list")
     var hunksToStage: [Bool]
@@ -31,9 +37,9 @@ struct SystemLanguageModelService {
         SystemLanguageModel.default.availability
     }
     
-    func commitMessageStream(stagedDiff: String) -> LanguageModelSession.ResponseStream<GeneratedCommitMessage> {
+    func commitMessage(stagedDiff: String) -> LanguageModelSession.ResponseStream<GeneratedCommitMessage> {
         let instructions = """
-You are a good software engineer. When writing a commit message, it is not the initial commit. Write commit messages in the imperative mood.
+You are a good software engineer. When writing a commit message, it is not the initial commit.
 The output format of git diff is as follows:
 ```
 diff --git a/filename b/filename
@@ -46,11 +52,34 @@ index abc1234..def5678 100644
   unchanged line (context)
 ```
 """
-        let prompt = "Generate a commit message　for the following changes: \(stagedDiff)"
+        let prompt = "Generate a commit message in the imperative mood for the following changes: \(stagedDiff)"
         let session = LanguageModelSession(instructions: instructions)
         return session.streamResponse(to: prompt, generating: GeneratedCommitMessage.self)
     }
-        
+
+    func diffSummary(
+        _ diff: String,
+        language: String=Locale.preferredLanguages.first ?? "en"
+    ) -> LanguageModelSession.ResponseStream<GeneratedDiffSummary> {
+        let instructions = """
+You are a good software engineer.
+The output format of git diff is as follows:
+```
+diff --git a/filename b/filename
+index abc1234..def5678 100644
+--- a/filename
++++ b/filename
+@@ -start,count +start,count @@ optional context or function name
+- line that was removed
++ line that was added
+  unchanged line (context)
+```
+"""
+        let prompt = "Generate a concise summary for the following changes in 200 characters or less in language \(language): \(diff)"
+        let session = LanguageModelSession(instructions: instructions)
+        return session.streamResponse(to: prompt, generating: GeneratedDiffSummary.self)
+    }
+
     /// Prefer commitMessage(stagedDiff: String)
     /// Using the tool didn’t particularly improve accuracy. I thought it would at least help organize the input information, though...
     func commitMessage(tools: [any Tool]) async throws -> String {

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @AppStorage(AppStorageKey.folder.rawValue) var folders: Data?
+    @Environment(\.appearsActive) private var appearsActive
     private var decodedFolders: [Folder] {
         guard let folders else { return [] }
         do {
@@ -25,6 +26,7 @@ struct ContentView: View {
     @State private var selectionLog: Log?
     @State private var subSelectionLogID: String?
     @State private var folderIsRefresh = false
+    @State private var systemLanguageModelAvailability = SystemLanguageModelService().availability
     @State private var error: Error?
 
     var body: some View {
@@ -138,8 +140,12 @@ struct ContentView: View {
         .onChange(of: selectionFolder, {
             selectionLog = nil
         })
+        .onChange(of: appearsActive) {
+            systemLanguageModelAvailability = SystemLanguageModelService().availability
+        }
         .errorSheet($error)
         .environment(\.folder, selectionFolderURL)
+        .environment(\.systemLanguageModelAvailability, systemLanguageModelAvailability)
     }
 }
 
