@@ -45,14 +45,25 @@ struct DiffSummaryView: View {
                         .buttonStyle(.plain)
                         .font(.callout)
                         if summaryGenerationError != nil {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(.yellow)
-                            Text(summaryGenerationError?.localizedDescription ?? "")
-                                .foregroundStyle(.secondary)
+                            HStack {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundStyle(.yellow)
+                                Text(summaryGenerationError?.localizedDescription ?? "")
+                                    .foregroundStyle(.secondary)
+                                    .textSelection(.enabled)
+                                Spacer()
+                            }
+                        }
+                        if summaryIsResponding && summary.isEmpty {
+                            ProgressView()
+                                .scaleEffect(x: 0.4, y: 0.4, anchor: .leading)
+                                .frame(height: 16)
+                                .padding(.leading, 1)
+                        }
+                        if !summary.isEmpty {
+                            Text(summary)
                                 .textSelection(.enabled)
                         }
-                        Text(summary)
-                            .textSelection(.enabled)
                     }
                     Divider()
                         .padding(.top)
