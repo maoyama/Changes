@@ -11,9 +11,10 @@ By setting the OpenAI API secret key in the app, you can generate commit message
 
 ## Features
 
-This app provides the following Git features:
+This app provides the following features:
 - Commit
     - Amend
+    - Commit Message Generation using Apple Intelligence
     - Commit Message Snippets
     - Revert
     - Checkout
