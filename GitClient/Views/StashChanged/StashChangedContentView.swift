@@ -66,48 +66,7 @@ struct StashChangedContentView: View {
             .scrollEdgeEffectStyle(.soft, for: .bottom)
             .safeAreaBar(edge: .bottom, content: {
                 VStack (spacing: 0) {
-                    if systemLanguageModelAvailability == .available && (!summary.isEmpty || summaryIsResponding) {
-                        VStack(spacing: 0) {
-                            VStack(alignment: .leading, spacing: 8) {
-                                HStack {
-                                    HStack(spacing: 2) {
-                                        Image(systemName: "apple.intelligence")
-                                        Text("Summary")
-                                    }
-                                        .foregroundStyle(.tertiary)
-                                    Spacer()
-                                    Button {
-                                        generateSummaryTask?.cancel()
-                                        generateSummaryTask = Task {
-                                            await generateSummary()
-                                        }
-                                    } label: {
-                                        Image(systemName: "arrow.clockwise")
-                                    }
-                                    Button {
-                                        generateSummaryTask?.cancel()
-                                        summary = ""
-                                    } label: {
-                                        Image(systemName: "xmark")
-                                    }
-                                }
-                                .buttonStyle(.plain)
-                                .font(.callout)
-                                if summaryGenerationError != nil {
-                                    Image(systemName: "exclamationmark.triangle.fill")
-                                        .foregroundStyle(.yellow)
-                                    Text(summaryGenerationError?.localizedDescription ?? "")
-                                        .foregroundStyle(.secondary)
-                                        .textSelection(.enabled)
-                                }
-                                Text(summary)
-                                    .textSelection(.enabled)
-                            }
-                            Divider()
-                                .padding(.top)
-                        }
-                        .padding(.horizontal)
-                    }
+                    DiffSummaryView(fileDiffs: fileDiffs)
                     HStack {
                         Button {
                             fileDiffs = fileDiffs.map {
@@ -152,11 +111,6 @@ struct StashChangedContentView: View {
         .background(Color(NSColor.textBackgroundColor))
         .task(id: selectionStashID, {
             await updateDiff()
-        })
-        .onChange(of: fileDiffs, initial: true, { _, _ in
-            generateSummaryTask = Task {
-                await generateSummary()
-            }
         })
         .frame(width: 800, height: 700)
         .errorSheet($error)

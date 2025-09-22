@@ -16,47 +16,54 @@ struct DiffSummaryView: View {
     @Environment(\.systemLanguageModelAvailability) private var systemLanguageModelAvailability
     
     var body: some View {
-        if systemLanguageModelAvailability == .available && (!summary.isEmpty || summaryIsResponding) {
-            VStack(spacing: 0) {
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        HStack(spacing: 2) {
-                            Image(systemName: "apple.intelligence")
-                            Text("Summary")
-                        }
-                            .foregroundStyle(.tertiary)
-                        Spacer()
-                        Button {
-                            generateSummaryTask?.cancel()
-                            generateSummaryTask = Task {
-                                await generateSummary()
+        VStack {
+            if systemLanguageModelAvailability == .available && (!summary.isEmpty || summaryIsResponding) {
+                VStack(spacing: 0) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            HStack(spacing: 2) {
+                                Image(systemName: "apple.intelligence")
+                                Text("Summary")
                             }
-                        } label: {
-                            Image(systemName: "arrow.clockwise")
+                            .foregroundStyle(.tertiary)
+                            Spacer()
+                            Button {
+                                generateSummaryTask?.cancel()
+                                generateSummaryTask = Task {
+                                    await generateSummary()
+                                }
+                            } label: {
+                                Image(systemName: "arrow.clockwise")
+                            }
+                            Button {
+                                generateSummaryTask?.cancel()
+                                summary = ""
+                            } label: {
+                                Image(systemName: "xmark")
+                            }
                         }
-                        Button {
-                            generateSummaryTask?.cancel()
-                            summary = ""
-                        } label: {
-                            Image(systemName: "xmark")
+                        .buttonStyle(.plain)
+                        .font(.callout)
+                        if summaryGenerationError != nil {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(.yellow)
+                            Text(summaryGenerationError?.localizedDescription ?? "")
+                                .foregroundStyle(.secondary)
+                                .textSelection(.enabled)
                         }
-                    }
-                    .buttonStyle(.plain)
-                    .font(.callout)
-                    if summaryGenerationError != nil {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.yellow)
-                        Text(summaryGenerationError?.localizedDescription ?? "")
-                            .foregroundStyle(.secondary)
+                        Text(summary)
                             .textSelection(.enabled)
                     }
-                    Text(summary)
-                        .textSelection(.enabled)
+                    Divider()
+                        .padding(.top)
                 }
-                Divider()
-                    .padding(.top)
+                .padding(.horizontal)
             }
-            .padding(.horizontal)
+        }
+        .onChange(of: fileDiffs, initial: true) {
+            generateSummaryTask = Task {
+                await generateSummary()
+            }
         }
     }
     
