@@ -1,4 +1,4 @@
-# Tempo - GUI Git Client
+# Changes - GUI Git Client
 
 A Mac app that is a GUI Git client, written in SwiftUI and AppKit.  
 Tempo.app replaces CLI-based Git operations with a Mac-specific, clear GUI.  
@@ -41,5 +41,5 @@ This app provides the following Git features:
 
 ## Installation
 
-Download the latest [release](https://github.com/maoyama/Tempo/releases), unzip, and run Tempo.app.
+Download the latest [release](https://github.com/maoyama/Tempo/releases), unzip, and run Changes.app.
 
