@@ -72,6 +72,7 @@ struct DiffSummaryView: View {
             }
         }
         .onChange(of: fileDiffs.map { $0.model }, initial: true) {
+            generateSummaryTask?.cancel()
             generateSummaryTask = Task {
                 await generateSummary()
             }
