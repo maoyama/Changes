@@ -58,6 +58,27 @@ struct CommitDiffView: View {
                     }
                     .padding(.horizontal)
                     Divider()
+                        .frame(height: 16)
+                    HStack {
+                        Button {
+                            filesChanges = filesChanges.map {
+                                ExpandableModel(isExpanded: true, model: $0.model)
+                            }
+                        } label: {
+                            Image(systemName: "arrow.up.and.line.horizontal.and.arrow.down")
+                        }
+                        .help("Expand All Files")
+                        Button {
+                            filesChanges = filesChanges.map {
+                                ExpandableModel(isExpanded: false, model: $0.model)
+                            }
+                        } label: {
+                            Image(systemName: "arrow.down.and.line.horizontal.and.arrow.up")
+                        }
+                        .help("Collapse All Files")
+                    }
+                    .padding(.leading)
+                    .buttonStyle(.plain)
                     Spacer()
                     Text(shortstat)
                         .minimumScaleFactor(0.3)
