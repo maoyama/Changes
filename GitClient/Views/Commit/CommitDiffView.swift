@@ -38,7 +38,7 @@ struct CommitDiffView: View {
         .scrollEdgeEffectStyle(.soft, for: .bottom)
         .safeAreaBar(edge: .bottom, spacing: 0, content: {
             VStack(spacing: 0) {
-                Spacer()
+                DiffSummaryView(fileDiffs: filesChanges)
                 HStack(spacing: 0) {
                     HStack {
                         Text("Diff")
@@ -65,10 +65,8 @@ struct CommitDiffView: View {
                     Spacer()
                 }
                 .font(.callout)
-
-                Spacer()
+                .frame(height: 40)
             }
-            .frame(height: 40)
         })
         .onChange(of: selectionLogID + subSelectionLogID, initial: true) { oldValue, newValue in
             commitFirst = selectionLogID
