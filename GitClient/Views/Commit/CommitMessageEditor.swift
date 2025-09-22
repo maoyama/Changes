@@ -17,6 +17,7 @@ struct CommitMessageEditor: View {
     @Binding var error: Error?
     @Binding var cachedDiffRaw: String
     @Binding var amendCommit: Commit?
+    @FocusState private var focused: Bool
     var onCommit: () -> Void
 
     var body: some View {
@@ -26,11 +27,12 @@ struct CommitMessageEditor: View {
                 VStack(spacing: 0) {
                     ZStack(alignment: .topLeading) {
                             TextEditor(text: $commitMessage)
+                                .focused($focused)
                                 .scrollContentBackground(.hidden)
                                 .padding(.top, 16)
                                 .padding(.horizontal, 12)
                                 .font(.body)
-                            if commitMessage.isEmpty {
+                            if commitMessage.isEmpty && !focused {
                                 Text("Commit Message")
                                     .foregroundColor(.secondary)
                                     .allowsHitTesting(false)
