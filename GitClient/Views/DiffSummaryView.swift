@@ -96,7 +96,9 @@ struct DiffSummaryView: View {
                 }
             }
         } catch {
-            summaryGenerationError = error
+            if !Task.isCancelled {
+                summaryGenerationError = error
+            }
         }
         summaryIsResponding = false
     }

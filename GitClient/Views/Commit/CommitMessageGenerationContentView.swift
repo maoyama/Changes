@@ -85,7 +85,9 @@ struct CommitMessageGenerationContentView: View {
                 }
             }
         } catch {
-            self.error = error
+            if !Task.isCancelled {
+                self.error = error
+            }
         }
         commitMessageIsReponding = false
     }
