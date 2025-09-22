@@ -1,4 +1,4 @@
-# Changes - GUI Git Client
+# Changes - An Open Source GUI Git Client for macOS
 
 Changes.app is a modern Git client for Mac, built with SwiftUI and AppKit and styled with Apple’s new Liquid Glass design.  
 It replaces complex CLI commands with a clear, Mac-native interface that keeps cognitive load low, so you can focus on what really matters—coding.  
