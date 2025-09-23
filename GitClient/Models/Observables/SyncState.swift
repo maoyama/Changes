@@ -29,7 +29,7 @@ import Observation
             shouldPush = true
             return
         }
-        shouldPull = !(try await Process.output(GitLog(directory: folderURL, revisionRange: "\(branch.name)..origin/\(branch.name)")).isEmpty)
-        shouldPush = !(try await Process.output(GitLog(directory: folderURL, revisionRange: "origin/\(branch.name)..\(branch.name)")).isEmpty)
+        shouldPull = !(try await Process.output(GitLog(directory: folderURL, revisionRange: ["\(branch.name)..origin/\(branch.name)"])).isEmpty)
+        shouldPush = !(try await Process.output(GitLog(directory: folderURL, revisionRange: ["origin/\(branch.name)..\(branch.name)"])).isEmpty)
     }
 }

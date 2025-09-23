@@ -38,7 +38,7 @@ struct FileNameView: View {
                     .foregroundStyle(.secondary)
                     .help("Open " + (fileURL?.absoluteString ?? ""))
             }
-            .buttonStyle(.accessoryBar)
+            .buttonStyle(.plain)
             Spacer()
         }
     }

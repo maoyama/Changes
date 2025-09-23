@@ -9,6 +9,7 @@ import SwiftUI
 
 struct StagedView: View {
     @Binding var fileDiffs: [ExpandableModel<FileDiff>]
+    var status: String
     var onSelectFileDiff: ((FileDiff) -> Void)?
     var onSelectChunk: ((FileDiff, Chunk) -> Void)?
     @State private var isExpanded = true
@@ -35,7 +36,7 @@ struct StagedView: View {
                 .padding(.top)
             }
         } label: {
-            SectionHeader(title: "Staged Changes")
+            SectionHeader(title: "Staged Changes", callout: status)
                 .padding(.leading, 3)
         }
         .padding(.horizontal)

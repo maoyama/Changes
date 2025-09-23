@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct CommitMessageSuggestionView: View {
+struct CommitMessageSnippetSuggestionView: View {
     @State private var error: Error?
     @State private var isPresenting = false
     @Environment(\.openWindow) private var openWindow
@@ -30,15 +30,14 @@ struct CommitMessageSuggestionView: View {
                         Button(snippet) {
                             NotificationCenter.default.post(name: .didSelectCommitMessageSnippetNotification, object: snippet)
                         }
-                        .buttonStyle(.accessoryBar)
+                        .buttonStyle(.plain)
                         if snippet != decodedCommitMessageSnippet.last {
                             Text("|")
                                 .foregroundStyle(.separator)
                         }
                     }
                 }
-                .font(.callout)
-                .padding(.leading, 12)
+                .padding(.leading)
             }
             .frame(height: 40)
             Button(action: {
@@ -52,5 +51,5 @@ struct CommitMessageSuggestionView: View {
 }
 
 #Preview {
-    CommitMessageSuggestionView()
+    CommitMessageSnippetSuggestionView()
 }

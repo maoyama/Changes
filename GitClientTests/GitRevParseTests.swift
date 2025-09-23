@@ -7,7 +7,7 @@
 
 import Testing
 import Foundation
-@testable import Tempo
+@testable import Changes
 
 struct GitRevParseTests {
 

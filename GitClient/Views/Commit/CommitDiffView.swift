@@ -35,56 +35,74 @@ struct CommitDiffView: View {
                 .padding(.horizontal)
         }
         .background(Color(NSColor.textBackgroundColor))
-            .safeAreaInset(edge: .bottom, spacing: 0, content: {
-                VStack(spacing: 0) {
-                    Divider()
-                    Spacer()
-                    HStack(spacing: 0) {
-                        HStack {
-                            Text("Diff")
-                                .foregroundStyle(.secondary)
-                            Text(commitFirst == Log.notCommitted.id ? "Staged Changes" : commitFirst.prefix(5))
-                            Text(commitSecond == Log.notCommitted.id ? "Staged Changes" : commitSecond.prefix(5))
-                            Button {
-                                let first = commitFirst
-                                let second = commitSecond
-                                commitFirst = second
-                                commitSecond = first
-                            } label: {
-                                Image(systemName: "arrow.left.arrow.right")
-                            }
-                                .buttonStyle(.accessoryBar)
-                                .help("Swap the Commits")
+        .scrollEdgeEffectStyle(.soft, for: .bottom)
+        .safeAreaBar(edge: .bottom, spacing: 0, content: {
+            VStack(spacing: 0) {
+                DiffSummaryView(fileDiffs: filesChanges)
+                HStack(spacing: 0) {
+                    HStack {
+                        Text("Diff")
+                            .foregroundStyle(.secondary)
+                        Text(commitFirst == Log.notCommitted.id ? "Staged Changes" : commitFirst.prefix(5))
+                        Text(commitSecond == Log.notCommitted.id ? "Staged Changes" : commitSecond.prefix(5))
+                        Button {
+                            let first = commitFirst
+                            let second = commitSecond
+                            commitFirst = second
+                            commitSecond = first
+                        } label: {
+                            Image(systemName: "arrow.left.arrow.right")
                         }
-                        .padding(.horizontal)
-                        Divider()
-                        Spacer()
-                        Text(shortstat)
-                            .minimumScaleFactor(0.3)
-                            .foregroundStyle(.primary)
-                        Spacer()
+                            .buttonStyle(.plain)
+                            .help("Swap the Commits")
                     }
-                    .font(.callout)
-
+                    .padding(.horizontal)
+                    Divider()
+                        .frame(height: 16)
+                    HStack {
+                        Button {
+                            filesChanges = filesChanges.map {
+                                ExpandableModel(isExpanded: true, model: $0.model)
+                            }
+                        } label: {
+                            Image(systemName: "arrow.up.and.line.horizontal.and.arrow.down")
+                        }
+                        .help("Expand All Files")
+                        Button {
+                            filesChanges = filesChanges.map {
+                                ExpandableModel(isExpanded: false, model: $0.model)
+                            }
+                        } label: {
+                            Image(systemName: "arrow.down.and.line.horizontal.and.arrow.up")
+                        }
+                        .help("Collapse All Files")
+                    }
+                    .padding(.leading)
+                    .buttonStyle(.plain)
+                    Spacer()
+                    Text(shortstat)
+                        .minimumScaleFactor(0.3)
+                        .foregroundStyle(.primary)
                     Spacer()
                 }
-                .background(Color(nsColor: .textBackgroundColor))
+                .font(.callout)
                 .frame(height: 40)
-            })
-            .onChange(of: selectionLogID + subSelectionLogID, initial: true) { oldValue, newValue in
-                commitFirst = selectionLogID
-                commitSecond = subSelectionLogID
             }
-            .onChange(of: commitFirst + commitSecond, initial: true) { _, _ in
-                if commitFirst == Log.notCommitted.id {
-                    updateDiff(commitRange: commitSecond)
-                } else if commitSecond == Log.notCommitted.id {
-                    updateDiff(commitRange: commitFirst)
-                } else {
-                    updateDiff(commitRange: commitFirst + ".." + commitSecond)
-                }
+        })
+        .onChange(of: selectionLogID + subSelectionLogID, initial: true) { oldValue, newValue in
+            commitFirst = selectionLogID
+            commitSecond = subSelectionLogID
+        }
+        .onChange(of: commitFirst + commitSecond, initial: true) { _, _ in
+            if commitFirst == Log.notCommitted.id {
+                updateDiff(commitRange: commitSecond)
+            } else if commitSecond == Log.notCommitted.id {
+                updateDiff(commitRange: commitFirst)
+            } else {
+                updateDiff(commitRange: commitFirst + ".." + commitSecond)
             }
-            .errorSheet($error)
+        }
+        .errorSheet($error)
     }
 
     private func updateDiff(commitRange: String) {

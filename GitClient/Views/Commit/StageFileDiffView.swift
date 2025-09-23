@@ -30,7 +30,7 @@ struct StageFileDiffView: View {
                             Image(systemName: selectButtonImageSystemName)
                                 .frame(width: 20, height: 20)
                         }
-                        .buttonStyle(.accessoryBar)
+                        .buttonStyle(.plain)
                         .help(selectButtonHelp)
                         .padding(.vertical)
                         .disabled(onSelectChunk == nil)
@@ -53,7 +53,7 @@ struct StageFileDiffView: View {
                         Image(systemName: selectButtonImageSystemName)
                             .frame(width: 20, height: 20)
                     }
-                    .buttonStyle(.accessoryBar)
+                    .buttonStyle(.plain)
                     .help(selectButtonHelp)
                     .padding()
                 }

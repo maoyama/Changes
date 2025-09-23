@@ -6,22 +6,15 @@
 //
 
 import SwiftUI
+import os
 
 struct CommitCreateView: View {
-    @Environment(\.openAIAPISecretKey) var openAIAPISecretKey: String
     @Environment(\.openSettings) var openSettings: OpenSettingsAction
     @Environment(\.appearsActive) private var appearsActive
 
     var folder: Folder
     @State private var cachedDiffShortStat = ""
     @State private var diffShortStat = ""
-    private var stagedHeaderCaption: String {
-        if cachedDiffShortStat.isEmpty {
-            return " No Changes"
-        } else {
-            return cachedDiffShortStat
-        }
-    }
     private var notStagedHeaderCaption: String {
         if let untrackedStat = status?.untrackedFilesShortStat, !untrackedStat.isEmpty {
             if diffShortStat.isEmpty {
@@ -30,11 +23,7 @@ struct CommitCreateView: View {
                 return diffShortStat + ", " + untrackedStat
             }
         }
-        if diffShortStat.isEmpty {
-            return " No Changes"
-        } else {
-            return diffShortStat
-        }
+        return diffShortStat
     }
     private var canStage: Bool {
         if !diffRaw.isEmpty {
@@ -58,239 +47,168 @@ struct CommitCreateView: View {
     @State private var cachedDiffStat: DiffStat?
     @State private var updateChangesError: Error?
     @State private var commitMessage = ""
+    @State private var generatedCommitMessage = ""
+    @State private var generatedCommitMessageIsResponding = false
     @State private var error: Error?
     @State private var isAmend = false
     @State private var amendCommit: Commit?
     @State private var isStagingChanges = false
-    @State private var isGeneratingCommitMessage = false
     @Binding var isRefresh: Bool
     var onCommit: () -> Void
     var onStash: () -> Void
-
+    
     var body: some View {
-        VStack(spacing: 0) {
-            ScrollView {
-                if cachedDiff != nil {
-                    StagedView(
-                        fileDiffs: $cachedExpandableFileDiffs,
-                        onSelectFileDiff: { fileDiff in
-                            if let newDiff = self.cachedDiff?.updateFileDiffStage(fileDiff, stage: false) {
-                                restorePatch(newDiff)
-                            }
-                        },
-                        onSelectChunk: status?.unmergedFiles.isEmpty == false ? nil : { fileDiff, chunk in
-                            if let newDiff = self.cachedDiff?.updateChunkStage(chunk, in: fileDiff, stage: false) {
-                                restorePatch(newDiff)
-                            }
+        ScrollView {
+            if cachedDiff != nil {
+                StagedView(
+                    fileDiffs: $cachedExpandableFileDiffs,
+                    status: cachedDiffShortStat,
+                    onSelectFileDiff: { fileDiff in
+                        if let newDiff = self.cachedDiff?.updateFileDiffStage(fileDiff, stage: false) {
+                            restorePatch(newDiff)
                         }
-                    )
-                    .padding(.top)
-                }
-
-                if diff != nil {
-                    UnstagedView(
-                        fileDiffs: $expandableFileDiffs,
-                        untrackedFiles: status?.untrackedFiles ?? [],
-                        onSelectFileDiff: { fileDiff in
-                            if let newDiff = self.diff?.updateFileDiffStage(fileDiff, stage: true) {
-                                addPatch(newDiff)
-                            }
-                        },
-                        onSelectChunk: status?.unmergedFiles.isEmpty == false ? nil : { fileDiff, chunk in
-                            if let newDiff = self.diff?.updateChunkStage(chunk, in: fileDiff, stage: true) {
-                                addPatch(newDiff)
-                            }
-                        },
-                        onSelectUntrackedFile: { file in
-                            Task {
-                                do {
-                                    try await Process.output(GitAddPathspec(directory: folder.url, pathspec: file))
-                                    await updateChanges()
-                                } catch {
-                                    self.error = error
-                                }
-                            }
+                    },
+                    onSelectChunk: status?.unmergedFiles.isEmpty == false ? nil : { fileDiff, chunk in
+                        if let newDiff = self.cachedDiff?.updateChunkStage(chunk, in: fileDiff, stage: false) {
+                            restorePatch(newDiff)
                         }
-                    )
-                    .padding(.bottom)
-                }
-
-                if let updateChangesError {
-                    Label(updateChangesError.localizedDescription, systemImage: "exclamationmark.octagon")
-                    Text(cachedDiffRaw + diffRaw)
-                        .padding()
-                        .font(Font.system(.body, design: .monospaced))
-                }
+                    }
+                )
+                .padding(.top)
             }
-            .safeAreaInset(edge: .top, spacing: 0, content: {
-                VStack(spacing: 0) {
-                    HStack {
-                        Button {
-                            Task {
-                                do {
-                                    try await Process.output(GitStash(directory: folder.url))
-                                    onStash()
-                                } catch {
-                                    self.error = error
-                                }
-                            }
-                        } label: {
-                            Image(systemName: "tray.and.arrow.down")
-                        }
-                        .help("Stash Include Untracked")
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 16) {
-                                Text("Staged ").foregroundStyle(.secondary)
-                                + Text(stagedHeaderCaption)
-                                Text("Unstaged ").foregroundStyle(.secondary)
-                                + Text(notStagedHeaderCaption)
-                            }
-                            .font(.callout)
-                        }
-                        .padding(.horizontal)
-                        Button("Stage All") {
-                            Task {
-                                do {
-                                    try await Process.output(GitAdd(directory: folder.url))
-                                    await updateChanges()
-                                } catch {
-                                    self.error = error
-                                }
-                            }
-                        }
-                        .disabled(!canStage)
-                        .layoutPriority(2)
-                        Button {
-                            stageWithAIButtonAction()
-                        } label: {
-                            if isStagingChanges {
-                                ProgressView()
-                                    .scaleEffect(x: 0.4, y: 0.4, anchor: .center)
-                                    .frame(width: 15, height: 10)
-                            } else {
-                                Image(systemName: "sparkle")
-                                    .foregroundStyle(openAIAPISecretKey.isEmpty ? .secondary : .primary)
-                                    .frame(width: 15, height: 10)
-                            }
-                        }
-                        .help("Stage with AI")
-                        .disabled(!canStage || status?.unmergedFiles.isEmpty == false)
 
-                        Button("Unstage All") {
-                            Task {
-                                do {
-                                    try await Process.output(GitRestore(directory: folder.url))
-                                    await updateChanges()
-                                } catch {
-                                    self.error = error
-                                }
-                            }
+            if diff != nil {
+                UnstagedView(
+                    fileDiffs: $expandableFileDiffs,
+                    status: notStagedHeaderCaption,
+                    untrackedFiles: status?.untrackedFiles ?? [],
+                    onSelectFileDiff: { fileDiff in
+                        if let newDiff = self.diff?.updateFileDiffStage(fileDiff, stage: true) {
+                            addPatch(newDiff)
                         }
-                        .disabled(cachedDiffRaw.isEmpty)
-                        .padding(.leading, 7)
-                        .layoutPriority(2)
-                    }
-                    .textSelection(.disabled)
-                    .padding(.vertical, 10)
-                    .padding(.horizontal)
-                    Divider()
-                }
-                .background(Color(nsColor: .textBackgroundColor))
-            })
-            .textSelection(.enabled)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .layoutPriority(1)
-            .background(Color(NSColor.textBackgroundColor))
-            Divider()
-            HStack(alignment: .bottom, spacing: 0) {
-                VStack(spacing: 0) {
-                    ZStack {
-                            TextEditor(text: $commitMessage)
-                                .padding(.top, 16)
-                                .padding(.horizontal, 12)
-                            if commitMessage.isEmpty {
-                                Label("Enter commit message here", systemImage: "plus.bubble")
-                                    .foregroundColor(.secondary)
-                                    .allowsHitTesting(false)
-                            }
-                    }
-                    HStack(spacing: 0) {
-                        CommitMessageSuggestionView()
-                        Button {
-                            guard !openAIAPISecretKey.isEmpty else {
-                                openSettings()
-                                return
-                            }
-                            Task {
-                                isGeneratingCommitMessage = true
-                                do {
-                                    commitMessage = try await AIService(bearer: openAIAPISecretKey).commitMessage(stagedDiff: cachedDiffRaw)
-                                } catch {
-                                    self.error = error
-                                }
-                                isGeneratingCommitMessage = false
-                            }
-                        } label: {
-                            if isGeneratingCommitMessage {
-                                ProgressView()
-                                    .scaleEffect(x: 0.4, y: 0.4, anchor: .center)
-                                    .frame(width: 15, height: 10)
-                            } else {
-                                Image(systemName: "sparkle")
-                                    .foregroundStyle(openAIAPISecretKey.isEmpty ? .secondary : .primary)
-                                    .frame(width: 15, height: 10)
-                            }
+                    },
+                    onSelectChunk: status?.unmergedFiles.isEmpty == false ? nil : { fileDiff, chunk in
+                        if let newDiff = self.diff?.updateChunkStage(chunk, in: fileDiff, stage: true) {
+                            addPatch(newDiff)
                         }
-                        .help("Generate Commit Message with AI")
-                        .padding(.horizontal)
-                        .disabled(cachedDiffRaw.isEmpty)
-                    }
-                }
-                Divider()
-                VStack(alignment: .trailing, spacing: 11) {
-                    VStack(alignment: .trailing, spacing: 2) {
-                        Label(cachedDiffStat?.files.count.formatted() ?? "-" , systemImage: "doc")
-                        Label(cachedDiffStat?.insertionsTotal.formatted() ?? "-", systemImage: "plus")
-                        Label(cachedDiffStat?.deletionsTotal.formatted() ?? "-", systemImage: "minus")
-                    }
-                    .font(.caption)
-                    Button("Commit") {
+                    },
+                    onSelectUntrackedFile: { file in
                         Task {
                             do {
-                                if isAmend {
-                                    try await Process.output(GitCommitAmend(directory: folder.url, message: commitMessage))
-                                } else {
-                                    try await Process.output(GitCommit(directory: folder.url, message: commitMessage))
-                                }
-                                onCommit()
+                                try await Process.output(GitAddPathspec(directory: folder.url, pathspec: file))
+                                await updateChanges()
                             } catch {
                                 self.error = error
                             }
                         }
                     }
-                    .buttonStyle(.borderedProminent)
-                    .keyboardShortcut(.init(.return))
-                    .disabled(cachedDiffRaw.isEmpty || commitMessage.isEmpty)
-                    Toggle("Amend", isOn: $isAmend)
-                        .font(.caption)
-                        .padding(.trailing, 6)
-                }
-                .onChange(of: isAmend) {
-                    if isAmend {
-                        commitMessage = amendCommit?.rawBody ?? ""
-                    } else {
-                        commitMessage = ""
-                    }
-                }
-                .padding()
+                )
+                .padding(.bottom)
             }
-            .background(Color(NSColor.textBackgroundColor))
-            .onReceive(NotificationCenter.default.publisher(for: .didSelectCommitMessageSnippetNotification), perform: { notification in
-                if let commitMessage = notification.object as? String {
-                    self.commitMessage = commitMessage
-                }
-            })
+
+            if let updateChangesError {
+                Label(updateChangesError.localizedDescription, systemImage: "exclamationmark.octagon")
+                Text(cachedDiffRaw + diffRaw)
+                    .padding()
+                    .font(Font.system(.body, design: .monospaced))
+            }
         }
+        .safeAreaBar(edge: .top, spacing: 0, content: {
+            VStack(spacing: 0) {
+                HStack {
+                    Button {
+                        cachedExpandableFileDiffs = cachedExpandableFileDiffs.map {
+                            ExpandableModel(isExpanded: true, model: $0.model)
+                        }
+                        expandableFileDiffs = expandableFileDiffs.map { ExpandableModel(isExpanded: true, model: $0.model)
+                        }
+                    } label: {
+                        Image(systemName: "arrow.up.and.line.horizontal.and.arrow.down")
+                    }
+                    .buttonStyle(.plain)
+                    .help("Expand All Files")
+                    Button {
+                        cachedExpandableFileDiffs = cachedExpandableFileDiffs.map {
+                            ExpandableModel(isExpanded: false, model: $0.model)
+                        }
+                        expandableFileDiffs = expandableFileDiffs.map { ExpandableModel(isExpanded: false, model: $0.model)
+                        }
+                    } label: {
+                        Image(systemName: "arrow.down.and.line.horizontal.and.arrow.up")
+                    }
+                    .buttonStyle(.plain)
+                    .help("Collapse All Files")
+
+                    Divider()
+                        .frame(height: 16)
+
+                    Button {
+                        Task {
+                            do {
+                                try await Process.output(GitStash(directory: folder.url))
+                                onStash()
+                            } catch {
+                                self.error = error
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "tray.and.arrow.down")
+                    }
+                    .help("Stash All Changes")
+
+                    Spacer()
+                    
+                    Button("Stage All") {
+                        Task {
+                            do {
+                                try await Process.output(GitAdd(directory: folder.url))
+                                await updateChanges()
+                            } catch {
+                                self.error = error
+                            }
+                        }
+                    }
+                    .disabled(!canStage)
+                    .layoutPriority(2)
+
+                    Button("Unstage All") {
+                        Task {
+                            do {
+                                try await Process.output(GitRestore(directory: folder.url))
+                                await updateChanges()
+                            } catch {
+                                self.error = error
+                            }
+                        }
+                    }
+                    .disabled(cachedDiffRaw.isEmpty)
+                    .layoutPriority(2)
+                }
+                .textSelection(.disabled)
+                .padding(.vertical, 10)
+                .padding(.horizontal)
+                Divider()
+            }
+        })
+        .scrollEdgeEffectStyle(.hard, for: .vertical)
+        .safeAreaBar(edge: .bottom, content: {
+            CommitMessageEditor(
+                folder: folder,
+                commitMessage: $commitMessage,
+                generatedCommitMessage: $generatedCommitMessage,
+                generatedCommitMessageIsResponding: $generatedCommitMessageIsResponding,
+                cachedDiffStat: $cachedDiffStat,
+                isAmend: $isAmend,
+                error: $error,
+                cachedDiffRaw: $cachedDiffRaw,
+                amendCommit: $amendCommit) {
+                    onCommit()
+                }
+                .frame(height: 140)
+        })
+        .textSelection(.enabled)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(NSColor.textBackgroundColor))
         .onChange(of: isRefresh, { oldValue, newValue in
             if newValue {
                 Task {
@@ -360,42 +278,6 @@ struct CommitCreateView: View {
             } catch {
                 self.error = error
             }
-        }
-    }
-
-    private func stageWithAIButtonAction() {
-        guard !openAIAPISecretKey.isEmpty else {
-            openSettings()
-            return
-        }
-
-        Task {
-            isStagingChanges = true
-            do {
-                let res = try await AIService(bearer: openAIAPISecretKey).stagingChanges(
-                    stagedDiff: cachedDiffRaw,
-                    notStagedDiff: diffRaw,
-                    untrackedFiles: status?.untrackedFiles ?? []
-                )
-                let _ = try await Process.output(GitAddPatch(directory: folder.url, inputs: res.hunksToStage.map { $0 ? "y" : "n" }))
-                let files = status?.untrackedFiles.enumerated().map({ e in
-                    if let needsStage = res.filesToStage[safe: e.offset], needsStage {
-                        return e.element
-                    }
-                    return ""
-                })
-                if let files {
-                    let filterd = files.filter { !$0.isEmpty }
-                    for pathspec in filterd {
-                        try await Process.output(GitAddPathspec(directory: folder.url, pathspec: pathspec))
-                    }
-                }
-                await updateChanges()
-                commitMessage = res.commitMessage
-            } catch {
-                self.error = error
-            }
-            isStagingChanges = false
         }
     }
 }

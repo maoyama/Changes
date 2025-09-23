@@ -59,29 +59,28 @@ struct FolderView: View {
                 )
             }
         }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            VStack(spacing: 0) {
-                Divider()
+        .scrollEdgeEffectStyle(.soft, for: .bottom)
+        .safeAreaBar(edge: .bottom, spacing: 0) {
+            HStack(spacing: 0) {
                 Spacer()
                 countText()
                     .font(.callout)
                 Spacer()
             }
-            .frame(height: 40)
-            .background(Color(nsColor: .textBackgroundColor))
-            .overlay(alignment: .trailing) {
+            .overlay(alignment: .trailing, content: {
                 Button(action: {
                     showGraph.toggle()
                 }) {
                     Image(systemName: showGraph ? "point.3.filled.connected.trianglepath.dotted" : "point.3.connected.trianglepath.dotted")
                         .font(.title3)
                         .rotationEffect(.init(degrees: 270))
-                        .foregroundStyle( showGraph ? Color.accentColor : Color.secondary)
+                        .foregroundStyle( showGraph ? Color.accentColor : Color.primary)
                 }
-                .buttonStyle(.accessoryBar)
-                .padding(.horizontal, 8)
+                .buttonStyle(.plain)
+                .padding(.horizontal)
                 .help("Commit Graph")
-            }
+            })
+            .frame(height: 40)
         }
         .overlay(content: {
             if logStore.commits.isEmpty && !searchTokens.isEmpty {
@@ -105,7 +104,7 @@ struct FolderView: View {
                 if !suggestSearchToken.isEmpty {
                     Section("History") {
                         ForEach(suggestSearchToken) { token in
-                            HStack {
+                            VStack(alignment: .leading) {
                                 Text(token.kind.label)
                                     .foregroundStyle(.secondary)
                                 Text(token.text)
@@ -134,7 +133,7 @@ struct FolderView: View {
                 }
             } else {
                 ForEach(SearchKind.allCases, id: \.self) { kind in
-                    HStack {
+                    VStack(alignment: .leading) {
                         Text(kind.label)
                             .foregroundStyle(.secondary)
                         Text(searchText)
@@ -215,21 +214,21 @@ struct FolderView: View {
                     ProgressView()
                         .scaleEffect(x: 0.5, y: 0.5, anchor: .center)
                 }
+                .sharedBackgroundVisibility(.hidden)
             } else {
                 ToolbarItem(placement: .principal) {
                     branchesButton()
                 }
                 ToolbarItem(placement: .principal) {
                     addBranchButton()
-                        .padding(.trailing)
                 }
+                ToolbarSpacer(.fixed, placement: .principal)
                 ToolbarItem(placement: .principal) {
                     tagButton()
-                        .padding(.trailing)
                 }
+                ToolbarSpacer(.fixed, placement: .principal)
                 ToolbarItem(placement: .principal) {
                     stashButton()
-                        .padding(.trailing)
                 }
                 ToolbarItem(placement: .primaryAction) {
                     pullButton()

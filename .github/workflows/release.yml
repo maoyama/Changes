@@ -11,11 +11,11 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - name: Select Xcode
         run: |
-          sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+          sudo xcode-select -s /Applications/Xcode_26.0.app/Contents/Developer
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -46,22 +46,22 @@ jobs:
           security list-keychain -d user -s $KEYCHAIN_PATH
       - name: Archive App
         run: |
-          xcodebuild -scheme GitClient -configuration Release -archivePath Tempo.xcarchive archive
+          xcodebuild -scheme GitClient -configuration Release -archivePath Changes.xcarchive archive
       - name: Export App
         run: |
-          xcodebuild -exportArchive -archivePath Tempo.xcarchive -exportOptionsPlist ExportOptions.plist -exportPath Tempo
+          xcodebuild -exportArchive -archivePath Changes.xcarchive -exportOptionsPlist ExportOptions.plist -exportPath Changes
       - name: Create ZIP Archive
         run: |
-          ditto -c -k --keepParent Tempo/Tempo.app Tempo.zip
+          ditto -c -k --keepParent Changes/Changes.app Changes.zip
       - name: Notarize App
         env:
           AC_USERNAME: ${{ secrets.AC_USERNAME }}
           AC_PASSWORD: ${{ secrets.AC_PASSWORD }}
         run: |
-          xcrun notarytool submit Tempo.zip --apple-id "$AC_USERNAME" --password "$AC_PASSWORD" --team-id JRA6VW2DG4 --wait
+          xcrun notarytool submit Changes.zip --apple-id "$AC_USERNAME" --password "$AC_PASSWORD" --team-id JRA6VW2DG4 --wait
       - name: Generate SHA256 Checksum
         run: |
-          shasum -a 256 Tempo.zip > Checksum.txt
+          shasum -a 256 Changes.zip > Checksum.txt
           echo "SHA256 Checksum: $(cat Checksum.txt)" >> $GITHUB_STEP_SUMMARY
       - name: Upload Assets to Release
         uses: softprops/action-gh-release@v2
@@ -69,7 +69,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: |
-            Tempo.zip
+            Changes.zip
             Checksum.txt
           draft: true
           generate_release_notes: true

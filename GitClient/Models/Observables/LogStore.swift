@@ -34,13 +34,27 @@ import Observation
     private var authors: [String] {
         searchTokens.filter { $0.kind == .author }.map { $0.text }
     }
-    private var searchTokenRevisionRange: String {
-        searchTokens.filter { $0.kind == .revisionRange }.map { $0.text }.first ?? ""
+    private var searchTokenRevisionRange: [String] {
+        searchTokens.filter { $0.kind == .revisionRange }.map { $0.text }
     }
     private var paths: [String] {
         searchTokens.filter { $0.kind == .path }.map { $0.text }
     }
-
+//    private var promptForAI: [String] {
+//        searchTokens.filter { $0.kind == .ai }.map { $0.text }
+//    }
+    private var searchArgments: SearchArguments {
+        .init(
+            revisionRange: searchTokenRevisionRange,
+            grep: grep,
+            grepAllMatch: grepAllMatch,
+            s: s,
+            g: g,
+            authors: authors,
+            paths: paths
+        )
+    }
+    private var commitHashesByAI: [String] = []
     var searchTokens: [SearchToken] = []
     var commits: [Commit] = []
     var notCommitted: NotCommitted?
@@ -52,18 +66,28 @@ import Observation
     var error: Error?
 
     private func gitLog(directory: URL, number: Int=0, skip: Int=0) -> GitLog {
-        GitLog(
-            directory: directory,
-            number: number,
-            skip: skip,
-            revisionRange: searchTokenRevisionRange,
-            grep: grep,
-            grepAllMatch: grepAllMatch,
-            s: s,
-            g: g,
-            authors: authors,
-            paths: paths
-        )
+        if commitHashesByAI.isEmpty {
+            return GitLog(
+                directory: directory,
+                number: number,
+                skip: skip,
+                grep: grep,
+                grepAllMatch: grepAllMatch,
+                s: s,
+                g: g,
+                authors: authors,
+                revisionRange: searchTokenRevisionRange,
+                paths: paths
+            )
+        } else {
+            return GitLog(
+                directory: directory,
+                number: number,
+                skip: skip,
+                noWalk: true,
+                revisionRange: commitHashesByAI
+            )
+        }
     }
 
     func logs() -> [Log] {
@@ -79,10 +103,17 @@ import Observation
         guard let directory else {
             notCommitted = nil
             commits = []
+            commitHashesByAI = []
             return
         }
         do {
+            commitHashesByAI = []
             notCommitted = try await notCommitted(directory: directory)
+//            if !promptForAI.isEmpty {
+//                if #available(macOS 26.0, *) {
+//                    commitHashesByAI = try await SystemLanguageModelService().commitHashes(searchArgments, prompt: promptForAI , directory: directory)
+//                }
+//            }
             commits = try await Process.output(gitLog(directory: directory, number: number))
             try await loadTotalCommitsCount()
         } catch {

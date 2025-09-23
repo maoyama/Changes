@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @AppStorage(AppStorageKey.folder.rawValue) var folders: Data?
+    @Environment(\.appearsActive) private var appearsActive
     private var decodedFolders: [Folder] {
         guard let folders else { return [] }
         do {
@@ -25,6 +26,7 @@ struct ContentView: View {
     @State private var selectionLog: Log?
     @State private var subSelectionLogID: String?
     @State private var folderIsRefresh = false
+    @State private var systemLanguageModelAvailability = SystemLanguageModelService().availability
     @State private var error: Error?
 
     var body: some View {
@@ -32,14 +34,18 @@ struct ContentView: View {
             VStack {
                 if decodedFolders.isEmpty {
                     VStack {
+                        Spacer()
+                        Spacer()
+                            .frame(height: 60)
                         Text("No Project Folder Added")
                         Text("Please add a folder that contains a Git repository.")
                             .font(.caption)
                             .padding(.top, 2)
+                        Spacer()
                     }
                     .multilineTextAlignment(.center)
-                    .foregroundColor(.secondary)
-                    .padding(.horizontal)
+                    .foregroundStyle(.secondary)
+                    .padding()
                 } else {
                     List(decodedFolders, id: \.url, selection: $selectionFolderURL) { folder in
                         Label(folder.displayName, systemImage: "folder")
@@ -58,8 +64,8 @@ struct ContentView: View {
                     }
                 }
             }
-            .toolbar {
-                ToolbarItemGroup {
+            .safeAreaBar(edge: .bottom, content: {
+                HStack {
                     Button {
                         let panel = NSOpenPanel()
                         panel.canChooseFiles = false
@@ -83,12 +89,14 @@ struct ContentView: View {
                             }
                         }
                     } label: {
-                        Image(systemName: "plus.rectangle.on.folder")
+                        Image(systemName: "plus")
                     }
+                    .buttonStyle(.plain)
                     .help("Add Project Folder")
+                    .padding()
+                    Spacer()
                 }
-            }
-
+            })
         } content: {
             if let folder = selectionFolder {
                 FolderView(
@@ -132,8 +140,12 @@ struct ContentView: View {
         .onChange(of: selectionFolder, {
             selectionLog = nil
         })
+        .onChange(of: appearsActive) {
+            systemLanguageModelAvailability = SystemLanguageModelService().availability
+        }
         .errorSheet($error)
         .environment(\.folder, selectionFolderURL)
+        .environment(\.systemLanguageModelAvailability, systemLanguageModelAvailability)
     }
 }
 

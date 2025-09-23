@@ -40,9 +40,6 @@ struct GitLog: Git {
         if skip > 0 {
             args.append("--skip=\(skip)")
         }
-        if !revisionRange.isEmpty {
-            args.append(revisionRange)
-        }
         args = args + grep.map { "--grep=\($0)" }
         if grepAllMatch {
             args.append("--all-match")
@@ -57,6 +54,14 @@ struct GitLog: Git {
             args.append(g)
         }
         args = args + authors.map { "--author=\($0)" }
+        if noWalk {
+            args.append("--no-walk")
+        }
+
+        if !revisionRange.isEmpty {
+            args = args + revisionRange
+        }
+
         if !paths.isEmpty {
             args.append("--")
             args = args + paths
@@ -69,14 +74,15 @@ struct GitLog: Git {
     var reverse = false
     var number = 0
     var skip = 0
-    var revisionRange = ""
     var grep: [String] = []
     var grepAllMatch = false
     var s = ""
     var g = ""
     var authors:[String] = []
+    var noWalk = false
+    var revisionRange: [String] = []
     var paths: [String] = []
-
+    
     func parse(for stdOut: String) throws -> [Commit] {
         guard !stdOut.isEmpty else { return [] }
         let dropped = stdOut.dropLast(String.componentSeparator.count)

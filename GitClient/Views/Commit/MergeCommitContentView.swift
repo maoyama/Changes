@@ -10,16 +10,21 @@ import SwiftUI
 struct MergeCommitContentView: View {
     var mergeCommit: Commit
     var directoryURL: URL
+    @Binding var tab: Int
+    @Binding var filesChanged: [ExpandableModel<FileDiff>]
     @State private var commits: [Commit] = []
-    @State private var filesChanged: [ExpandableModel<FileDiff>] = []
     @State private var error: Error?
 
     var body: some View {
-        DiffView(commits: $commits, filesChanged: $filesChanged)
+        DiffView(
+            commits: $commits,
+            filesChanged: $filesChanged,
+            tab: $tab
+        )
             .onChange(of: mergeCommit, initial: true) {
                 Task {
                     do {
-                        commits = try await Array(Process.output(GitLog(directory: directoryURL, revisionRange: "\(mergeCommit.parentHashes[0])..\(mergeCommit.hash)")).dropFirst())
+                        commits = try await Array(Process.output(GitLog(directory: directoryURL, revisionRange: ["\(mergeCommit.parentHashes[0])..\(mergeCommit.hash)"])).dropFirst())
                         let diffRaw = try await Process.output(
                             GitDiff(directory: directoryURL, noRenames: false, commitRange: mergeCommit.parentHashes[0] + ".." + mergeCommit.hash)
                         )
@@ -47,7 +52,9 @@ struct MergeCommitContentView: View {
                 branches: [],
                 tags: []
             ),
-            directoryURL: URL(string: "file:///maoyama/Projects/")!
+            directoryURL: URL(string: "file:///maoyama/Projects/")!,
+            tab: .constant(0),
+            filesChanged: .constant([])
         )
     }
 }

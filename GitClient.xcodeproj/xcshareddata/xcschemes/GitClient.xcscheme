@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "61347EE928D5D16C00625FC4"
-               BuildableName = "Tempo.app"
+               BuildableName = "Changes.app"
                BlueprintName = "GitClient"
                ReferencedContainer = "container:GitClient.xcodeproj">
             </BuildableReference>
@@ -73,7 +73,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "61347EE928D5D16C00625FC4"
-            BuildableName = "Tempo.app"
+            BuildableName = "Changes.app"
             BlueprintName = "GitClient"
             ReferencedContainer = "container:GitClient.xcodeproj">
          </BuildableReference>
@@ -90,7 +90,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "61347EE928D5D16C00625FC4"
-            BuildableName = "Tempo.app"
+            BuildableName = "Changes.app"
             BlueprintName = "GitClient"
             ReferencedContainer = "container:GitClient.xcodeproj">
          </BuildableReference>

@@ -1,21 +1,18 @@
-# Tempo - GUI Git Client
+# Changes - An Open Source GUI Git Client for macOS
 
-A Mac app that is a GUI Git client, written in SwiftUI and AppKit.  
-Tempo.app replaces CLI-based Git operations with a Mac-specific, clear GUI.  
-Instead of typing numerous commands, you can focus on coding while effortlessly managing Git tasks with simple button clicks.
+Changes.app is a modern Git client for Mac, built with SwiftUI and AppKit and styled with Apple’s new Liquid Glass design.  
+It replaces complex CLI commands with a clear, Mac-native interface that keeps cognitive load low, so you can focus on what really matters—coding.  
+With commit message generation powered by Apple Intelligence, creating clear and meaningful commits becomes effortless.
 
-By setting the OpenAI API secret key in the app, you can generate commit messages and perform staging by hunk using the OpenAI API. Since this app utilizes GPT-4o-mini, it remains relatively inexpensive, allowing you to use it without worrying too much about costs (the API is priced at 15 cents per 1M input tokens and 60 cents per 1M output tokens).
-
-![Screenshot](Screenshots/Screenshot5.png)
-![Screenshot](Screenshots/Screenshot6.png)
-![Screenshot](Screenshots/Screenshot7.png)
-![Screenshot](Screenshots/Screenshot9.png)
+![Screenshot](Screenshots/Screenshot2-1.png)
+![Screenshot](Screenshots/Screenshot2-2.png)
 
 ## Features
 
-This app provides the following Git features:
+This app provides the following features:
 - Commit
     - Amend
+    - Commit Message Generation using Apple Intelligence
     - Commit Message Snippets
     - Revert
     - Checkout
@@ -41,5 +38,7 @@ This app provides the following Git features:
 
 ## Installation
 
-Download the latest [release](https://github.com/maoyama/Tempo/releases), unzip, and run Tempo.app.
+Download the latest [release](https://github.com/maoyama/Tempo/releases), unzip, and run the app.
 
+- v2.0+ (macOS 26.0 or later)  
+- [v1.18](https://github.com/maoyama/Tempo/releases/tag/v1.18) and below (macOS 14.6 or later) - Tempo.app (old name for v1.x)

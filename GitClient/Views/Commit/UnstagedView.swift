@@ -9,6 +9,7 @@ import SwiftUI
 
 struct UnstagedView: View {
     @Binding var fileDiffs: [ExpandableModel<FileDiff>]
+    var status: String
     var untrackedFiles: [String]
     var onSelectFileDiff: ((FileDiff) -> Void)?
     var onSelectChunk: ((FileDiff, Chunk) -> Void)?
@@ -53,7 +54,7 @@ struct UnstagedView: View {
                             } label: {
                                 Image(systemName: "plus.circle")
                             }
-                            .buttonStyle(.accessoryBar)
+                            .buttonStyle(.plain)
                             .help("Stage This File")
                             .padding(.horizontal)
                         }
@@ -63,7 +64,7 @@ struct UnstagedView: View {
                 .padding(.bottom)
             }
         } label: {
-            SectionHeader(title: "Unstaged Changes")
+            SectionHeader(title: "Unstaged Changes", callout: status)
                 .padding(.leading, 3)
         }
         .padding(.horizontal)
@@ -119,6 +120,7 @@ struct UnstagedView: View {
     return ScrollView {
         UnstagedView(
             fileDiffs: $fileDiffs,
+            status: "1 file changes",
             untrackedFiles: ["Projects/Files/Path.swift", "Projects/Files/Path1.swift"],
             onSelectFileDiff: { f in
                 print(f)

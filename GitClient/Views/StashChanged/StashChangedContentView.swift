@@ -8,14 +8,20 @@
 import SwiftUI
 
 struct StashChangedContentView: View {
+    
     var folder: Folder
     @Binding var showingStashChanged: Bool
     var stashList: [Stash]?
+    var onTapDropButton: ((Stash) -> Void)?
     @State private var selectionStashID: Int?
     @State private var fileDiffs: [ExpandableModel<FileDiff>] = []
+    @State private var summary = ""
+    @State private var summaryIsResponding = false
     @State private var error: Error?
-    var onTapDropButton: ((Stash) -> Void)?
-
+    @State private var summaryGenerationError: Error?
+    @State private var generateSummaryTask: Task<(), Never>?
+    @Environment(\.systemLanguageModelAvailability) private var systemLanguageModelAvailability
+    
     var body: some View {
         NavigationSplitView {
             List(selection: $selectionStashID) {
@@ -42,6 +48,7 @@ struct StashChangedContentView: View {
                     }
                 }
             }
+            .navigationSplitViewColumnWidth(ideal: 200)
         } detail: {
             ScrollView {
                 VStack(spacing: 0) {
@@ -56,10 +63,29 @@ struct StashChangedContentView: View {
                     Spacer(minLength: 0)
                 }
             }
-            .safeAreaInset(edge: .bottom, content: {
+            .scrollEdgeEffectStyle(.soft, for: .bottom)
+            .safeAreaBar(edge: .bottom, content: {
                 VStack (spacing: 0) {
-                    Divider()
+                    DiffSummaryView(fileDiffs: fileDiffs)
                     HStack {
+                        Button {
+                            fileDiffs = fileDiffs.map {
+                            ExpandableModel(isExpanded: true, model: $0.model)
+                            }
+                        } label: {
+                            Image(systemName: "arrow.up.and.line.horizontal.and.arrow.down")
+                        }
+                        .help("Expand All Files")
+                        .buttonStyle(.plain)
+                        Button {
+                            fileDiffs = fileDiffs.map {
+                                ExpandableModel(isExpanded: false, model: $0.model)
+                            }
+                        } label: {
+                            Image(systemName: "arrow.down.and.line.horizontal.and.arrow.up")
+                        }
+                        .help("Collapse All Files")
+                        .buttonStyle(.plain)
                         Spacer()
                         Button("Cancel") {
                             showingStashChanged.toggle()
@@ -79,16 +105,14 @@ struct StashChangedContentView: View {
                         .disabled(selectionStashID == nil)
                     }
                     .padding()
-                    .background(.bar)
                 }
             })
         }
-        .onChange(of: selectionStashID, {
-            Task {
-                await updateDiff()
-            }
+        .background(Color(NSColor.textBackgroundColor))
+        .task(id: selectionStashID, {
+            await updateDiff()
         })
-        .frame(minWidth: 800, minHeight: 700)
+        .frame(width: 800, height: 700)
         .errorSheet($error)
     }
 
@@ -104,6 +128,29 @@ struct StashChangedContentView: View {
             self.error = error
         }
     }
+    
+    private func generateSummary() async {
+        summary = ""
+        summaryIsResponding = true
+        summaryGenerationError = nil
+        do {
+            let diffRaw = fileDiffs.map { fileDiff in
+                    fileDiff.model.raw
+                }.joined(separator: "\n")
+            if !diffRaw.isEmpty {
+                 let stream = SystemLanguageModelService().diffSummary(diffRaw)
+                for try await text in stream {
+                    if !Task.isCancelled {
+                        summary = text.content.summary ?? ""
+                    }
+                }
+            }
+        } catch {
+            summaryGenerationError = error
+        }
+        summaryIsResponding = false
+    }
+
 }
 
 #Preview {
