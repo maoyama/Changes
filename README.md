@@ -38,7 +38,7 @@ This app provides the following features:
 
 ## Installation
 
-Download the latest [release](https://github.com/maoyama/Tempo/releases), unzip, and run the app.
+Download the latest [release](https://github.com/maoyama/Changes/releases), unzip, and run the app.
 
 - v2.0+ (macOS 26.0 or later)  
-- [v1.18](https://github.com/maoyama/Tempo/releases/tag/v1.18) and below (macOS 14.6 or later) - Tempo.app (old name for v1.x)
+- [v1.18](https://github.com/maoyama/Changes/releases/tag/v1.18) and below (macOS 14.6 or later) - Tempo.app (old name for v1.x)
