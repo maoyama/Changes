@@ -30,6 +30,7 @@ This app provides the following features:
     - Filter
 - Stash
     - Apply
+    - Summary Generation using Apple Intelligence
 - Search Commits
     - Commit Message
     - Changed (added/removed)
