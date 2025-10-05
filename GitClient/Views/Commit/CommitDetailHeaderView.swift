@@ -16,7 +16,7 @@ struct CommitDetailHeaderView: View {
             HStack {
                 Text(commit.hash.prefix(5))
                     .textSelection(.disabled)
-                    .help(commit.hash)
+                    .help("Commit Hash: " + commit.hash)
                     .contextMenu {
                         Button("Copy " + commit.hash) {
                             let pasteboard = NSPasteboard.general
@@ -24,7 +24,7 @@ struct CommitDetailHeaderView: View {
                             pasteboard.setString(commit.hash, forType: .string)
                         }
                     }
-                Image(systemName: "arrow.left")
+                Image(systemName: "arrow.right")
                 HStack(spacing: 0) {
                     ForEach(commit.parentHashes, id: \.self) { hash in
                         if hash == commit.parentHashes.first {
