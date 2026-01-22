@@ -50,12 +50,12 @@ extension View {
             if commit == logStore.commits.first {
                 if let notCommitted = logStore.notCommitted {
                     if notCommitted.diffCached.isEmpty {
-                        Button("Amend") {
+                        Button("Amend Commit with a New Message") {
                             showing.wrappedValue.amendCommitAt = commit
                         }
                     }
                 } else {
-                    Button("Amend") {
+                    Button("Amend Commit with a New Message") {
                         showing.wrappedValue.amendCommitAt = commit
                     }
                 }
