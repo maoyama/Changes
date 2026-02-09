@@ -59,7 +59,11 @@ struct StageFileDiffView: View {
                 }
             }
         } label: {
-            StageFileDiffHeaderView(fileDiff: fileDiff)
+            StageFileDiffHeaderView(
+                fileDiff: fileDiff,
+                selectButtonImageSystemName: selectButtonImageSystemName,
+                onSelectFileDiff: onSelectFileDiff
+            )
                 .padding(.leading, 3)
         }
     }

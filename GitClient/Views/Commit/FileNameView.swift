@@ -10,15 +10,16 @@ import SwiftUI
 struct FileNameView: View {
     @Environment(\.folder) private var current
 
-    var toFilePath: String
-    var filePathDisplay: String
+    var fileDiff: FileDiff
+    var selectButtonImageSystemName: String
+    var onSelectFileDiff: ((FileDiff) -> Void)?
     var fileURL: URL? {
-        current?.appending(path: toFilePath)
+        current?.appending(path: fileDiff.toFilePath)
     }
 
     var body: some View {
         HStack {
-            if let asset = Language.assetName(filePath: toFilePath) {
+            if let asset = Language.assetName(filePath: fileDiff.toFilePath) {
                 Image(asset)
                     .resizable()
                     .scaledToFit()
@@ -28,9 +29,10 @@ struct FileNameView: View {
                     .frame(width: 18, height: 18)
                     .fontWeight(.heavy)
             }
-            Text(filePathDisplay)
+            Text(fileDiff.filePathDisplay)
                 .fontWeight(.bold)
                 .font(Font.system(.body, design: .default))
+                .help(fileDiff.header + "\n" + (fileDiff.extendedHeaderLines + fileDiff.fromFileToFileLines).joined(separator: "\n"))
             Button(action: {
                 NSWorkspace.shared.open(fileURL!)
             }) {
@@ -40,40 +42,14 @@ struct FileNameView: View {
             }
             .buttonStyle(.plain)
             Spacer()
+            Button(action: {
+                onSelectFileDiff?(fileDiff)
+            }) {
+                Image(systemName: selectButtonImageSystemName)
+                    .foregroundStyle(.secondary)
+                    .help("Stage This File")
+            }
+            .buttonStyle(.plain)
         }
     }
-}
-
-#Preview {
-
-    FileNameView(
-        toFilePath: "Sources/MyFeature/File.swift",
-        filePathDisplay: "Sources/MyFeature/File.swift"
-    )
-    FileNameView(
-        toFilePath: "Sources/MyFeature/File.py",
-        filePathDisplay: "Sources/MyFeature/File.py"
-    )
-    FileNameView(
-        toFilePath: "Sources/MyFeature/File.rb",
-        filePathDisplay: "Sources/MyFeature/File.rb"
-    )
-    FileNameView(
-        toFilePath: "Sources/MyFeature/File.rs",
-        filePathDisplay: "Sources/MyFeature/File.rs"
-    )
-
-    FileNameView(
-        toFilePath: "Sources/MyFeature/File.js",
-        filePathDisplay: "Sources/MyFeature/File.js"
-    )
-
-    FileNameView(
-        toFilePath: "Sources/MyFeature/File.ml",
-        filePathDisplay: "Sources/MyFeature/File.ml"
-    )
-    FileNameView(
-        toFilePath: "Sources/MyFeature/File.pbj",
-        filePathDisplay: "Sources/MyFeature/File.pbj"
-    )
 }
