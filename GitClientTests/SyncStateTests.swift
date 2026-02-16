@@ -17,7 +17,7 @@ struct SyncStateTests {
         let state = SyncState()
         state.folderURL = .testFixture!
         state.branch = .init(name: branchName, isCurrent: true)
-        try await state.sync()
+        await state.sync()
 
         #expect(state.shouldPull == false)
         #expect(state.shouldPush == false)
@@ -29,7 +29,7 @@ struct SyncStateTests {
         let state = SyncState()
         state.folderURL = .testFixture!
         state.branch = .init(name: branch, isCurrent: true)
-        try await state.sync()
+        await state.sync()
 
         #expect(state.shouldPull == false)
         #expect(state.shouldPush == true)
@@ -42,7 +42,7 @@ struct SyncStateTests {
         let state = SyncState()
         state.folderURL = .testFixture!
         state.branch = .init(name: branch, isCurrent: true)
-        try await state.sync()
+        await state.sync()
 
         #expect(state.shouldPull == false)
         #expect(state.shouldPush == true)
@@ -55,7 +55,7 @@ struct SyncStateTests {
         let state = SyncState()
         state.folderURL = .testFixture!
         state.branch = .init(name: branch, isCurrent: true)
-        try await state.sync()
+        await state.sync()
 
         #expect(state.shouldPull == true)
         #expect(state.shouldPush == false)
@@ -67,7 +67,7 @@ struct SyncStateTests {
         let state = SyncState()
         state.folderURL = .testFixture!
         state.branch = try await Process.output(GitBranch(directory: .testFixture!)).current
-        try await state.sync()
+        await state.sync()
 
         #expect(state.shouldPull == false)
         #expect(state.shouldPush == false)
