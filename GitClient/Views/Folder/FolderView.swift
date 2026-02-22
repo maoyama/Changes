@@ -25,6 +25,7 @@ struct FolderView: View {
     @State private var searchText = ""
     @State private var searchTask: Task<(), Never>?
     @State private var showGraph = false
+    @State private var showingSyncError = false
     @AppStorage(AppStorageKey.searchTokenHisrtory.rawValue) var searchTokenHistory: Data?
     private var decodedSearchTokenHistory: [SearchToken] {
         guard let searchTokenHistory else { return [] }
@@ -230,6 +231,29 @@ struct FolderView: View {
                 ToolbarItem(placement: .principal) {
                     stashButton()
                 }
+                if syncState.syncError != nil {
+                    ToolbarItem(placement: .primaryAction) {
+                        Button {
+                            showingSyncError.toggle()
+                        } label: {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(.yellow)
+                        }
+                        .help("Sync Error")
+                        .popover(isPresented: $showingSyncError) {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Sync Error")
+                                    .font(.headline)
+                                ScrollView {
+                                    Text(syncState.syncError ?? "")
+                                        .textSelection(.enabled)
+                                }
+                            }
+                            .padding()
+                            .frame(width: 360, height: 160)
+                        }
+                    }
+                }
                 ToolbarItem(placement: .primaryAction) {
                     pullButton()
                 }
@@ -269,7 +293,7 @@ struct FolderView: View {
                 let newSelection = logStore.logs().first { $0.id == selectionLog.id }
                 self.selectionLog = newSelection
             }
-            try await syncState.sync()
+            await syncState.sync()
         } catch {
             if !Task.isCancelled {
                 self.error = error
@@ -291,7 +315,7 @@ struct FolderView: View {
                 let newSelection = logStore.logs().first { $0.id == selectionLog.id }
                 self.selectionLog = newSelection
             }
-            try await syncState.sync()
+            await syncState.sync()
         } catch {
             self.error = error
         }
