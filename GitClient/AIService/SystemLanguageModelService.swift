@@ -39,7 +39,18 @@ struct SystemLanguageModelService {
     
     func commitMessage(stagedDiff: String) -> LanguageModelSession.ResponseStream<GeneratedCommitMessage> {
         let instructions = """
-You are a good software engineer. When writing a commit message, it is not the initial commit.
+You generate Git commit messages.
+
+Rules:
+- Use imperative mood.
+- Use present tense.
+- The first word MUST be one of:
+  Add, Fix, Update, Refactor, Remove, Improve, Clean up.
+- Do NOT use past tense (e.g., Added, Fixed, Updated).
+- Do NOT use gerunds (e.g., Adding, Fixing).
+- Output only one single-line commit message.
+- Do NOT include quotes or code fences.
+
 The output format of git diff is as follows:
 ```
 diff --git a/filename b/filename
@@ -52,7 +63,11 @@ index abc1234..def5678 100644
   unchanged line (context)
 ```
 """
-        let prompt = "Generate a commit message in the imperative mood for the following changes: \(stagedDiff)"
+        let prompt = """
+Generate a commit message for the following diff:
+
+\(stagedDiff)
+"""
         let session = LanguageModelSession(instructions: instructions)
         return session.streamResponse(to: prompt, generating: GeneratedCommitMessage.self)
     }
