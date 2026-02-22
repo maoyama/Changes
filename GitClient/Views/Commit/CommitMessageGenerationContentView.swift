@@ -81,6 +81,9 @@ struct CommitMessageGenerationContentView: View {
                 for try await message in stream {
                     if !Task.isCancelled {
                         generatedCommitMessage = message.content.commitMessage ?? ""
+                        if generatedCommitMessage.hasSuffix(".") {
+                            generatedCommitMessage.removeLast()
+                        }
                     }
                 }
             }
