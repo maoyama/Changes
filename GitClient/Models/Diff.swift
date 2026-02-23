@@ -93,12 +93,15 @@ struct FileDiff: Identifiable, Hashable {
         if fromFilePath == toFilePath {
             return fromFilePath
         }
-        if !fromFilePath.isEmpty && !toFilePath.isEmpty && fromFilePath != toFilePath {
+        if isRename {
             return fromFilePath + " => " + toFilePath
         }
         return ""
     }
 
+    var isRename: Bool {
+        !fromFilePath.isEmpty && !toFilePath.isEmpty && fromFilePath != toFilePath
+    }    
     var extendedHeaderLines: [String]
     var fromFileToFileLines: [String]
     var chunks: [Chunk]
