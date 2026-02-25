@@ -41,6 +41,10 @@ struct FileNameView: View {
             .buttonStyle(.plain)
             Spacer()
         }
+        .padding(.vertical, 6)
+        .padding(.horizontal, 8)
+        .background(Color(NSColor.separatorColor).opacity(0.4))
+        .clipShape(RoundedRectangle(cornerRadius: 6))
     }
 }
 

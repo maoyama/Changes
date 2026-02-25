@@ -17,7 +17,7 @@ struct FileDiffsView: View {
             ForEach($expandableFileDiffs, id: \.self) { $expandedFileDiff in
                 FileDiffView(expandableFileDiff: $expandedFileDiff)
             }
-            .padding(.top, 2)
+            .padding(.top, 6)
             .onChange(of: expandAllFilesID) { _, _ in
                 expandableFileDiffs = expandableFileDiffs.map { ExpandableModel(isExpanded: true, model: $0.model)}
             }
