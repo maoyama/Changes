@@ -102,7 +102,7 @@ struct CommitDetailContentView: View {
         })
         .onChange(of: commitDetail, { _, newValue in
             if let newValue {
-                fileDiffs = newValue.diff.fileDiffs.map { .init(isExpanded: true, model: $0) }
+                fileDiffs = newValue.diff.fileDiffs.map { .init(isExpanded: !$0.isDeletedFile, model: $0) }
             } else {
                 fileDiffs = []
             }

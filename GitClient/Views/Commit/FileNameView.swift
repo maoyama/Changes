@@ -12,6 +12,7 @@ struct FileNameView: View {
 
     var toFilePath: String
     var filePathDisplay: String
+    var isDeletedFile: Bool = false
     var insertions: Int?
     var deletions: Int?
     var fileURL: URL? {
@@ -20,7 +21,11 @@ struct FileNameView: View {
 
     var body: some View {
         HStack {
-            if let asset = Language.assetName(filePath: toFilePath) {
+            if isDeletedFile {
+                Image(systemName: "trash")
+                    .frame(width: 18, height: 18)
+                    .fontWeight(.heavy)
+            } else if let asset = Language.assetName(filePath: toFilePath) {
                 Image(asset)
                     .resizable()
                     .scaledToFit()

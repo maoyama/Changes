@@ -18,7 +18,7 @@ struct FileDiffView: View {
                     .padding(.bottom, 12)
             }
         } label: {
-            FileNameView(toFilePath: expandableFileDiff.model.toFilePath, filePathDisplay: expandableFileDiff.model.filePathDisplay, insertions: expandableFileDiff.model.insertions, deletions: expandableFileDiff.model.deletions)
+            FileNameView(toFilePath: expandableFileDiff.model.toFilePath, filePathDisplay: expandableFileDiff.model.filePathDisplay, isDeletedFile: expandableFileDiff.model.isDeletedFile, insertions: expandableFileDiff.model.insertions, deletions: expandableFileDiff.model.deletions)
                 .padding(.leading, 3)
         }
     }
