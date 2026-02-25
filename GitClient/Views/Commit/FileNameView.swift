@@ -56,7 +56,7 @@ struct FileNameView: View {
     }
 }
 
-private struct DiffStatBadge: View {
+struct DiffStatBadge: View {
     var text: String
     var color: Color
 

@@ -20,33 +20,28 @@ struct CommitDetailContentView: View {
 
     var body: some View {
         ScrollView {
-            CommitDetailHeaderView(commit: commit, mergedIn: $mergedIn)
-            HStack {
-                VStack (alignment: .leading, spacing: 0) {
+            HStack(alignment: .top, spacing: 16) {
+                VStack(alignment: .leading, spacing: 0) {
                     Text(commit.title.trimmingCharacters(in: .whitespacesAndNewlines))
                         .font(.title2)
                         .fontWeight(.bold)
-                        .layoutPriority(1)
-                        .padding(.top, 8)
                     if !commit.body.isEmpty {
                         Text(commit.body.trimmingCharacters(in: .whitespacesAndNewlines))
                             .font(.body)
                             .padding(.top, 4)
                     }
-                    HStack {
-                        Icon(size: .medium, authorEmail: commit.authorEmail, authorInitial: String(commit.author.initial.prefix(2)))
-                        Text(commit.author)
-                        Divider()
-                            .frame(height: 10)
-                        Text(commit.authorEmail)
-                        Spacer()
-                        Text(commit.authorDateDisplay)
-                    }
-                    .padding(.top)
-                    .padding(.top, 2)
-                    .foregroundStyle(.secondary)
-                    Divider()
-                        .padding(.top)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .textSelection(.disabled)
+                CommitDetailHeaderView(commit: commit, fileDiffs: fileDiffs.map(\.model), mergedIn: $mergedIn)
+                    .fixedSize()
+            }
+            .padding(.top, 14)
+            .padding(.horizontal)
+            Divider()
+                .padding(.horizontal)
+            HStack {
+                VStack(alignment: .leading, spacing: 0) {
                     if commit.parentHashes.count == 2 {
                         MergeCommitContentView(
                             mergeCommit: commit,

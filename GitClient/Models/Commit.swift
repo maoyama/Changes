@@ -10,6 +10,7 @@ import Foundation
 struct Commit: Hashable, Identifiable {
     var id: String { hash }
     var hash: String
+    var treeHash: String
     var parentHashes: [String]
     var author: String
     var authorEmail: String
@@ -33,6 +34,14 @@ struct Commit: Hashable, Identifiable {
         let formatter = RelativeDateTimeFormatter()
         formatter.dateTimeStyle = .named
         return formatter.localizedString(for: date, relativeTo: Date())
+    }
+    var authorDateMedium: String {
+        guard let date = ISO8601DateFormatter().date(from: authorDate) else {
+            return ""
+        }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEE, d MMM, yyyy, HH:mm"
+        return formatter.string(from: date)
     }
     var title: String
     var body: String

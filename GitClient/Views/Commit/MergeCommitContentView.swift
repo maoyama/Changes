@@ -43,6 +43,7 @@ struct MergeCommitContentView: View {
         MergeCommitContentView(
             mergeCommit: .init(
                 hash: "11fff",
+                treeHash: "",
                 parentHashes: ["21fff", "31fff"],
                 author: "maoyama",
                 authorEmail: "a@aoyama.dev",
