@@ -56,6 +56,7 @@ struct CommitDetailHeaderView: View {
                     Icon(size: .medium, authorEmail: commit.authorEmail, authorInitial: String(commit.author.initial.prefix(2)))
                     Text("\(commit.author) <\(commit.authorEmail)>")
                 }
+                .gridCellUnsizedAxes(.horizontal)
             }
 
             // Date
@@ -80,6 +81,7 @@ struct CommitDetailHeaderView: View {
                     }
                 }
                 .textSelection(.disabled)
+                .gridCellUnsizedAxes(.horizontal)
             }
 
             // Stats
@@ -120,11 +122,12 @@ struct CommitDetailHeaderView: View {
                 GridRow {
                     Text(commit.tags.count > 1 ? "Tags" : "Tag")
                         .foregroundStyle(.secondary)
-                    HStack(spacing: 14) {
+                    VStack(alignment: .leading, spacing: 6) {
                         ForEach(commit.tags, id: \.self) { tag in
                             Label(tag, systemImage: "tag")
                         }
                     }
+                    .gridCellUnsizedAxes(.horizontal)
                 }
             }
 
@@ -133,12 +136,13 @@ struct CommitDetailHeaderView: View {
                 GridRow {
                     Text(commit.branches.count > 1 ? "Branches" : "Branch")
                         .foregroundStyle(.secondary)
-                    HStack(spacing: 14) {
+                    VStack(alignment: .leading, spacing: 6) {
                         ForEach(commit.branches, id: \.self) { branch in
                             Label(branch, systemImage: "arrow.triangle.branch")
                                 .foregroundColor(.secondary)
                         }
                     }
+                    .gridCellUnsizedAxes(.horizontal)
                 }
             }
         }
