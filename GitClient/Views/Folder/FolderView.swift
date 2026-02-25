@@ -487,7 +487,13 @@ struct FolderView: View {
                         })
                 })
         }
-        .help("Pull origin \(branch?.name ?? "")" )
+        .help({
+            var text = "Pull origin \(branch?.name ?? "")"
+            if syncState.behindCount > 0 {
+                text += " — \(syncState.behindCount) commit\(syncState.behindCount == 1 ? "" : "s") behind"
+            }
+            return text
+        }())
     }
 
     fileprivate func pushButton() -> some View {
@@ -514,7 +520,13 @@ struct FolderView: View {
                             })
                 })
         }
-        .help("Push origin HEAD")
+        .help({
+            var text = "Push origin HEAD"
+            if syncState.aheadCount > 0 {
+                text += " — \(syncState.aheadCount) commit\(syncState.aheadCount == 1 ? "" : "s") ahead"
+            }
+            return text
+        }())
     }
 
     fileprivate func countText() -> some View {

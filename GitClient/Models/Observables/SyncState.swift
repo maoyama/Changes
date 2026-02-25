@@ -17,12 +17,16 @@ import os
     var branch: Branch?
     var shouldPull = false
     var shouldPush = false
+    var aheadCount: Int = 0
+    var behindCount: Int = 0
     var syncError: String?
 
     func sync() async {
         guard let folderURL, let branch, !branch.isDetached else {
             shouldPull = false
             shouldPush = false
+            aheadCount = 0
+            behindCount = 0
             return
         }
 
@@ -34,6 +38,8 @@ import os
             syncError = error.localizedDescription
             shouldPull = false
             shouldPush = false
+            aheadCount = 0
+            behindCount = 0
             return
         }
 
@@ -42,14 +48,20 @@ import os
             guard existRemoteBranch != nil else {
                 shouldPull = false
                 shouldPush = true
+                aheadCount = try await Process.output(GitRevListCount(directory: folderURL)) ?? 0
+                behindCount = 0
                 return
             }
             shouldPull = !(try await Process.output(GitLog(directory: folderURL, revisionRange: ["\(branch.name)..origin/\(branch.name)"])).isEmpty)
             shouldPush = !(try await Process.output(GitLog(directory: folderURL, revisionRange: ["origin/\(branch.name)..\(branch.name)"])).isEmpty)
+            aheadCount = try await Process.output(GitRevListCount(directory: folderURL, commit: "origin/\(branch.name)..\(branch.name)")) ?? 0
+            behindCount = try await Process.output(GitRevListCount(directory: folderURL, commit: "\(branch.name)..origin/\(branch.name)")) ?? 0
         } catch {
             Self.logger.warning("git log for sync check failed: \(error.localizedDescription)")
             shouldPull = false
             shouldPush = false
+            aheadCount = 0
+            behindCount = 0
         }
     }
 }
