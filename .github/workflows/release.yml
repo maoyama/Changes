@@ -63,6 +63,67 @@ jobs:
         run: |
           shasum -a 256 Changes.zip > Checksum.txt
           echo "SHA256 Checksum: $(cat Checksum.txt)" >> $GITHUB_STEP_SUMMARY
+      - name: Sign Update with Sparkle
+        env:
+          SPARKLE_EDDSA_PRIVATE_KEY: ${{ secrets.SPARKLE_EDDSA_PRIVATE_KEY }}
+        run: |
+          SPARKLE_CHECKOUT="${HOME}/Library/Developer/Xcode/DerivedData/GitClient-*/SourcePackages/checkouts/Sparkle"
+          SPARKLE_DIR=$(ls -d $SPARKLE_CHECKOUT 2>/dev/null | head -1)
+          if [ -z "$SPARKLE_DIR" ]; then
+            echo "Building to resolve Sparkle package..."
+            xcodebuild build -scheme GitClient -configuration Release -derivedDataPath DerivedData 2>/dev/null || true
+            SPARKLE_DIR=$(ls -d DerivedData/SourcePackages/checkouts/Sparkle 2>/dev/null | head -1)
+          fi
+          SIGN_UPDATE="$SPARKLE_DIR/bin/sign_update"
+          if [ ! -f "$SIGN_UPDATE" ]; then
+            echo "Downloading Sparkle tools..."
+            curl -sL https://github.com/sparkle-project/Sparkle/releases/latest/download/Sparkle-2.7.5.tar.xz | tar xJ -C /tmp
+            SIGN_UPDATE="/tmp/bin/sign_update"
+          fi
+          SIGNATURE=$("$SIGN_UPDATE" Changes.zip --ed-key-file <(echo "$SPARKLE_EDDSA_PRIVATE_KEY") 2>&1)
+          echo "SPARKLE_SIGNATURE<<EOF" >> "$GITHUB_ENV"
+          echo "$SIGNATURE" >> "$GITHUB_ENV"
+          echo "EOF" >> "$GITHUB_ENV"
+          echo "Sparkle signature generated" >> "$GITHUB_STEP_SUMMARY"
+      - name: Generate Appcast Entry
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          VERSION="${TAG_NAME#v}"
+          FILE_SIZE=$(stat -f%z Changes.zip)
+          DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${TAG_NAME}/Changes.zip"
+          cat > appcast.xml << 'APPCAST_HEADER'
+          <?xml version="1.0" standalone="yes"?>
+          <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
+            <channel>
+              <title>Changes</title>
+          APPCAST_HEADER
+          cat >> appcast.xml << APPCAST_ITEM
+              <item>
+                <title>Version ${VERSION}</title>
+                <sparkle:version>${VERSION}</sparkle:version>
+                <sparkle:shortVersionString>${VERSION}</sparkle:shortVersionString>
+                <pubDate>$(date -R)</pubDate>
+                <enclosure url="${DOWNLOAD_URL}" length="${FILE_SIZE}" type="application/octet-stream" ${SPARKLE_SIGNATURE} />
+              </item>
+          APPCAST_ITEM
+          cat >> appcast.xml << 'APPCAST_FOOTER'
+            </channel>
+          </rss>
+          APPCAST_FOOTER
+          sed -i '' 's/^          //' appcast.xml
+      - name: Deploy Appcast to GitHub Pages
+        run: |
+          mkdir -p gh-pages-deploy
+          cp appcast.xml gh-pages-deploy/
+      - name: Publish to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: gh-pages-deploy
+          publish_branch: gh-pages
+          keep_files: true
       - name: Upload Assets to Release
         uses: softprops/action-gh-release@v2
         env:
@@ -71,5 +132,6 @@ jobs:
           files: |
             Changes.zip
             Checksum.txt
+            appcast.xml
           draft: true
           generate_release_notes: true
