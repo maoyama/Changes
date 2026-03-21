@@ -8,6 +8,11 @@
 import SwiftUI
 
 struct CommitDetailContentView: View {
+    private enum ScrollAnchor {
+        static let top = "commit-detail-top"
+        static let bottom = "commit-detail-bottom"
+    }
+
     var commit: Commit
     var folder: Folder
     @State private var commitDetail: CommitDetail?
@@ -19,51 +24,76 @@ struct CommitDetailContentView: View {
     @State private var error: Error?
 
     var body: some View {
-        ScrollView {
-            CommitDetailHeaderView(commit: commit, mergedIn: $mergedIn)
-            HStack {
-                VStack (alignment: .leading, spacing: 0) {
-                    Text(commit.title.trimmingCharacters(in: .whitespacesAndNewlines))
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .layoutPriority(1)
-                        .padding(.top, 8)
-                    if !commit.body.isEmpty {
-                        Text(commit.body.trimmingCharacters(in: .whitespacesAndNewlines))
-                            .font(.body)
-                            .padding(.top, 4)
-                    }
-                    HStack {
-                        Icon(size: .medium, authorEmail: commit.authorEmail, authorInitial: String(commit.author.initial.prefix(2)))
-                        Text(commit.author)
-                        Divider()
-                            .frame(height: 10)
-                        Text(commit.authorEmail)
-                        Spacer()
-                        Text(commit.authorDateDisplay)
-                    }
-                    .padding(.top)
-                    .padding(.top, 2)
-                    .foregroundStyle(.secondary)
-                    Divider()
+        ScrollViewReader { proxy in
+            ScrollView {
+                Color.clear
+                    .frame(height: 1)
+                    .id(ScrollAnchor.top)
+
+                CommitDetailHeaderView(commit: commit, mergedIn: $mergedIn)
+                HStack {
+                    VStack (alignment: .leading, spacing: 0) {
+                        Text(commit.title.trimmingCharacters(in: .whitespacesAndNewlines))
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .layoutPriority(1)
+                            .padding(.top, 8)
+                        if !commit.body.isEmpty {
+                            Text(commit.body.trimmingCharacters(in: .whitespacesAndNewlines))
+                                .font(.body)
+                                .padding(.top, 4)
+                        }
+                        HStack {
+                            Icon(size: .medium, authorEmail: commit.authorEmail, authorInitial: String(commit.author.initial.prefix(2)))
+                            Text(commit.author)
+                            Divider()
+                                .frame(height: 10)
+                            Text(commit.authorEmail)
+                            Spacer()
+                            Text(commit.authorDateDisplay)
+                        }
                         .padding(.top)
-                    if commit.parentHashes.count == 2 {
-                        MergeCommitContentView(
-                            mergeCommit: commit,
-                            directoryURL: folder.url,
-                            tab: $mergeCommitViewTab,
-                            filesChanged: $mergeCommitFilesChanged
-                        )
-                    } else {
-                        FileDiffsView(expandableFileDiffs: $fileDiffs)
+                        .padding(.top, 2)
+                        .foregroundStyle(.secondary)
+                        Divider()
+                            .padding(.top)
+                        if commit.parentHashes.count == 2 {
+                            MergeCommitContentView(
+                                mergeCommit: commit,
+                                directoryURL: folder.url,
+                                tab: $mergeCommitViewTab,
+                                filesChanged: $mergeCommitFilesChanged
+                            )
+                        } else {
+                            FileDiffsView(expandableFileDiffs: $fileDiffs)
+                        }
                     }
+                    Spacer(minLength: 0)
                 }
-                Spacer(minLength: 0)
+                .padding(.horizontal)
+
+                Color.clear
+                    .frame(height: 1)
+                    .id(ScrollAnchor.bottom)
             }
-            .padding(.horizontal)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color(NSColor.textBackgroundColor))
+            .focusable()
+            .onKeyPress(keys: [.upArrow, .downArrow]) { press in
+                guard press.modifiers.contains(.command) else { return .ignored }
+
+                switch press.key {
+                case .upArrow:
+                    proxy.scrollTo(ScrollAnchor.top, anchor: .top)
+                case .downArrow:
+                    proxy.scrollTo(ScrollAnchor.bottom, anchor: .bottom)
+                default:
+                    break
+                }
+
+                return .handled
+            }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(NSColor.textBackgroundColor))
         .textSelection(.enabled)
         .scrollEdgeEffectStyle(.soft, for: .bottom)
         .safeAreaBar(edge: .bottom, spacing: 0, content: {
@@ -114,11 +144,10 @@ struct CommitDetailContentView: View {
         })
         .errorSheet($error)
     }
-    
+
     private func bottomBarFileDiff() -> Binding<[ExpandableModel<FileDiff>]> {
         if commit.parentHashes.count == 2 {
             return mergeCommitViewTab == 0 ? .constant([]) : $mergeCommitFilesChanged
-        
         } else {
             return $fileDiffs
         }
