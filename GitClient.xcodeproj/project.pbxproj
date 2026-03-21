@@ -1039,7 +1039,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = 2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.aoyama.changes;
 				PRODUCT_NAME = Changes;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1072,7 +1072,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = 2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.aoyama.changes;
 				PRODUCT_NAME = Changes;
 				PROVISIONING_PROFILE_SPECIFIER = "";
