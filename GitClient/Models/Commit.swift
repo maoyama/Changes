@@ -27,15 +27,10 @@ struct Commit: Hashable, Identifiable {
         return DateFormatter.localizedString(from: date, dateStyle: .short, timeStyle: .short)
     }
     var authorDateRelative: String {
-        authorDateRelative(relativeTo: .now)
-    }
-    func authorDateRelative(relativeTo now: Date) -> String {
         guard let date = try? Date(authorDate, strategy: .iso8601) else {
             return ""
         }
-        let formatter = RelativeDateTimeFormatter()
-        formatter.dateTimeStyle = .named
-        return formatter.localizedString(for: date, relativeTo: now)
+        return date.formatted(.relative(presentation: .named))
     }
     var title: String
     var body: String

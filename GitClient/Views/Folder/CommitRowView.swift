@@ -25,8 +25,8 @@ struct CommitRowView: View {
                 Icon(size: .small, authorEmail: commit.authorEmail, authorInitial: String(commit.author.initial.prefix(1)))
                 Text(commit.author)
                 Spacer()
-                TimelineView(.periodic(from: .now, by: 60)) { context in
-                    Text(commit.authorDateRelative(relativeTo: context.date))
+                TimelineView(.periodic(from: .now, by: 60)) { _ in
+                    Text(commit.authorDateRelative)
                 }
             }
             .lineLimit(1)
