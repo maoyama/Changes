@@ -15,24 +15,27 @@ struct Commit: Hashable, Identifiable {
     var authorEmail: String
     var authorDate: String
     var authorDateDisplay: String {
-        guard let date = ISO8601DateFormatter().date(from: authorDate) else {
+        guard let date = try? Date(authorDate, strategy: .iso8601) else {
             return ""
         }
         return DateFormatter.localizedString(from: date, dateStyle: .long, timeStyle: .long)
     }
     var authorDateDisplayShort: String {
-        guard let date = ISO8601DateFormatter().date(from: authorDate) else {
+        guard let date = try? Date(authorDate, strategy: .iso8601) else {
             return ""
         }
         return DateFormatter.localizedString(from: date, dateStyle: .short, timeStyle: .short)
     }
     var authorDateRelative: String {
-        guard let date = ISO8601DateFormatter().date(from: authorDate) else {
+        authorDateRelative(relativeTo: .now)
+    }
+    func authorDateRelative(relativeTo now: Date) -> String {
+        guard let date = try? Date(authorDate, strategy: .iso8601) else {
             return ""
         }
         let formatter = RelativeDateTimeFormatter()
         formatter.dateTimeStyle = .named
-        return formatter.localizedString(for: date, relativeTo: Date())
+        return formatter.localizedString(for: date, relativeTo: now)
     }
     var title: String
     var body: String
