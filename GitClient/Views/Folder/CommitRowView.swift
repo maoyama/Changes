@@ -21,6 +21,7 @@ struct CommitRowView: View {
                         .font(.caption)
                 }
             }
+            //
             HStack {
                 Icon(size: .small, authorEmail: commit.authorEmail, authorInitial: String(commit.author.initial.prefix(1)))
                 Text(commit.author)
