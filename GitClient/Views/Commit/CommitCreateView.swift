@@ -78,6 +78,9 @@ struct CommitCreateView: View {
             }
 
             if diff != nil {
+                Divider()
+                    .padding()
+
                 UnstagedView(
                     fileDiffs: $expandableFileDiffs,
                     status: notStagedHeaderCaption,
