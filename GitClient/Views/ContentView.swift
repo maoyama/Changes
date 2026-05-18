@@ -47,20 +47,29 @@ struct ContentView: View {
                     .foregroundStyle(.secondary)
                     .padding()
                 } else {
-                    List(decodedFolders, id: \.url, selection: $selectionFolderURL) { folder in
-                        Label(folder.displayName, systemImage: "folder")
-                            .help(folder.url.path)
+                    List(selection: $selectionFolderURL) {
+                        ForEach(decodedFolders, id: \.url) { folder in
+                            HStack {
+                                Label(folder.displayName, systemImage: "folder")
+                                    .help(folder.url.path)
+                                Spacer()
+                                Image(systemName: "line.3.horizontal")
+                                    .foregroundStyle(.secondary)
+                            }
+                            .tag(folder.url)
                             .contextMenu {
                                 Button("Delete") {
                                     var folders = decodedFolders
                                     folders.removeAll { $0 == folder }
-                                    do {
-                                        try self.folders = JSONEncoder().encode(folders)
-                                    } catch {
-                                        self.error = error
-                                    }
+                                    persistFolders(folders)
                                 }
                             }
+                        }
+                        .onMove(perform: { source, destination in
+                            var folders = decodedFolders
+                            folders.move(fromOffsets: source, toOffset: destination)
+                            persistFolders(folders)
+                        })
                     }
                 }
             }
@@ -79,11 +88,7 @@ struct ContentView: View {
                                         var folders = decodedFolders
                                         folders.removeAll { $0 == chooseFolder }
                                         folders.insert(chooseFolder, at: 0)
-                                        do {
-                                            try self.folders = JSONEncoder().encode(folders)
-                                        } catch {
-                                            self.error = error
-                                        }
+                                        persistFolders(folders)
                                     }
                                 }
                             }
@@ -146,6 +151,14 @@ struct ContentView: View {
         .errorSheet($error)
         .environment(\.folder, selectionFolderURL)
         .environment(\.systemLanguageModelAvailability, systemLanguageModelAvailability)
+    }
+
+    private func persistFolders(_ folders: [Folder]) {
+        do {
+            try self.folders = JSONEncoder().encode(folders)
+        } catch {
+            self.error = error
+        }
     }
 }
 
