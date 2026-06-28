@@ -1,12 +1,12 @@
 //
-//  StagedFileDiffsView.swift
+//  StageFileDiffsView.swift
 //  GitClient
 //
 //  Created by Makoto Aoyama on 2025/03/15.
 //
 import SwiftUI
 
-struct StagedFileDiffView: View {
+struct StageFileDiffsView: View {
     @Binding var expandableFileDiffs: [ExpandableModel<FileDiff>]
     var selectButtonImageSystemName: String
     var selectButtonHelp: String
