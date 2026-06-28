@@ -59,54 +59,56 @@ struct CommitCreateView: View {
     
     var body: some View {
         ScrollView {
-            if cachedDiff != nil {
-                StagedView(
-                    fileDiffs: $cachedExpandableFileDiffs,
-                    status: cachedDiffShortStat,
-                    onSelectFileDiff: { fileDiff in
-                        if let newDiff = self.cachedDiff?.updateFileDiffStage(fileDiff, stage: false) {
-                            restorePatch(newDiff)
-                        }
-                    },
-                    onSelectChunk: status?.unmergedFiles.isEmpty == false ? nil : { fileDiff, chunk in
-                        if let newDiff = self.cachedDiff?.updateChunkStage(chunk, in: fileDiff, stage: false) {
-                            restorePatch(newDiff)
-                        }
-                    }
-                )
-                .padding(.top)
-            }
-
-            if diff != nil {
-                Divider()
-                    .padding()
-
-                UnstagedView(
-                    fileDiffs: $expandableFileDiffs,
-                    status: notStagedHeaderCaption,
-                    untrackedFiles: status?.untrackedFiles ?? [],
-                    onSelectFileDiff: { fileDiff in
-                        if let newDiff = self.diff?.updateFileDiffStage(fileDiff, stage: true) {
-                            addPatch(newDiff)
-                        }
-                    },
-                    onSelectChunk: status?.unmergedFiles.isEmpty == false ? nil : { fileDiff, chunk in
-                        if let newDiff = self.diff?.updateChunkStage(chunk, in: fileDiff, stage: true) {
-                            addPatch(newDiff)
-                        }
-                    },
-                    onSelectUntrackedFile: { file in
-                        Task {
-                            do {
-                                try await Process.output(GitAddPathspec(directory: folder.url, pathspec: file))
-                                await updateChanges()
-                            } catch {
-                                self.error = error
+            LazyVStack(alignment: .leading, spacing: 0) {
+                if cachedDiff != nil {
+                    StagedView(
+                        fileDiffs: $cachedExpandableFileDiffs,
+                        status: cachedDiffShortStat,
+                        onSelectFileDiff: { fileDiff in
+                            if let newDiff = self.cachedDiff?.updateFileDiffStage(fileDiff, stage: false) {
+                                restorePatch(newDiff)
+                            }
+                        },
+                        onSelectChunk: status?.unmergedFiles.isEmpty == false ? nil : { fileDiff, chunk in
+                            if let newDiff = self.cachedDiff?.updateChunkStage(chunk, in: fileDiff, stage: false) {
+                                restorePatch(newDiff)
                             }
                         }
-                    }
-                )
-                .padding(.bottom)
+                    )
+                    .padding(.top)
+                }
+
+                if diff != nil {
+                    Divider()
+                        .padding()
+
+                    UnstagedView(
+                        fileDiffs: $expandableFileDiffs,
+                        status: notStagedHeaderCaption,
+                        untrackedFiles: status?.untrackedFiles ?? [],
+                        onSelectFileDiff: { fileDiff in
+                            if let newDiff = self.diff?.updateFileDiffStage(fileDiff, stage: true) {
+                                addPatch(newDiff)
+                            }
+                        },
+                        onSelectChunk: status?.unmergedFiles.isEmpty == false ? nil : { fileDiff, chunk in
+                            if let newDiff = self.diff?.updateChunkStage(chunk, in: fileDiff, stage: true) {
+                                addPatch(newDiff)
+                            }
+                        },
+                        onSelectUntrackedFile: { file in
+                            Task {
+                                do {
+                                    try await Process.output(GitAddPathspec(directory: folder.url, pathspec: file))
+                                    await updateChanges()
+                                } catch {
+                                    self.error = error
+                                }
+                            }
+                        }
+                    )
+                    .padding(.bottom)
+                }
             }
 
             if let updateChangesError {

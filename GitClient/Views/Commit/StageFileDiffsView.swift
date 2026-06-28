@@ -16,7 +16,7 @@ struct StagedFileDiffView: View {
     @Environment(\.collapseAllFiles) private var collapseAllFilesID: UUID?
 
     var body: some View {
-        LazyVStack(spacing: 0, pinnedViews: .sectionHeaders) {
+        VStack(alignment: .leading, spacing: 0) {
             ForEach($expandableFileDiffs, id: \.self) { $fileDiff in
                 StageFileDiffView(
                     expandableFileDiff: $fileDiff,
@@ -28,6 +28,7 @@ struct StagedFileDiffView: View {
             }
             .font(Font.system(.body, design: .monospaced))
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .onChange(of: expandAllFilesID) { _, _ in
             expandableFileDiffs = expandableFileDiffs.map { ExpandableModel(isExpanded: true, model: $0.model)}
         }
