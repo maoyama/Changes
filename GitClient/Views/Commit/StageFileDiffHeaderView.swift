@@ -12,10 +12,11 @@ struct StageFileDiffHeaderView: View {
 
     var body: some View {
         HStack {
-            FileNameView(toFilePath: fileDiff.toFilePath, filePathDisplay: fileDiff.filePathDisplay)
+            FileNameView(toFilePath: fileDiff.toFilePath, filePathDisplay: fileDiff.filePathDisplay, isDeletedFile: fileDiff.isDeletedFile, insertions: fileDiff.insertions, deletions: fileDiff.deletions)
                 .help(fileDiff.header + "\n" + (fileDiff.extendedHeaderLines + fileDiff.fromFileToFileLines).joined(separator: "\n"))
             Spacer()
         }
-        .background(Color(NSColor.textBackgroundColor).opacity(0.98))
+        .background(Color(NSColor.separatorColor).opacity(0.4))
+        .clipShape(RoundedRectangle(cornerRadius: 6))
     }
 }

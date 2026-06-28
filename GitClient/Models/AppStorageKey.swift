@@ -11,5 +11,6 @@ enum AppStorageKey: String {
     case folder
     case commitMessageSnippet
     case searchTokenHisrtory
+    case lastOpenedFolder
 }
 

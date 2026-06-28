@@ -112,7 +112,7 @@ struct CommitDiffView: View {
                 let raw = try await Process.output(
                     GitDiff(directory: folder, noRenames: false, commitRange: commitRange)
                 )
-                filesChanges = try Diff(raw: raw).fileDiffs.map { .init(isExpanded: true, model: $0) }
+                filesChanges = try Diff(raw: raw).fileDiffs.map { .init(isExpanded: !$0.isDeletedFile, model: $0) }
                 filesChangesIsEmpty = filesChanges.isEmpty
                 shortstat = try await Process.output(
                     GitDiff(directory: folder, noRenames: false, shortstat: true, commitRange: commitRange)

@@ -117,6 +117,22 @@ struct FileDiff: Identifiable, Hashable {
     }
     var raw: String
 
+    var isDeletedFile: Bool {
+        extendedHeaderLines.contains { $0.hasPrefix("deleted file mode") }
+    }
+
+    var insertions: Int {
+        chunks.reduce(0) { total, chunk in
+            total + chunk.lines.filter { $0.kind == .added }.count
+        }
+    }
+
+    var deletions: Int {
+        chunks.reduce(0) { total, chunk in
+            total + chunk.lines.filter { $0.kind == .removed }.count
+        }
+    }
+
     private static func extractChunks(from lines: [String]) -> [String] {
         var chunks: [String] = []
         var currentChunk: String?

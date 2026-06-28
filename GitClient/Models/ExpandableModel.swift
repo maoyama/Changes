@@ -17,7 +17,8 @@ extension Array where Element: Hashable {
             if let oldModel = old.first(where: { $0.model == model }) {
                 return ExpandableModel(isExpanded: oldModel.isExpanded, model: model)
             } else {
-                return ExpandableModel(isExpanded: true, model: model)
+                let expanded = !((model as? FileDiff)?.isDeletedFile ?? false)
+                return ExpandableModel(isExpanded: expanded, model: model)
             }
         }
     }

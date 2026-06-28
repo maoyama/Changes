@@ -120,7 +120,7 @@ struct StashChangedContentView: View {
         do {
             if let index = selectionStashID {
                 let diff = try await Process.output(GitStashShowDiff(directory: folder.url, index: index))
-                fileDiffs = try Diff(raw: diff).fileDiffs.map { ExpandableModel(isExpanded: true, model: $0) }
+                fileDiffs = try Diff(raw: diff).fileDiffs.map { ExpandableModel(isExpanded: !$0.isDeletedFile, model: $0) }
             } else {
                 fileDiffs = []
             }

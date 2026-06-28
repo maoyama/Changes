@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @AppStorage(AppStorageKey.folder.rawValue) var folders: Data?
+    @AppStorage(AppStorageKey.lastOpenedFolder.rawValue) var lastOpenedFolder: String?
     @Environment(\.appearsActive) private var appearsActive
     private var decodedFolders: [Folder] {
         guard let folders else { return [] }
@@ -143,6 +144,16 @@ struct ContentView: View {
             systemLanguageModelAvailability = SystemLanguageModelService().availability
         }
         .errorSheet($error)
+        .task {
+            if selectionFolderURL == nil, let lastOpenedFolder,
+               let url = URL(string: lastOpenedFolder),
+               decodedFolders.contains(where: { $0.url == url }) {
+                selectionFolderURL = url
+            }
+        }
+        .onChange(of: selectionFolderURL) { _, newValue in
+            lastOpenedFolder = newValue?.absoluteString
+        }
         .environment(\.folder, selectionFolderURL)
         .environment(\.systemLanguageModelAvailability, systemLanguageModelAvailability)
     }

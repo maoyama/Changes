@@ -28,7 +28,7 @@ struct MergeCommitContentView: View {
                         let diffRaw = try await Process.output(
                             GitDiff(directory: directoryURL, noRenames: false, commitRange: mergeCommit.parentHashes[0] + ".." + mergeCommit.hash)
                         )
-                        filesChanged = try Diff(raw: diffRaw).fileDiffs.map { .init(isExpanded: true, model: $0) }
+                        filesChanged = try Diff(raw: diffRaw).fileDiffs.map { .init(isExpanded: !$0.isDeletedFile, model: $0) }
                     } catch {
                         self.error = error
                     }
@@ -43,6 +43,7 @@ struct MergeCommitContentView: View {
         MergeCommitContentView(
             mergeCommit: .init(
                 hash: "11fff",
+                treeHash: "",
                 parentHashes: ["21fff", "31fff"],
                 author: "maoyama",
                 authorEmail: "a@aoyama.dev",

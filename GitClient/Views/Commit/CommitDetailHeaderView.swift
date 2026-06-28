@@ -9,70 +9,143 @@ import SwiftUI
 
 struct CommitDetailHeaderView: View {
     var commit: Commit
+    var fileDiffs: [FileDiff]
     @Binding var mergedIn: Commit?
 
+    private var totalInsertions: Int {
+        fileDiffs.reduce(0) { $0 + $1.insertions }
+    }
+
+    private var totalDeletions: Int {
+        fileDiffs.reduce(0) { $0 + $1.deletions }
+    }
+
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack {
-                Text(commit.hash.prefix(5))
-                    .textSelection(.disabled)
-                    .help("Commit Hash: " + commit.hash)
+        Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 6) {
+            // Commit Hash
+            GridRow {
+                Text("Commit")
+                    .gridColumnAlignment(.trailing)
+                    .foregroundStyle(.secondary)
+                Text(commit.hash)
+                    .fontDesign(.monospaced)
+                    .textSelection(.enabled)
                     .contextMenu {
-                        Button("Copy " + commit.hash) {
+                        Button("Copy Commit Hash") {
                             let pasteboard = NSPasteboard.general
                             pasteboard.declareTypes([.string], owner: nil)
                             pasteboard.setString(commit.hash, forType: .string)
                         }
                     }
-                Image(systemName: "arrow.right")
+            }
+
+            // Tree
+            GridRow {
+                Text("Tree")
+                    .foregroundStyle(.secondary)
+                Text(commit.treeHash)
+                    .fontDesign(.monospaced)
+                    .textSelection(.enabled)
+            }
+
+            // Author
+            GridRow {
+                Text("Author")
+                    .foregroundStyle(.secondary)
+                HStack(spacing: 6) {
+                    Icon(size: .medium, authorEmail: commit.authorEmail, authorInitial: String(commit.author.initial.prefix(2)))
+                    Text("\(commit.author) <\(commit.authorEmail)>")
+                }
+                .gridCellUnsizedAxes(.horizontal)
+            }
+
+            // Date
+            GridRow {
+                Text("Date")
+                    .foregroundStyle(.secondary)
+                Text(commit.authorDateMedium)
+            }
+
+            // Parent(s)
+            GridRow {
+                Text(commit.parentHashes.count > 1 ? "Parents" : "Parent")
+                    .foregroundStyle(.secondary)
                 HStack(spacing: 0) {
-                    ForEach(commit.parentHashes, id: \.self) { hash in
-                        if hash == commit.parentHashes.first {
-                            NavigationLink(commit.parentHashes[0].prefix(5), value: commit.parentHashes[0])
-                                .foregroundColor(.accentColor)
-                        } else {
-                            Text(",")
-                                .padding(.trailing, 2)
-                            NavigationLink(commit.parentHashes[1].prefix(5), value: commit.parentHashes[1])
-                                .foregroundColor(.accentColor)
+                    ForEach(Array(commit.parentHashes.enumerated()), id: \.element) { index, hash in
+                        if index > 0 {
+                            Text(", ")
                         }
+                        NavigationLink(hash, value: hash)
+                            .foregroundColor(.accentColor)
+                            .fontDesign(.monospaced)
                     }
                 }
                 .textSelection(.disabled)
-                if let mergedIn {
-                    Divider()
-                        .frame(height: 10)
-                    HStack {
-                        Image(systemName: "arrow.triangle.pull")
-                        NavigationLink(mergedIn.hash.prefix(5), value: mergedIn.hash)
-                            .foregroundColor(.accentColor)
+                .gridCellUnsizedAxes(.horizontal)
+            }
+
+            // Stats
+            if !fileDiffs.isEmpty {
+                GridRow {
+                    Text("Stats")
+                        .foregroundStyle(.secondary)
+                    HStack(spacing: 6) {
+                        Text("\(fileDiffs.count) file\(fileDiffs.count == 1 ? "" : "s") changed")
+                        if totalDeletions > 0 {
+                            DiffStatBadge(text: "-\(totalDeletions)", color: .red)
+                        }
+                        if totalInsertions > 0 {
+                            DiffStatBadge(text: "+\(totalInsertions)", color: .green)
+                        }
                     }
-                    .help("Merged in \(mergedIn.hash.prefix(5))")
                 }
-                if !commit.tags.isEmpty {
-                    Divider()
-                        .frame(height: 10)
-                    HStack(spacing: 14) {
+            }
+
+            // Merged In
+            if let mergedIn {
+                GridRow {
+                    Text("Merged in")
+                        .foregroundStyle(.secondary)
+                    HStack(spacing: 4) {
+                        Image(systemName: "arrow.triangle.pull")
+                            .foregroundStyle(.secondary)
+                        NavigationLink(mergedIn.hash.prefix(7), value: mergedIn.hash)
+                            .foregroundColor(.accentColor)
+                            .fontDesign(.monospaced)
+                    }
+                    .textSelection(.disabled)
+                }
+            }
+
+            // Tags
+            if !commit.tags.isEmpty {
+                GridRow {
+                    Text(commit.tags.count > 1 ? "Tags" : "Tag")
+                        .foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: 6) {
                         ForEach(commit.tags, id: \.self) { tag in
                             Label(tag, systemImage: "tag")
                         }
                     }
+                    .gridCellUnsizedAxes(.horizontal)
                 }
-                if !commit.branches.isEmpty {
-                    Divider()
-                        .frame(height: 10)
-                    HStack(spacing: 14) {
+            }
+
+            // Branches
+            if !commit.branches.isEmpty {
+                GridRow {
+                    Text(commit.branches.count > 1 ? "Branches" : "Branch")
+                        .foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: 6) {
                         ForEach(commit.branches, id: \.self) { branch in
                             Label(branch, systemImage: "arrow.triangle.branch")
                                 .foregroundColor(.secondary)
                         }
                     }
+                    .gridCellUnsizedAxes(.horizontal)
                 }
             }
-            .foregroundColor(.secondary)
-            .buttonStyle(.link)
         }
-        .padding(.top, 14)
-        .padding(.horizontal)
+        .buttonStyle(.link)
     }
 }
