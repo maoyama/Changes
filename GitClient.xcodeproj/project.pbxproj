@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		55BD206E2F4F1ED8005ACFF3 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 40623BAE5ACD9D92B62D1CD8 /* Sparkle */; };
 		610134BF2C718E760071677C /* GitSwitchDetach.swift in Sources */ = {isa = PBXBuildFile; fileRef = 610134BE2C718E760071677C /* GitSwitchDetach.swift */; };
 		610134C12C71D5860071677C /* GitFetch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 610134C02C71D5860071677C /* GitFetch.swift */; };
 		6103A59E28EE46E30083A2F5 /* GitCheckoutB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6103A59D28EE46E30083A2F5 /* GitCheckoutB.swift */; };
@@ -151,6 +152,8 @@
 		61FAF49A2C68812F000B7ACB /* AppStorageDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61FAF4992C68812F000B7ACB /* AppStorageDefaults.swift */; };
 		61FAF49C2C688181000B7ACB /* WindowID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61FAF49B2C688181000B7ACB /* WindowID.swift */; };
 		61FAF49E2C68DBFB000B7ACB /* GitCommitAmend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61FAF49D2C68DBFB000B7ACB /* GitCommitAmend.swift */; };
+		6C5EFF43488E359300453862 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0DC6E2AAA5EC1CD49C9430 /* SettingsView.swift */; };
+		AD639353D9081D76A7953BD9 /* CheckForUpdatesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96756615B96CEF4A40398317 /* CheckForUpdatesViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -164,6 +167,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0EEB84590F6717564ED25E2F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		610134BE2C718E760071677C /* GitSwitchDetach.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitSwitchDetach.swift; sourceTree = "<group>"; };
 		610134C02C71D5860071677C /* GitFetch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitFetch.swift; sourceTree = "<group>"; };
 		6103A59D28EE46E30083A2F5 /* GitCheckoutB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitCheckoutB.swift; sourceTree = "<group>"; };
@@ -313,6 +317,8 @@
 		61FAF4992C68812F000B7ACB /* AppStorageDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStorageDefaults.swift; sourceTree = "<group>"; };
 		61FAF49B2C688181000B7ACB /* WindowID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowID.swift; sourceTree = "<group>"; };
 		61FAF49D2C68DBFB000B7ACB /* GitCommitAmend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitCommitAmend.swift; sourceTree = "<group>"; };
+		96756615B96CEF4A40398317 /* CheckForUpdatesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckForUpdatesViewModel.swift; sourceTree = "<group>"; };
+		CC0DC6E2AAA5EC1CD49C9430 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -320,6 +326,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				55BD206E2F4F1ED8005ACFF3 /* Sparkle in Frameworks */,
 				61DE74122CCFCEA70085E8A4 /* Sourceful in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -364,6 +371,7 @@
 				61347EED28D5D16C00625FC4 /* GitClientApp.swift */,
 				61347EF128D5D16D00625FC4 /* Assets.xcassets */,
 				6195C6382E6662BE0003A676 /* AppIcon.icon */,
+				0EEB84590F6717564ED25E2F /* Info.plist */,
 				61347EF628D5D16D00625FC4 /* GitClient.entitlements */,
 				61347EF328D5D16D00625FC4 /* Preview Content */,
 			);
@@ -422,6 +430,7 @@
 		613D140D2DA7B7B6008D561E /* Observables */ = {
 			isa = PBXGroup;
 			children = (
+				96756615B96CEF4A40398317 /* CheckForUpdatesViewModel.swift */,
 				61D34C8E2CAEBDB90032A22A /* LogStore.swift */,
 				613D14072DA782E9008D561E /* SyncState.swift */,
 			);
@@ -503,6 +512,7 @@
 				616CFE792DBB02E100CAFCE6 /* ErrorTextSheet.swift */,
 				6180C0A728E916B900B3AEAD /* BranchesView.swift */,
 				61A6F2F82E80BBFE0051A51E /* DiffSummaryView.swift */,
+				CC0DC6E2AAA5EC1CD49C9430 /* SettingsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -651,6 +661,7 @@
 			name = GitClient;
 			packageProductDependencies = (
 				61DE74112CCFCEA70085E8A4 /* Sourceful */,
+				40623BAE5ACD9D92B62D1CD8 /* Sparkle */,
 			);
 			productName = GitClient;
 			productReference = 61347EEA28D5D16C00625FC4 /* Changes.app */;
@@ -704,6 +715,7 @@
 			mainGroup = 61347EE128D5D16C00625FC4;
 			packageReferences = (
 				61CA2ACA2D69BAC5007B8E56 /* XCRemoteSwiftPackageReference "Sourceful" */,
+				8EFFF471C6912E5A36233D25 /* XCRemoteSwiftPackageReference "Sparkle" */,
 			);
 			productRefGroup = 61347EEB28D5D16C00625FC4 /* Products */;
 			projectDirPath = "";
@@ -866,6 +878,8 @@
 				616C6FBE2C96BA1500A419DE /* GitStashShowDiff.swift in Sources */,
 				61A2D35728DE9CCC009A3EEC /* GenericError.swift in Sources */,
 				6103A5A028EE47790083A2F5 /* GitMerge.swift in Sources */,
+				AD639353D9081D76A7953BD9 /* CheckForUpdatesViewModel.swift in Sources */,
+				6C5EFF43488E359300453862 /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1029,16 +1043,17 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = GitClient/GitClient.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"GitClient/Preview Content\"";
-				DEVELOPMENT_TEAM = JRA6VW2DG4;
+				DEVELOPMENT_TEAM = 8TZ8FEYTV2;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = GitClient/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1072,6 +1087,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = GitClient/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1167,9 +1183,22 @@
 				minimumVersion = 1.1.0;
 			};
 		};
+		8EFFF471C6912E5A36233D25 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		40623BAE5ACD9D92B62D1CD8 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8EFFF471C6912E5A36233D25 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
 		61DE74112CCFCEA70085E8A4 /* Sourceful */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Sourceful;
