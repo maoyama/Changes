@@ -48,22 +48,16 @@ struct ContentView: View {
                     .padding()
                 } else {
                     List(selection: $selectionFolderURL) {
-                        ForEach(decodedFolders, id: \.url) { folder in
-                            HStack {
-                                Label(folder.displayName, systemImage: "folder")
-                                    .help(folder.url.path)
-                                Spacer()
-                                Image(systemName: "line.3.horizontal")
-                                    .foregroundStyle(.secondary)
-                            }
-                            .tag(folder.url)
-                            .contextMenu {
-                                Button("Delete") {
-                                    var folders = decodedFolders
-                                    folders.removeAll { $0 == folder }
-                                    persistFolders(folders)
+                        ForEach(decodedFolders, id: \.url) { folder in                                Label(folder.displayName, systemImage: "folder")
+                                .help(folder.url.path)
+                                .tag(folder.url)
+                                .contextMenu {
+                                    Button("Delete") {
+                                        var folders = decodedFolders
+                                        folders.removeAll { $0 == folder }
+                                        persistFolders(folders)
+                                    }
                                 }
-                            }
                         }
                         .onMove(perform: { source, destination in
                             var folders = decodedFolders
