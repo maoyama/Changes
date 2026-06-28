@@ -19,10 +19,11 @@ struct StageFileDiffView: View {
 
     var body: some View {
         DisclosureGroup(isExpanded: $expandableFileDiff.isExpanded) {
-            LazyVStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 8) {
                 ForEach(fileDiff.chunks) { chunk in
                     HStack(spacing: 0) {
                         ChunkView(chunk: chunk, filePath: fileDiff.toFilePath)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         Spacer(minLength: 0)
                         Button {
                             onSelectChunk?(fileDiff, chunk)
@@ -35,6 +36,7 @@ struct StageFileDiffView: View {
                         .padding(.vertical)
                         .disabled(onSelectChunk == nil)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
             .padding(.top, 8)

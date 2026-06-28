@@ -28,7 +28,7 @@ struct UnstagedView: View {
                         .padding(.trailing)
                 }
             }
-            StagedFileDiffView(
+            StageFileDiffsView(
                 expandableFileDiffs: $fileDiffs,
                 selectButtonImageSystemName: "plus.circle",
                 selectButtonHelp: "Stage This Hunk",
