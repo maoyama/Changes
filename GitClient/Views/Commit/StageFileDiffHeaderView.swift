@@ -9,12 +9,16 @@ import SwiftUI
 
 struct StageFileDiffHeaderView: View {
     var fileDiff: FileDiff
+    var selectButtonImageSystemName: String
+    var onSelectFileDiff: ((FileDiff) -> Void)?
 
     var body: some View {
         HStack {
-            FileNameView(toFilePath: fileDiff.toFilePath, filePathDisplay: fileDiff.filePathDisplay)
-                .help(fileDiff.header + "\n" + (fileDiff.extendedHeaderLines + fileDiff.fromFileToFileLines).joined(separator: "\n"))
-            Spacer()
+            FileNameView(
+                fileDiff: fileDiff,
+                selectButtonImageSystemName: selectButtonImageSystemName,
+                onSelectFileDiff: onSelectFileDiff
+            )
         }
         .background(Color(NSColor.textBackgroundColor).opacity(0.98))
     }
