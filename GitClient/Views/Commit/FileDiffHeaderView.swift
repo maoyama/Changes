@@ -26,13 +26,13 @@ struct FileDiffHeaderView: View {
                     .padding(.vertical, 8)
                     .padding(.trailing, 2)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.background.opacity(0.9), in: RoundedRectangle(cornerRadius: 8))
+                    .background(Color(NSColor.textBackgroundColor).opacity(0.9), in: RoundedRectangle(cornerRadius: 8))
             } else {
                 headerContent
                     .padding(.leading, 3)
                     .padding(.trailing, 12)
                     .padding(.vertical, 8)
-                    .background(.background.opacity(0.9), in: RoundedRectangle(cornerRadius: 8))
+                    .background(Color(NSColor.textBackgroundColor).opacity(0.9), in: RoundedRectangle(cornerRadius: 8))
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
