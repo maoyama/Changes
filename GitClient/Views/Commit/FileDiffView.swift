@@ -44,6 +44,9 @@ struct FileDiffView: View {
                 FileNameView(fileDiff: expandableFileDiff.model)
             }
             .padding(.leading, FileDiffHeaderLayout.headerLeadingPadding)
+            .padding(.trailing, 8)
+            .padding(.vertical, 2)
+            .background(Color(NSColor.textBackgroundColor).opacity(0.9), in: RoundedRectangle(cornerRadius: 6))
             .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
