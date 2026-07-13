@@ -65,7 +65,8 @@ struct CommitDetailContentView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(NSColor.textBackgroundColor))
         .textSelection(.enabled)
-        .scrollEdgeEffectStyle(.soft, for: .bottom)
+        .fileDiffStickyHeader(fileDiffs: stickyHeaderFileDiffs())
+        .scrollEdgeEffectStyle(.soft, for: .vertical)
         .safeAreaBar(edge: .bottom, spacing: 0, content: {
             CommitDetailBottomBar(
                 commit: commit,
@@ -121,6 +122,14 @@ struct CommitDetailContentView: View {
         
         } else {
             return $fileDiffs
+        }
+    }
+
+    private func stickyHeaderFileDiffs() -> [ExpandableModel<FileDiff>] {
+        if commit.parentHashes.count == 2 {
+            return mergeCommitViewTab == 0 ? [] : mergeCommitFilesChanged
+        } else {
+            return fileDiffs
         }
     }
 }

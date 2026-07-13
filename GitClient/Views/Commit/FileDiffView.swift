@@ -11,15 +11,36 @@ struct FileDiffView: View {
     @Binding var expandableFileDiff: ExpandableModel<FileDiff>
 
     var body: some View {
-        DisclosureGroup(isExpanded: $expandableFileDiff.isExpanded) {
-            LazyVStack(alignment: .leading, spacing: 0, pinnedViews: .sectionHeaders) {
-                    chunksView(expandableFileDiff.model.chunks, filePath: expandableFileDiff.model.toFilePath)
+        Section {
+            if expandableFileDiff.isExpanded {
+                LazyVStack(alignment: .leading, spacing: 0) {
+                    chunksView(
+                        expandableFileDiff.model.chunks,
+                        filePath: expandableFileDiff.model.toFilePath
+                    )
                     .padding(.top, 8)
                     .padding(.bottom, 12)
+                }
             }
-        } label: {
-            FileNameView(fileDiff: expandableFileDiff.model)
-                .padding(.leading, 3)
+        } header: {
+            HStack(spacing: 4) {
+                Button {
+                    withAnimation {
+                        expandableFileDiff.isExpanded.toggle()
+                    }
+                } label: {
+                    Image(systemName: "chevron.right")
+                        .rotationEffect(.degrees(expandableFileDiff.isExpanded ? 90 : 0))
+                        .frame(width: 16, height: 16)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+
+                FileNameView(fileDiff: expandableFileDiff.model)
+            }
+            .padding(.leading, 3)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .fileDiffHeaderPosition(id: expandableFileDiff.model.id)
         }
     }
 
