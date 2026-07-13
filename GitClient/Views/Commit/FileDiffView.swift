@@ -30,6 +30,8 @@ struct FileDiffView: View {
                     }
                 } label: {
                     Image(systemName: "chevron.right")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(.tertiary)
                         .rotationEffect(.degrees(expandableFileDiff.isExpanded ? 90 : 0))
                         .frame(width: 16, height: 16)
                         .contentShape(Rectangle())
