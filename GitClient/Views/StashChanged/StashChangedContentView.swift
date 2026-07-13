@@ -63,7 +63,6 @@ struct StashChangedContentView: View {
                     Spacer(minLength: 0)
                 }
             }
-            .fileDiffStickyHeader(fileDiffs: fileDiffs)
             .scrollEdgeEffectStyle(.soft, for: .vertical)
             .safeAreaBar(edge: .bottom, content: {
                 VStack (spacing: 0) {

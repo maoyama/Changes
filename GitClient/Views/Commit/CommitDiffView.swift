@@ -35,7 +35,6 @@ struct CommitDiffView: View {
                 .padding(.horizontal)
         }
         .background(Color(NSColor.textBackgroundColor))
-        .fileDiffStickyHeader(fileDiffs: filesChanges)
         .scrollEdgeEffectStyle(.soft, for: .vertical)
         .safeAreaBar(edge: .bottom, spacing: 0, content: {
             VStack(spacing: 0) {

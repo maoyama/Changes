@@ -45,7 +45,6 @@ struct FileDiffView: View {
             }
             .padding(.leading, FileDiffHeaderLayout.headerLeadingPadding)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .fileDiffHeaderPosition(id: expandableFileDiff.model.id)
         }
     }
 
