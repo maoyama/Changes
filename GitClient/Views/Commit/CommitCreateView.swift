@@ -118,7 +118,8 @@ struct CommitCreateView: View {
                     .font(Font.system(.body, design: .monospaced))
             }
         }
-        .safeAreaBar(edge: .top, spacing: 0, content: {
+        .scrollEdgeEffectStyle(.soft, for: .vertical)
+        .safeAreaBar(edge: .bottom, content: {
             VStack(spacing: 0) {
                 HStack {
                     Button {
@@ -192,24 +193,21 @@ struct CommitCreateView: View {
                 .textSelection(.disabled)
                 .padding(.vertical, 10)
                 .padding(.horizontal)
-                Divider()
+
+                CommitMessageEditor(
+                    folder: folder,
+                    commitMessage: $commitMessage,
+                    generatedCommitMessage: $generatedCommitMessage,
+                    generatedCommitMessageIsResponding: $generatedCommitMessageIsResponding,
+                    cachedDiffStat: $cachedDiffStat,
+                    isAmend: $isAmend,
+                    error: $error,
+                    cachedDiffRaw: $cachedDiffRaw,
+                    amendCommit: $amendCommit) {
+                        onCommit()
+                    }
+                    .frame(height: 140)
             }
-        })
-        .scrollEdgeEffectStyle(.hard, for: .vertical)
-        .safeAreaBar(edge: .bottom, content: {
-            CommitMessageEditor(
-                folder: folder,
-                commitMessage: $commitMessage,
-                generatedCommitMessage: $generatedCommitMessage,
-                generatedCommitMessageIsResponding: $generatedCommitMessageIsResponding,
-                cachedDiffStat: $cachedDiffStat,
-                isAmend: $isAmend,
-                error: $error,
-                cachedDiffRaw: $cachedDiffRaw,
-                amendCommit: $amendCommit) {
-                    onCommit()
-                }
-                .frame(height: 140)
         })
         .textSelection(.enabled)
         .frame(maxWidth: .infinity, alignment: .leading)
