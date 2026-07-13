@@ -18,10 +18,7 @@ struct FileDiffView: View {
                     .padding(.bottom, 12)
             }
         } label: {
-            FileNameView(
-                fileDiff: expandableFileDiff.model,
-                selectButtonImageSystemName: "plus.circle"
-            )
+            FileNameView(fileDiff: expandableFileDiff.model)
                 .padding(.leading, 3)
         }
     }
