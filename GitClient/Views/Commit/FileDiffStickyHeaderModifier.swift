@@ -20,14 +20,6 @@ private struct FileDiffHeaderPositionKey: PreferenceKey {
     }
 }
 
-private struct FileDiffStickyHeaderHeightKey: PreferenceKey {
-    static let defaultValue: CGFloat = 0
-
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
-    }
-}
-
 private enum FileDiffStickyHeaderCoordinateSpace {
     static let name = "FileDiffStickyHeaderCoordinateSpace"
 }
@@ -36,7 +28,6 @@ private struct FileDiffStickyHeaderModifier: ViewModifier {
     var fileDiffs: [FileDiff]
 
     @State private var headerPositions: [FileDiffHeaderPosition] = []
-    @State private var stickyHeaderHeight: CGFloat = 0
     @State private var stickyFileDiff: FileDiff?
 
     private var fileDiffIDs: [String] {
@@ -44,7 +35,7 @@ private struct FileDiffStickyHeaderModifier: ViewModifier {
     }
 
     private var currentFileDiff: FileDiff? {
-        let switchY = stickyHeaderHeight
+        let switchY: CGFloat = 0
         if let currentHeaderID = headerPositions.last(where: { $0.minY <= switchY })?.id {
             return fileDiffs.first { $0.id == currentHeaderID }
         }
@@ -65,10 +56,6 @@ private struct FileDiffStickyHeaderModifier: ViewModifier {
                 headerPositions = $0.sorted { $0.minY < $1.minY }
                 updateStickyFileDiff()
             }
-            .onPreferenceChange(FileDiffStickyHeaderHeightKey.self) {
-                stickyHeaderHeight = $0
-                updateStickyFileDiff()
-            }
             .onChange(of: fileDiffIDs) {
                 updateStickyFileDiff()
             }
@@ -86,23 +73,25 @@ private struct FileDiffStickyHeaderModifier: ViewModifier {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .opacity(stickyFileDiff == nil ? 0 : 1)
                 .allowsHitTesting(stickyFileDiff != nil)
-                .background {
-                    GeometryReader { proxy in
-                        Color.clear.preference(
-                            key: FileDiffStickyHeaderHeightKey.self,
-                            value: proxy.size.height
-                        )
-                    }
-                }
         }
     }
 
     private func updateStickyFileDiff() {
         if let currentFileDiff {
             setStickyFileDiff(currentFileDiff)
-        } else if headerPositions.contains(where: { $0.minY > stickyHeaderHeight }) {
+        } else if isBeforeFirstHeader {
             setStickyFileDiff(nil)
         }
+    }
+
+    private var isBeforeFirstHeader: Bool {
+        guard
+            let firstHeader = headerPositions.first,
+            let firstHeaderIndex = fileDiffs.firstIndex(where: { $0.id == firstHeader.id })
+        else {
+            return false
+        }
+        return firstHeaderIndex == 0 && firstHeader.minY > 0
     }
 
     private func setStickyFileDiff(_ fileDiff: FileDiff?) {
