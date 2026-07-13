@@ -82,7 +82,7 @@ private struct FileDiffStickyHeaderModifier: ViewModifier {
         if let fileDiff = stickyFileDiff ?? fileDiffs.first {
             FileNameView(fileDiff: fileDiff)
                 .font(Font.system(.body, design: .monospaced))
-                .padding(.leading, 23)
+                .padding(.leading, FileDiffHeaderLayout.stickyFileNameLeadingPadding)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .opacity(stickyFileDiff == nil ? 0 : 1)
                 .allowsHitTesting(stickyFileDiff != nil)
@@ -115,6 +115,15 @@ private struct FileDiffStickyHeaderModifier: ViewModifier {
             stickyFileDiff = fileDiff
         }
     }
+}
+
+enum FileDiffHeaderLayout {
+    static let contentLeadingPadding: CGFloat = 16
+    static let headerLeadingPadding: CGFloat = 3
+    static let chevronWidth: CGFloat = 16
+    static let chevronSpacing: CGFloat = 4
+    static let stickyFileNameLeadingPadding = contentLeadingPadding + headerFileNameLeadingPadding
+    static let headerFileNameLeadingPadding = headerLeadingPadding + chevronWidth + chevronSpacing
 }
 
 extension View {

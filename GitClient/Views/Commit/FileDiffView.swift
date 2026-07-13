@@ -23,7 +23,7 @@ struct FileDiffView: View {
                 }
             }
         } header: {
-            HStack(spacing: 4) {
+            HStack(spacing: FileDiffHeaderLayout.chevronSpacing) {
                 Button {
                     withAnimation {
                         expandableFileDiff.isExpanded.toggle()
@@ -33,14 +33,17 @@ struct FileDiffView: View {
                         .font(.system(size: 10, weight: .bold))
                         .foregroundStyle(.tertiary)
                         .rotationEffect(.degrees(expandableFileDiff.isExpanded ? 90 : 0))
-                        .frame(width: 16, height: 16)
+                        .frame(
+                            width: FileDiffHeaderLayout.chevronWidth,
+                            height: FileDiffHeaderLayout.chevronWidth
+                        )
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
 
                 FileNameView(fileDiff: expandableFileDiff.model)
             }
-            .padding(.leading, 3)
+            .padding(.leading, FileDiffHeaderLayout.headerLeadingPadding)
             .frame(maxWidth: .infinity, alignment: .leading)
             .fileDiffHeaderPosition(id: expandableFileDiff.model.id)
         }
