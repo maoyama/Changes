@@ -19,15 +19,41 @@ struct StageFileDiffView: View {
     var onSelectChunk: ((FileDiff, Chunk) -> Void)?
 
     var body: some View {
-        DisclosureGroup(isExpanded: $expandableFileDiff.isExpanded) {
-            VStack(alignment: .leading, spacing: 8) {
-                ForEach(fileDiff.chunks) { chunk in
-                    HStack(spacing: 0) {
-                        ChunkView(chunk: chunk, filePath: fileDiff.toFilePath)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        Spacer(minLength: 0)
+        Section {
+            if expandableFileDiff.isExpanded {
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(fileDiff.chunks) { chunk in
+                        HStack(spacing: 0) {
+                            ChunkView(chunk: chunk, filePath: fileDiff.toFilePath)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            Spacer(minLength: 0)
+                            Button {
+                                onSelectChunk?(fileDiff, chunk)
+                            } label: {
+                                Image(systemName: selectButtonImageSystemName)
+                                    .foregroundStyle(.secondary)
+                                    .frame(width: 20, height: 20)
+                            }
+                            .buttonStyle(.plain)
+                            .help(selectButtonHelp)
+                            .padding(.vertical)
+                            .disabled(onSelectChunk == nil)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+                .padding(.top, 8)
+                .padding(.bottom, 12)
+                if fileDiff.chunks.isEmpty {
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text(fileDiff.header)
+                            Text(fileDiff.extendedHeaderLines.joined(separator: "\n"))
+                            Text(fileDiff.fromFileToFileLines.joined(separator: "\n"))
+                        }
+                        Spacer()
                         Button {
-                            onSelectChunk?(fileDiff, chunk)
+                            onSelectFileDiff?(fileDiff)
                         } label: {
                             Image(systemName: selectButtonImageSystemName)
                                 .foregroundStyle(.secondary)
@@ -35,42 +61,19 @@ struct StageFileDiffView: View {
                         }
                         .buttonStyle(.plain)
                         .help(selectButtonHelp)
-                        .padding(.vertical)
-                        .disabled(onSelectChunk == nil)
+                        .padding()
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
-            .padding(.top, 8)
-            .padding(.bottom, 12)
-            if fileDiff.chunks.isEmpty {
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text(fileDiff.header)
-                        Text(fileDiff.extendedHeaderLines.joined(separator: "\n"))
-                        Text(fileDiff.fromFileToFileLines.joined(separator: "\n"))
-                    }
-                    Spacer()
-                    Button {
-                        onSelectFileDiff?(fileDiff)
-                    } label: {
-                        Image(systemName: selectButtonImageSystemName)
-                            .foregroundStyle(.secondary)
-                            .frame(width: 20, height: 20)
-                    }
-                    .buttonStyle(.plain)
-                    .help(selectButtonHelp)
-                    .padding()
-                }
-            }
-        } label: {
-            StageFileDiffHeaderView(
+        } header: {
+            FileDiffHeaderView(
+                isExpanded: $expandableFileDiff.isExpanded,
                 fileDiff: fileDiff,
-                selectButtonImageSystemName: selectButtonImageSystemName,
-                selectButtonHelp: selectFileButtonHelp,
-                onSelectFileDiff: onSelectFileDiff
-            )
-                .padding(.leading, 3)
+                trailingActionImageSystemName: selectButtonImageSystemName,
+                trailingActionHelp: selectFileButtonHelp
+            ) {
+                onSelectFileDiff?(fileDiff)
+            }
         }
     }
 }

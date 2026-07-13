@@ -23,31 +23,10 @@ struct FileDiffView: View {
                 }
             }
         } header: {
-            HStack(spacing: FileDiffHeaderLayout.chevronSpacing) {
-                Button {
-                    withAnimation {
-                        expandableFileDiff.isExpanded.toggle()
-                    }
-                } label: {
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundStyle(.tertiary)
-                        .rotationEffect(.degrees(expandableFileDiff.isExpanded ? 90 : 0))
-                        .frame(
-                            width: FileDiffHeaderLayout.chevronWidth,
-                            height: FileDiffHeaderLayout.chevronWidth
-                        )
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-
-                FileNameView(fileDiff: expandableFileDiff.model)
-            }
-            .padding(.leading, FileDiffHeaderLayout.headerLeadingPadding)
-            .padding(.trailing, 12)
-            .padding(.vertical, 8)
-            .background(.background.opacity(0.9), in: RoundedRectangle(cornerRadius: 8))
-            .frame(maxWidth: .infinity, alignment: .leading)
+            FileDiffHeaderView(
+                isExpanded: $expandableFileDiff.isExpanded,
+                fileDiff: expandableFileDiff.model
+            )
         }
     }
 
