@@ -11,8 +11,6 @@ struct FileNameView: View {
     @Environment(\.folder) private var current
 
     var fileDiff: FileDiff
-    var selectButtonImageSystemName: String
-    var onSelectFileDiff: ((FileDiff) -> Void)?
     var fileURL: URL? {
         current?.appending(path: fileDiff.toFilePath)
     }
@@ -42,14 +40,6 @@ struct FileNameView: View {
             }
             .buttonStyle(.plain)
             Spacer()
-            Button(action: {
-                onSelectFileDiff?(fileDiff)
-            }) {
-                Image(systemName: selectButtonImageSystemName)
-                    .foregroundStyle(.secondary)
-                    .help("Stage This File")
-            }
-            .buttonStyle(.plain)
         }
     }
 }

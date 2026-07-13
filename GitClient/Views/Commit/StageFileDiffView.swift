@@ -13,6 +13,7 @@ struct StageFileDiffView: View {
         expandableFileDiff.model
     }
     var selectButtonImageSystemName: String
+    var selectFileButtonHelp: String
     var selectButtonHelp: String
     var onSelectFileDiff: ((FileDiff) -> Void)?
     var onSelectChunk: ((FileDiff, Chunk) -> Void)?
@@ -29,6 +30,7 @@ struct StageFileDiffView: View {
                             onSelectChunk?(fileDiff, chunk)
                         } label: {
                             Image(systemName: selectButtonImageSystemName)
+                                .foregroundStyle(.secondary)
                                 .frame(width: 20, height: 20)
                         }
                         .buttonStyle(.plain)
@@ -53,6 +55,7 @@ struct StageFileDiffView: View {
                         onSelectFileDiff?(fileDiff)
                     } label: {
                         Image(systemName: selectButtonImageSystemName)
+                            .foregroundStyle(.secondary)
                             .frame(width: 20, height: 20)
                     }
                     .buttonStyle(.plain)
@@ -64,6 +67,7 @@ struct StageFileDiffView: View {
             StageFileDiffHeaderView(
                 fileDiff: fileDiff,
                 selectButtonImageSystemName: selectButtonImageSystemName,
+                selectButtonHelp: selectFileButtonHelp,
                 onSelectFileDiff: onSelectFileDiff
             )
                 .padding(.leading, 3)

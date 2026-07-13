@@ -9,6 +9,7 @@ import SwiftUI
 struct StageFileDiffsView: View {
     @Binding var expandableFileDiffs: [ExpandableModel<FileDiff>]
     var selectButtonImageSystemName: String
+    var selectFileButtonHelp: String
     var selectButtonHelp: String
     var onSelectFileDiff: ((FileDiff) -> Void)?
     var onSelectChunk: ((FileDiff, Chunk) -> Void)?
@@ -21,6 +22,7 @@ struct StageFileDiffsView: View {
                 StageFileDiffView(
                     expandableFileDiff: $fileDiff,
                     selectButtonImageSystemName: selectButtonImageSystemName,
+                    selectFileButtonHelp: selectFileButtonHelp,
                     selectButtonHelp: selectButtonHelp,
                     onSelectFileDiff: onSelectFileDiff,
                     onSelectChunk: onSelectChunk

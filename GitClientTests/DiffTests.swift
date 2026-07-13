@@ -343,4 +343,13 @@ index b438047,41f6d93..0000000
         XCTAssertFalse(diff.fileDiffs.first!.chunks.first!.stage!)
         XCTAssertTrue(newDiff.fileDiffs.first!.chunks.first!.stage!)
     }
+
+    func testUpdateFileDiffStage() throws {
+        let diff = try Diff(raw: raw).updateAll(stage: false)
+        let newDiff = diff.updateFileDiffStage(diff.fileDiffs[1], stage: true)
+
+        XCTAssertEqual(newDiff.stageStrings(), ["n", "y", "y", "n"])
+        XCTAssertTrue(newDiff.fileDiffs[1].chunks.allSatisfy { $0.stage == true })
+        XCTAssertNil(newDiff.fileDiffs[1].stage)
+    }
 }

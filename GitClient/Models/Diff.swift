@@ -36,7 +36,7 @@ struct Diff: Hashable {
         let fileDiffIndex = fileDiffs.firstIndex { $0.id == fileDiff.id }
         guard let fileDiffIndex  else { return self }
         var new = self
-        new.fileDiffs[fileDiffIndex].stage = stage
+        new.fileDiffs[fileDiffIndex] = fileDiff.updateAll(stage: stage)
         return new
     }
 
