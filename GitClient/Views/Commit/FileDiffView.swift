@@ -11,15 +11,22 @@ struct FileDiffView: View {
     @Binding var expandableFileDiff: ExpandableModel<FileDiff>
 
     var body: some View {
-        DisclosureGroup(isExpanded: $expandableFileDiff.isExpanded) {
-            LazyVStack(alignment: .leading, spacing: 0, pinnedViews: .sectionHeaders) {
-                    chunksView(expandableFileDiff.model.chunks, filePath: expandableFileDiff.model.toFilePath)
+        Section {
+            if expandableFileDiff.isExpanded {
+                LazyVStack(alignment: .leading, spacing: 0) {
+                    chunksView(
+                        expandableFileDiff.model.chunks,
+                        filePath: expandableFileDiff.model.toFilePath
+                    )
                     .padding(.top, 8)
                     .padding(.bottom, 12)
+                }
             }
-        } label: {
-            FileNameView(fileDiff: expandableFileDiff.model)
-                .padding(.leading, 3)
+        } header: {
+            FileDiffHeaderView(
+                isExpanded: $expandableFileDiff.isExpanded,
+                fileDiff: expandableFileDiff.model
+            )
         }
     }
 

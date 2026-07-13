@@ -65,7 +65,7 @@ struct CommitDetailContentView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(NSColor.textBackgroundColor))
         .textSelection(.enabled)
-        .scrollEdgeEffectStyle(.soft, for: .bottom)
+        .scrollEdgeEffectStyle(.soft, for: .vertical)
         .safeAreaBar(edge: .bottom, spacing: 0, content: {
             CommitDetailBottomBar(
                 commit: commit,
@@ -123,4 +123,5 @@ struct CommitDetailContentView: View {
             return $fileDiffs
         }
     }
+
 }

@@ -39,7 +39,6 @@ struct FileNameView: View {
                     .help("Open " + (fileURL?.absoluteString ?? ""))
             }
             .buttonStyle(.plain)
-            Spacer()
         }
     }
 }

@@ -63,7 +63,7 @@ struct StashChangedContentView: View {
                     Spacer(minLength: 0)
                 }
             }
-            .scrollEdgeEffectStyle(.soft, for: .bottom)
+            .scrollEdgeEffectStyle(.soft, for: .vertical)
             .safeAreaBar(edge: .bottom, content: {
                 VStack (spacing: 0) {
                     DiffSummaryView(fileDiffs: fileDiffs)
@@ -157,4 +157,3 @@ struct StashChangedContentView: View {
     @Previewable @State var showingStashChanged = false
     return StashChangedContentView(folder: .init(url: URL(string: "file:///maoyama/Projects/")!), showingStashChanged: $showingStashChanged)
 }
-

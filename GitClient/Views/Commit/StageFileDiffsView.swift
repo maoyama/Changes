@@ -17,7 +17,7 @@ struct StageFileDiffsView: View {
     @Environment(\.collapseAllFiles) private var collapseAllFilesID: UUID?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        LazyVStack(alignment: .leading, spacing: 0, pinnedViews: [.sectionHeaders]) {
             ForEach($expandableFileDiffs, id: \.self) { $fileDiff in
                 StageFileDiffView(
                     expandableFileDiff: $fileDiff,
