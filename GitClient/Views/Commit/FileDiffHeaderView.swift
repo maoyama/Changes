@@ -41,9 +41,7 @@ struct FileDiffHeaderView: View {
     private var headerContent: some View {
         HStack(spacing: 4) {
             Button {
-                withAnimation {
-                    isExpanded.toggle()
-                }
+                isExpanded.toggle()
             } label: {
                 Image(systemName: "chevron.right")
                     .font(.system(size: 10, weight: .bold))
