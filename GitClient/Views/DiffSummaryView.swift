@@ -5,6 +5,7 @@
 //  Created by Makoto Aoyama on 2025/09/22.
 //
 
+import FoundationModels
 import SwiftUI
 
 struct DiffSummaryView: View {

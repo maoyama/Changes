@@ -5,6 +5,7 @@
 //  Created by Makoto Aoyama on 2022/09/17.
 //
 
+import FoundationModels
 import SwiftUI
 
 struct ContentView: View {
