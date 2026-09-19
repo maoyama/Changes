@@ -5,6 +5,7 @@
 //  Created by Makoto Aoyama on 2024/09/16.
 //
 
+import FoundationModels
 import SwiftUI
 
 struct StashChangedContentView: View {
