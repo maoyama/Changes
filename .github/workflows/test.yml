@@ -11,11 +11,11 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    runs-on: macos-26
+    runs-on: xcode-27
     steps:
-      - name: Select Xcode
+      - name: Check Xcode version
         run: |
-          sudo xcode-select -s /Applications/Xcode_26.6.app/Contents/Developer
+          xcodebuild -version
       - name: Checkout
         uses: actions/checkout@v4
         with:
