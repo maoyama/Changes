@@ -11,18 +11,23 @@ struct CommitDiffView: View {
     @Environment(\.folder) private var folder
     var selectionLogID: String
     var subSelectionLogID: String
+    var selectionTitle: String? = nil
+    var subSelectionTitle: String? = nil
 
     @State private var commitFirst = ""
     @State private var commitSecond = ""
     @State private var filesChanges: [ExpandableModel<FileDiff>] = []
     @State private var filesChangesIsEmpty = false
+    @State private var isLoading = false
     @State private var shortstat = ""
     @State private var error: Error?
     @FocusState private var isFocused: Bool
 
     var body: some View {
         ScrollView {
-            if filesChangesIsEmpty {
+            if isLoading {
+                ProgressView().padding()
+            } else if filesChangesIsEmpty {
                 LazyVStack(alignment: .center) {
                     Label("No Changes", systemImage: "plusminus")
                         .foregroundStyle(.secondary)
@@ -43,8 +48,14 @@ struct CommitDiffView: View {
                     HStack {
                         Text("Diff")
                             .foregroundStyle(.secondary)
-                        Text(commitFirst == Log.notCommitted.id ? "Staged Changes" : commitFirst.prefix(5))
-                        Text(commitSecond == Log.notCommitted.id ? "Staged Changes" : commitSecond.prefix(5))
+                        Text(title(for: commitFirst))
+                            .lineLimit(1)
+                            .help(title(for: commitFirst))
+                        Image(systemName: "arrow.right")
+                            .foregroundStyle(.secondary)
+                        Text(title(for: commitSecond))
+                            .lineLimit(1)
+                            .help(title(for: commitSecond))
                         Button {
                             let first = commitFirst
                             let second = commitSecond
@@ -54,7 +65,7 @@ struct CommitDiffView: View {
                             Image(systemName: "arrow.left.arrow.right")
                         }
                             .buttonStyle(.plain)
-                            .help("Swap the Commits")
+                            .help(selectionTitle == nil ? "Swap the Commits" : "Swap the Comparison")
                     }
                     .padding(.horizontal)
                     Divider()
@@ -89,40 +100,52 @@ struct CommitDiffView: View {
                 .frame(height: 40)
             }
         })
-        .onChange(of: selectionLogID + subSelectionLogID, initial: true) { oldValue, newValue in
+        .onChange(of: [selectionLogID, subSelectionLogID], initial: true) { oldValue, newValue in
             commitFirst = selectionLogID
             commitSecond = subSelectionLogID
         }
-        .onChange(of: commitFirst + commitSecond, initial: true) { _, _ in
+        .task(id: [commitFirst, commitSecond]) {
+            guard !commitFirst.isEmpty, !commitSecond.isEmpty else { return }
             if commitFirst == Log.notCommitted.id {
-                updateDiff(commitRange: commitSecond)
+                await updateDiff(commitRange: commitSecond)
             } else if commitSecond == Log.notCommitted.id {
-                updateDiff(commitRange: commitFirst)
+                await updateDiff(commitRange: commitFirst)
             } else {
-                updateDiff(commitRange: commitFirst + ".." + commitSecond)
+                await updateDiff(commitRange: commitFirst + ".." + commitSecond)
             }
         }
         .errorSheet($error)
     }
 
-    private func updateDiff(commitRange: String) {
+    private func title(for revision: String) -> String {
+        if revision == selectionLogID, let selectionTitle { return selectionTitle }
+        if revision == subSelectionLogID, let subSelectionTitle { return subSelectionTitle }
+        return revision == Log.notCommitted.id ? "Staged Changes" : String(revision.prefix(5))
+    }
+
+    private func updateDiff(commitRange: String) async {
         guard let folder else { return }
-        Task {
-            do {
-                let raw = try await Process.output(
-                    GitDiff(directory: folder, noRenames: false, commitRange: commitRange)
-                )
-                filesChanges = try Diff(raw: raw).fileDiffs.map { .init(isExpanded: true, model: $0) }
-                filesChangesIsEmpty = filesChanges.isEmpty
-                shortstat = try await Process.output(
-                    GitDiff(directory: folder, noRenames: false, shortstat: true, commitRange: commitRange)
-                ).trimmingCharacters(in: .whitespacesAndNewlines)
-                if shortstat.isEmpty {
-                    shortstat = "No Changes"
-                }
-            } catch {
-                self.error = error
-            }
+        filesChanges = []
+        filesChangesIsEmpty = false
+        shortstat = ""
+        isLoading = true
+        do {
+            let raw = try await Process.output(
+                GitDiff(directory: folder, noRenames: false, commitRange: commitRange)
+            )
+            let changes = try Diff(raw: raw).fileDiffs.map { ExpandableModel(isExpanded: true, model: $0) }
+            let stat = try await Process.output(
+                GitDiff(directory: folder, noRenames: false, shortstat: true, commitRange: commitRange)
+            ).trimmingCharacters(in: .whitespacesAndNewlines)
+            try Task.checkCancellation()
+            filesChanges = changes
+            filesChangesIsEmpty = changes.isEmpty
+            shortstat = stat.isEmpty ? "No Changes" : stat
+            isLoading = false
+        } catch {
+            guard !Task.isCancelled else { return }
+            isLoading = false
+            self.error = error
         }
     }
 }

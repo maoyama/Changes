@@ -24,6 +24,15 @@ struct CompareRevisionsView: View {
         tab == 0 ? selectedBranch : selectedTag
     }
 
+    private var selectedRevision: String? {
+        guard let selection else { return nil }
+        if tab == 1 { return "refs/tags/" + selection }
+        if branches.first(where: { $0.name == selection })?.isDetached == true {
+            return "HEAD"
+        }
+        return "refs/heads/" + selection
+    }
+
     var body: some View {
         NavigationSplitView {
             VStack(spacing: 0) {
@@ -82,13 +91,15 @@ struct CompareRevisionsView: View {
             }
             .navigationSplitViewColumnWidth(min: 220, ideal: 260, max: 360)
         } detail: {
-            VStack(spacing: 12) {
-                if let selection {
-                    Label(selection, systemImage: tab == 0 ? "arrow.triangle.branch" : "tag")
-                        .font(.title2)
-                        .textSelection(.enabled)
-                    Text("Diff comparison is coming soon.")
-                        .foregroundStyle(.secondary)
+            Group {
+                if let selection, let selectedRevision {
+                    CommitDiffView(
+                        selectionLogID: "HEAD",
+                        subSelectionLogID: selectedRevision,
+                        selectionTitle: branches.current.map { $0.isDetached ? "HEAD" : $0.name } ?? "HEAD",
+                        subSelectionTitle: selection
+                    )
+                    .environment(\.folder, folder.url)
                 } else {
                     Text(tab == 0 ? "Select a Branch" : "Select a Tag")
                         .foregroundStyle(.secondary)
