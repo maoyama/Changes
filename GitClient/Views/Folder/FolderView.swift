@@ -208,6 +208,23 @@ struct FolderView: View {
         .sheet(isPresented: $showing.stashChanged, content: {
             StashChangedView(folder: folder, showingStashChanged: $showing.stashChanged)
         })
+        .sheet(isPresented: $showing.compareRevisions) {
+            VStack(spacing: 20) {
+                Text("Compare Branches or Tags")
+                    .font(.headline)
+                Text("Branch and tag comparison is coming soon.")
+                    .foregroundStyle(.secondary)
+                HStack {
+                    Spacer()
+                    Button("Close") {
+                        showing.compareRevisions = false
+                    }
+                    .keyboardShortcut(.cancelAction)
+                }
+            }
+            .padding()
+            .frame(width: 400)
+        }
         .navigationTitle(branch?.name ?? "")
         .toolbar {
             if isLoading {
@@ -230,6 +247,10 @@ struct FolderView: View {
                 ToolbarSpacer(.fixed, placement: .principal)
                 ToolbarItem(placement: .principal) {
                     stashButton()
+                }
+                ToolbarSpacer(.fixed, placement: .principal)
+                ToolbarItem(placement: .principal) {
+                    compareButton()
                 }
                 if syncState.syncError != nil {
                     ToolbarItem(placement: .primaryAction) {
@@ -453,6 +474,15 @@ struct FolderView: View {
             Image(systemName: "tray")
         }
         .help("Show Stashed Changes")
+    }
+
+    fileprivate func compareButton() -> some View {
+        Button {
+            showing.compareRevisions = true
+        } label: {
+            Label("Compare Branches or Tags", systemImage: "plusminus")
+        }
+        .help("Compare Branches or Tags")
     }
 
     fileprivate func badge() -> some View {
