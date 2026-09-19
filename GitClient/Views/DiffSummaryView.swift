@@ -43,6 +43,7 @@ struct DiffSummaryView: View {
                                 Image(systemName: "xmark")
                             }
                         }
+                        .padding(.top)
                         .buttonStyle(.plain)
                         .font(.callout)
                         if summaryGenerationError != nil {
