@@ -209,21 +209,7 @@ struct FolderView: View {
             StashChangedView(folder: folder, showingStashChanged: $showing.stashChanged)
         })
         .sheet(isPresented: $showing.compareRevisions) {
-            VStack(spacing: 20) {
-                Text("Compare Branches or Tags")
-                    .font(.headline)
-                Text("Branch and tag comparison is coming soon.")
-                    .foregroundStyle(.secondary)
-                HStack {
-                    Spacer()
-                    Button("Close") {
-                        showing.compareRevisions = false
-                    }
-                    .keyboardShortcut(.cancelAction)
-                }
-            }
-            .padding()
-            .frame(width: 400)
+            CompareRevisionsView(folder: folder)
         }
         .navigationTitle(branch?.name ?? "")
         .toolbar {
