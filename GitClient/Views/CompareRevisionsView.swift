@@ -264,8 +264,7 @@ struct CompareRevisionsView: View {
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(editingSide == side ? [.isSelected] : [])
-        .help(ref.map { $0.name + "\nSelect a branch or tag below to change " + title }
-              ?? "Select a branch or tag below to change " + title)
+        .help("Select a branch or tag below to change \(title)")
         .disabled(isLoading)
     }
 
