@@ -18,16 +18,13 @@ struct CommitDiffView: View {
     @State private var commitSecond = ""
     @State private var filesChanges: [ExpandableModel<FileDiff>] = []
     @State private var filesChangesIsEmpty = false
-    @State private var isLoading = false
     @State private var shortstat = ""
     @State private var error: Error?
     @FocusState private var isFocused: Bool
 
     var body: some View {
         ScrollView {
-            if isLoading {
-                ProgressView().padding()
-            } else if filesChangesIsEmpty {
+            if filesChangesIsEmpty {
                 LazyVStack(alignment: .center) {
                     Label("No Changes", systemImage: "plusminus")
                         .foregroundStyle(.secondary)
@@ -128,7 +125,6 @@ struct CommitDiffView: View {
         filesChanges = []
         filesChangesIsEmpty = false
         shortstat = ""
-        isLoading = true
         do {
             let raw = try await Process.output(
                 GitDiff(directory: folder, noRenames: false, commitRange: commitRange)
@@ -141,10 +137,8 @@ struct CommitDiffView: View {
             filesChanges = changes
             filesChangesIsEmpty = changes.isEmpty
             shortstat = stat.isEmpty ? "No Changes" : stat
-            isLoading = false
         } catch {
             guard !Task.isCancelled else { return }
-            isLoading = false
             self.error = error
         }
     }
