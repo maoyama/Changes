@@ -12,7 +12,7 @@
       "layers" : [
         {
           "fill" : {
-            "solid" : "srgb:0.00000,0.58980,1.00000,1.00000"
+            "solid" : "display-p3:0.01064,0.53826,0.96984,1.00000"
           },
           "image-name" : "Rectangle.svg",
           "name" : "Rectangle",
