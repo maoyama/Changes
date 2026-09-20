@@ -69,10 +69,10 @@ struct DiffSummaryView: View {
                                 .textSelection(.enabled)
                         }
                     }
+                    .padding(.horizontal)
                     PixelDivider()
                         .padding(.top)
                 }
-                .padding(.horizontal)
             }
         }
         .onChange(of: fileDiffs.map { $0.model }, initial: true) {
