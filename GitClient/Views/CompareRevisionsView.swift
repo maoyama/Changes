@@ -66,94 +66,96 @@ struct CompareRevisionsView: View {
                     .padding([.horizontal, .top])
                 comparisonControls
                 Divider()
-                HStack {
-                    Picker("References", selection: $tab) {
-                        Text("Branches").tag(0)
-                        Text("Tags").tag(1)
-                    }
-                    .pickerStyle(.segmented)
-                    .labelsHidden()
-                    if isFetching {
+                Group {
+                    if isLoading {
                         ProgressView()
-                            .scaleEffect(0.4)
-                            .frame(width: 29, height: 17)
-                    } else {
-                        Button {
-                            isFetching = true
-                            Task {
-                                defer { isFetching = false }
-                                do {
-                                    try await GitFetchExecutor.shared.execute(
-                                        GitFetch(directory: folder.url, tags: true)
-                                    )
-                                    try await loadReferences()
-                                    diffRefreshID = UUID()
-                                } catch {
-                                    self.error = error
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else if tab == 0 {
+                        List(selection: listSelection) {
+                            if !filteredLocalBranchRefs.isEmpty {
+                                Section("Local") {
+                                    ForEach(filteredLocalBranchRefs) { ref in
+                                        HStack {
+                                            referenceRow(ref.name, systemImage: ref.systemImage)
+                                            Spacer()
+                                            if ref.id == currentRef?.id {
+                                                Text("Current")
+                                                    .font(.caption)
+                                                    .foregroundStyle(.secondary)
+                                            }
+                                        }
+                                        .tag(ref.id)
+                                    }
                                 }
                             }
-                        } label: {
-                            Label("Fetch Branches and Tags", systemImage: "arrow.down")
-                                .labelStyle(.iconOnly)
+                            if !filteredRemoteBranchRefs.isEmpty {
+                                Section("Remotes") {
+                                    ForEach(filteredRemoteBranchRefs) { ref in
+                                        referenceRow(ref.name, systemImage: ref.systemImage)
+                                            .tag(ref.id)
+                                    }
+                                }
+                            }
                         }
-                        .help("Fetch Branches and Tags")
-                        .disabled(isLoading)
+                        .overlay {
+                            if filteredLocalBranchRefs.isEmpty && filteredRemoteBranchRefs.isEmpty {
+                                Text(filterText.isEmpty ? "No Branches" : "No Results")
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    } else {
+                        List(filteredTagRefs, selection: listSelection) { ref in
+                            referenceRow(ref.name, systemImage: ref.systemImage)
+                                .tag(ref.id)
+                        }
+                        .overlay {
+                            if filteredTagRefs.isEmpty {
+                                Text(filterText.isEmpty ? "No Tags" : "No Results")
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
                     }
                 }
-                .padding()
-
-                if isLoading {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if tab == 0 {
-                    List(selection: listSelection) {
-                        if !filteredLocalBranchRefs.isEmpty {
-                            Section("Local") {
-                                ForEach(filteredLocalBranchRefs) { ref in
-                                    HStack {
-                                        referenceRow(ref.name, systemImage: ref.systemImage)
-                                        Spacer()
-                                        if ref.id == currentRef?.id {
-                                            Text("Current")
-                                                .font(.caption)
-                                                .foregroundStyle(.secondary)
-                                        }
+                .safeAreaBar(edge: .top, spacing: 0) {
+                    HStack {
+                        Picker("References", selection: $tab) {
+                            Text("Branches").tag(0)
+                            Text("Tags").tag(1)
+                        }
+                        .pickerStyle(.segmented)
+                        .labelsHidden()
+                        if isFetching {
+                            ProgressView()
+                                .scaleEffect(0.4)
+                                .frame(width: 29, height: 17)
+                        } else {
+                            Button {
+                                isFetching = true
+                                Task {
+                                    defer { isFetching = false }
+                                    do {
+                                        try await GitFetchExecutor.shared.execute(
+                                            GitFetch(directory: folder.url, tags: true)
+                                        )
+                                        try await loadReferences()
+                                        diffRefreshID = UUID()
+                                    } catch {
+                                        self.error = error
                                     }
-                                    .tag(ref.id)
                                 }
+                            } label: {
+                                Label("Fetch Branches and Tags", systemImage: "arrow.down")
+                                    .labelStyle(.iconOnly)
                             }
-                        }
-                        if !filteredRemoteBranchRefs.isEmpty {
-                            Section("Remotes") {
-                                ForEach(filteredRemoteBranchRefs) { ref in
-                                    referenceRow(ref.name, systemImage: ref.systemImage)
-                                        .tag(ref.id)
-                                }
-                            }
+                            .help("Fetch Branches and Tags")
+                            .disabled(isLoading)
                         }
                     }
-                    .overlay {
-                        if filteredLocalBranchRefs.isEmpty && filteredRemoteBranchRefs.isEmpty {
-                            Text(filterText.isEmpty ? "No Branches" : "No Results")
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                } else {
-                    List(filteredTagRefs, selection: listSelection) { ref in
-                        referenceRow(ref.name, systemImage: ref.systemImage)
-                            .tag(ref.id)
-                    }
-                    .overlay {
-                        if filteredTagRefs.isEmpty {
-                            Text(filterText.isEmpty ? "No Tags" : "No Results")
-                                .foregroundStyle(.secondary)
-                        }
-                    }
+                    .padding(10)
                 }
             }
             .safeAreaBar(edge: .bottom, spacing: 0) {
                 VStack(spacing: 0) {
-                    Divider()
                     HStack(spacing: 4) {
                         Image(systemName: "line.3.horizontal.decrease")
                         TextField("Filter", text: $filterText)
@@ -183,7 +185,7 @@ struct CompareRevisionsView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .safeAreaBar(edge: .bottom) {
                 VStack(spacing: 0) {
-                    Divider()
+                    PixelDivider()
                     HStack {
                         Spacer()
                         Button("Close") {
