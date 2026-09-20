@@ -11,6 +11,8 @@ struct CompareRevisionsView: View {
     @State private var selectedTag: String?
     @State private var filterText = ""
     @State private var isLoading = true
+    @State private var isFetching = false
+    @State private var diffRefreshID = UUID()
     @State private var error: Error?
 
     private var filteredBranches: [Branch] {
@@ -46,11 +48,41 @@ struct CompareRevisionsView: View {
     var body: some View {
         NavigationSplitView {
             VStack(spacing: 0) {
-                Picker("References", selection: $tab) {
-                    Text("Branches").tag(0)
-                    Text("Tags").tag(1)
+                HStack {
+                    Picker("References", selection: $tab) {
+                        Text("Branches").tag(0)
+                        Text("Tags").tag(1)
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+
+                    if isFetching {
+                        ProgressView()
+                            .scaleEffect(0.4)
+                            .frame(width: 29, height: 17)
+                    } else {
+                        Button {
+                            isFetching = true
+                            Task {
+                                defer { isFetching = false }
+                                do {
+                                    try await GitFetchExecutor.shared.execute(
+                                        GitFetch(directory: folder.url, tags: true)
+                                    )
+                                    try await loadReferences()
+                                    diffRefreshID = UUID()
+                                } catch {
+                                    self.error = error
+                                }
+                            }
+                        } label: {
+                            Label("Fetch Branches and Tags", systemImage: "arrow.down")
+                                .labelStyle(.iconOnly)
+                        }
+                        .help("Fetch Branches and Tags")
+                        .disabled(isLoading)
+                    }
                 }
-                .pickerStyle(.segmented)
                 .padding()
 
                 HStack(spacing: 4) {
@@ -122,6 +154,7 @@ struct CompareRevisionsView: View {
                         subSelectionTitle: selection
                     )
                     .environment(\.folder, folder.url)
+                    .id(diffRefreshID)
                 } else {
                     Text(tab == 0 ? "Select a Branch" : "Select a Tag")
                         .foregroundStyle(.secondary)
@@ -143,15 +176,31 @@ struct CompareRevisionsView: View {
         .task {
             defer { isLoading = false }
             do {
-                branches = try await Process.output(GitBranch(directory: folder.url))
+                try await loadReferences()
                 selectedBranch = branches.current.map { revision(for: $0) }
-                remoteBranches = try await Process.output(GitBranch(directory: folder.url, isRemote: true))
-                    .filter { !$0.name.contains(" -> ") }
-                tags = try await Process.output(GitTag(directory: folder.url))
             } catch {
                 self.error = error
             }
         }
         .errorSheet($error)
+    }
+
+    private func loadReferences() async throws {
+        let updatedBranches = try await Process.output(GitBranch(directory: folder.url))
+        let updatedRemoteBranches = try await Process.output(GitBranch(directory: folder.url, isRemote: true))
+            .filter { !$0.name.contains(" -> ") }
+        let updatedTags = try await Process.output(GitTag(directory: folder.url))
+        branches = updatedBranches
+        remoteBranches = updatedRemoteBranches
+        tags = updatedTags
+
+        if let selectedBranch,
+           !branches.contains(where: { revision(for: $0) == selectedBranch }),
+           !remoteBranches.contains(where: { "refs/remotes/" + $0.name == selectedBranch }) {
+            self.selectedBranch = nil
+        }
+        if let selectedTag, !tags.contains(selectedTag) {
+            self.selectedTag = nil
+        }
     }
 }
