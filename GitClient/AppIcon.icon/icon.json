@@ -3,7 +3,7 @@
     "refractivity"
   ],
   "fill" : {
-    "automatic-gradient" : "extended-gray:1.00000,1.00000"
+    "automatic-gradient" : "srgb:1.00000,1.00000,1.00000,1.00000"
   },
   "groups" : [
     {
@@ -19,8 +19,8 @@
           "position" : {
             "scale" : 1,
             "translation-in-points" : [
-              -0.3864459999997507,
-              -118.7037037037037
+              -8.235046889553814,
+              -114.14814814814815
             ]
           }
         }
@@ -64,8 +64,8 @@
           "position" : {
             "scale" : 1,
             "translation-in-points" : [
-              2.2737367544323206e-13,
-              144.71428571428572
+              -14.464008374502896,
+              142.803738317757
             ]
           }
         }
@@ -73,7 +73,7 @@
       "lighting" : "individual",
       "opacity" : 0.9,
       "position" : {
-        "scale" : 1.0500000000000003,
+        "scale" : 1.0700000000000003,
         "translation-in-points" : [
           0,
           0
