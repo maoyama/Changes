@@ -100,7 +100,7 @@ struct CompareRevisionsView: View {
                         .disabled(isLoading)
                     }
                 }
-                .padding()
+                .padding(10)
 
                 if isLoading {
                     ProgressView()
