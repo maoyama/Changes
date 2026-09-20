@@ -8,8 +8,8 @@ struct GitRef: Hashable, Identifiable {
         case tag
     }
 
-    var name: String
-    var kind: Kind
+    let name: String
+    let kind: Kind
 
     var id: String {
         revision

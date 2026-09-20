@@ -11,8 +11,6 @@ struct CommitDiffView: View {
     @Environment(\.folder) private var folder
     var selectionLogID: String
     var subSelectionLogID: String
-    var selectionTitle: String? = nil
-    var subSelectionTitle: String? = nil
     var showsComparisonControls = true
 
     @State private var commitFirst = ""
@@ -21,7 +19,6 @@ struct CommitDiffView: View {
     @State private var filesChangesIsEmpty = false
     @State private var shortstat = ""
     @State private var error: Error?
-    @FocusState private var isFocused: Bool
 
     var body: some View {
         ScrollView {
@@ -118,8 +115,6 @@ struct CommitDiffView: View {
     }
 
     private func title(for revision: String) -> String {
-        if revision == selectionLogID, let selectionTitle { return selectionTitle }
-        if revision == subSelectionLogID, let subSelectionTitle { return subSelectionTitle }
         return revision == Log.notCommitted.id ? "Staged Changes" : String(revision.prefix(5))
     }
 

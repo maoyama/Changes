@@ -21,11 +21,11 @@ struct CompareRevisionsView: View {
     @State private var diffRefreshID = UUID()
     @State private var error: Error?
 
-    private var filteredLocalRefs: [GitRef] {
+    private var filteredLocalBranchRefs: [GitRef] {
         localBranchRefs.filter { filterText.isEmpty || $0.name.localizedCaseInsensitiveContains(filterText) }
     }
 
-    private var filteredRemoteRefs: [GitRef] {
+    private var filteredRemoteBranchRefs: [GitRef] {
         remoteBranchRefs.filter { filterText.isEmpty || $0.name.localizedCaseInsensitiveContains(filterText) }
     }
 
@@ -107,9 +107,9 @@ struct CompareRevisionsView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if tab == 0 {
                     List(selection: listSelection) {
-                        if !filteredLocalRefs.isEmpty {
+                        if !filteredLocalBranchRefs.isEmpty {
                             Section("Local") {
-                                ForEach(filteredLocalRefs) { ref in
+                                ForEach(filteredLocalBranchRefs) { ref in
                                     HStack {
                                         referenceRow(ref.name, systemImage: ref.systemImage)
                                         Spacer()
@@ -123,9 +123,9 @@ struct CompareRevisionsView: View {
                                 }
                             }
                         }
-                        if !filteredRemoteRefs.isEmpty {
+                        if !filteredRemoteBranchRefs.isEmpty {
                             Section("Remotes") {
-                                ForEach(filteredRemoteRefs) { ref in
+                                ForEach(filteredRemoteBranchRefs) { ref in
                                     referenceRow(ref.name, systemImage: ref.systemImage)
                                         .tag(ref.id)
                                 }
@@ -133,7 +133,7 @@ struct CompareRevisionsView: View {
                         }
                     }
                     .overlay {
-                        if filteredLocalRefs.isEmpty && filteredRemoteRefs.isEmpty {
+                        if filteredLocalBranchRefs.isEmpty && filteredRemoteBranchRefs.isEmpty {
                             Text(filterText.isEmpty ? "No Branches" : "No Results")
                                 .foregroundStyle(.secondary)
                         }
@@ -169,8 +169,6 @@ struct CompareRevisionsView: View {
                     CommitDiffView(
                         selectionLogID: baseRef.revision,
                         subSelectionLogID: compareRef.revision,
-                        selectionTitle: baseRef.name,
-                        subSelectionTitle: compareRef.name,
                         showsComparisonControls: false
                     )
                     .environment(\.folder, folder.url)
