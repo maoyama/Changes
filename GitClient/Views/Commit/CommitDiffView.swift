@@ -11,6 +11,7 @@ struct CommitDiffView: View {
     @Environment(\.folder) private var folder
     var selectionLogID: String
     var subSelectionLogID: String
+    var showsComparisonControls = true
 
     @State private var commitFirst = ""
     @State private var commitSecond = ""
@@ -18,7 +19,6 @@ struct CommitDiffView: View {
     @State private var filesChangesIsEmpty = false
     @State private var shortstat = ""
     @State private var error: Error?
-    @FocusState private var isFocused: Bool
 
     var body: some View {
         ScrollView {
@@ -40,25 +40,33 @@ struct CommitDiffView: View {
             VStack(spacing: 0) {
                 DiffSummaryView(fileDiffs: filesChanges)
                 HStack(spacing: 0) {
-                    HStack {
-                        Text("Diff")
-                            .foregroundStyle(.secondary)
-                        Text(commitFirst == Log.notCommitted.id ? "Staged Changes" : commitFirst.prefix(5))
-                        Text(commitSecond == Log.notCommitted.id ? "Staged Changes" : commitSecond.prefix(5))
-                        Button {
-                            let first = commitFirst
-                            let second = commitSecond
-                            commitFirst = second
-                            commitSecond = first
-                        } label: {
-                            Image(systemName: "arrow.left.arrow.right")
+                    if showsComparisonControls {
+                        HStack {
+                            Text("Diff")
+                                .foregroundStyle(.secondary)
+                            Text(title(for: commitFirst))
+                                .lineLimit(1)
+                                .help(title(for: commitFirst))
+                            Image(systemName: "arrow.right")
+                                .foregroundStyle(.secondary)
+                            Text(title(for: commitSecond))
+                                .lineLimit(1)
+                                .help(title(for: commitSecond))
+                            Button {
+                                let first = commitFirst
+                                let second = commitSecond
+                                commitFirst = second
+                                commitSecond = first
+                            } label: {
+                                Image(systemName: "arrow.left.arrow.right")
+                            }
+                                .buttonStyle(.plain)
+                                .help("Swap the Commits")
                         }
-                            .buttonStyle(.plain)
-                            .help("Swap the Commits")
+                        .padding(.horizontal)
+                        Divider()
+                            .frame(height: 16)
                     }
-                    .padding(.horizontal)
-                    Divider()
-                        .frame(height: 16)
                     HStack {
                         Button {
                             filesChanges = filesChanges.map {
@@ -89,40 +97,47 @@ struct CommitDiffView: View {
                 .frame(height: 40)
             }
         })
-        .onChange(of: selectionLogID + subSelectionLogID, initial: true) { oldValue, newValue in
+        .onChange(of: [selectionLogID, subSelectionLogID], initial: true) { oldValue, newValue in
             commitFirst = selectionLogID
             commitSecond = subSelectionLogID
         }
-        .onChange(of: commitFirst + commitSecond, initial: true) { _, _ in
+        .task(id: [commitFirst, commitSecond]) {
+            guard !commitFirst.isEmpty, !commitSecond.isEmpty else { return }
             if commitFirst == Log.notCommitted.id {
-                updateDiff(commitRange: commitSecond)
+                await updateDiff(commitRange: commitSecond)
             } else if commitSecond == Log.notCommitted.id {
-                updateDiff(commitRange: commitFirst)
+                await updateDiff(commitRange: commitFirst)
             } else {
-                updateDiff(commitRange: commitFirst + ".." + commitSecond)
+                await updateDiff(commitRange: commitFirst + ".." + commitSecond)
             }
         }
         .errorSheet($error)
     }
 
-    private func updateDiff(commitRange: String) {
+    private func title(for revision: String) -> String {
+        return revision == Log.notCommitted.id ? "Staged Changes" : String(revision.prefix(5))
+    }
+
+    private func updateDiff(commitRange: String) async {
         guard let folder else { return }
-        Task {
-            do {
-                let raw = try await Process.output(
-                    GitDiff(directory: folder, noRenames: false, commitRange: commitRange)
-                )
-                filesChanges = try Diff(raw: raw).fileDiffs.map { .init(isExpanded: true, model: $0) }
-                filesChangesIsEmpty = filesChanges.isEmpty
-                shortstat = try await Process.output(
-                    GitDiff(directory: folder, noRenames: false, shortstat: true, commitRange: commitRange)
-                ).trimmingCharacters(in: .whitespacesAndNewlines)
-                if shortstat.isEmpty {
-                    shortstat = "No Changes"
-                }
-            } catch {
-                self.error = error
-            }
+        filesChanges = []
+        filesChangesIsEmpty = false
+        shortstat = ""
+        do {
+            let raw = try await Process.output(
+                GitDiff(directory: folder, noRenames: false, commitRange: commitRange)
+            )
+            let changes = try Diff(raw: raw).fileDiffs.map { ExpandableModel(isExpanded: true, model: $0) }
+            let stat = try await Process.output(
+                GitDiff(directory: folder, noRenames: false, shortstat: true, commitRange: commitRange)
+            ).trimmingCharacters(in: .whitespacesAndNewlines)
+            try Task.checkCancellation()
+            filesChanges = changes
+            filesChangesIsEmpty = changes.isEmpty
+            shortstat = stat.isEmpty ? "No Changes" : stat
+        } catch {
+            guard !Task.isCancelled else { return }
+            self.error = error
         }
     }
 }

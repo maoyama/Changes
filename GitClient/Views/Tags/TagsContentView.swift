@@ -18,6 +18,7 @@ struct TagsContentView: View {
     @State private var filterText: String = ""
     @State private var selection: String?
     @State private var error: Error?
+    @State private var isFetching = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -25,6 +26,32 @@ struct TagsContentView: View {
                 Image(systemName: "line.3.horizontal.decrease")
                 TextField(text: $filterText) {
                     Text("Filter")
+                }
+                if isFetching {
+                    ProgressView()
+                        .scaleEffect(0.4)
+                        .frame(width: 29, height: 17)
+                        .padding(.leading)
+                } else {
+                    Button {
+                        isFetching = true
+                        Task {
+                            defer { isFetching = false }
+                            do {
+                                try await GitFetchExecutor.shared.execute(
+                                    GitFetch(directory: folder.url, tags: true)
+                                )
+                                tags = try await Process.output(GitTag(directory: folder.url))
+                            } catch {
+                                self.error = error
+                            }
+                        }
+                    } label: {
+                        Label("Fetch Tags", systemImage: "arrow.down")
+                            .labelStyle(.iconOnly)
+                    }
+                    .padding(.leading)
+                    .help("Fetch Tags")
                 }
             }
             .textFieldStyle(.roundedBorder)
