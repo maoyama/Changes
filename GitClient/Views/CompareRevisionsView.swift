@@ -153,7 +153,6 @@ struct CompareRevisionsView: View {
             }
             .safeAreaBar(edge: .bottom, spacing: 0) {
                 VStack(spacing: 0) {
-                    Divider()
                     HStack(spacing: 4) {
                         Image(systemName: "line.3.horizontal.decrease")
                         TextField("Filter", text: $filterText)
@@ -183,7 +182,7 @@ struct CompareRevisionsView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .safeAreaBar(edge: .bottom) {
                 VStack(spacing: 0) {
-                    Divider()
+                    PixelDivider()
                     HStack {
                         Spacer()
                         Button("Close") {

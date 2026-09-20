@@ -69,7 +69,7 @@ struct DiffSummaryView: View {
                                 .textSelection(.enabled)
                         }
                     }
-                    Divider()
+                    PixelDivider()
                         .padding(.top)
                 }
                 .padding(.horizontal)
