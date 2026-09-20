@@ -11,8 +11,9 @@ struct CompareRevisionsView: View {
     @State private var localBranchRefs: [GitRef] = []
     @State private var remoteBranchRefs: [GitRef] = []
     @State private var tagRefs: [GitRef] = []
-    @State private var baseRef = GitRef(name: "HEAD", kind: .head, isCurrent: true)
+    @State private var baseRef = GitRef(name: "HEAD", kind: .head)
     @State private var compareRef: GitRef?
+    @State private var currentRef: GitRef?
     @State private var editingSide: ComparisonSide = .compare
     @State private var filterText = ""
     @State private var isLoading = true
@@ -112,7 +113,7 @@ struct CompareRevisionsView: View {
                                     HStack {
                                         referenceRow(ref.name, systemImage: ref.systemImage)
                                         Spacer()
-                                        if ref.isCurrent {
+                                        if ref.id == currentRef?.id {
                                             Text("Current")
                                                 .font(.caption)
                                                 .foregroundStyle(.secondary)
@@ -199,8 +200,7 @@ struct CompareRevisionsView: View {
             defer { isLoading = false }
             do {
                 try await loadReferences()
-                baseRef = localBranchRefs.first(where: \.isCurrent)
-                    ?? GitRef(name: "HEAD", kind: .head, isCurrent: true)
+                baseRef = currentRef ?? GitRef(name: "HEAD", kind: .head)
             } catch {
                 self.error = error
             }
@@ -290,9 +290,11 @@ struct CompareRevisionsView: View {
         let updatedTags = try await Process.output(GitTag(directory: folder.url))
         localBranchRefs = updatedBranches.map { branch in
             branch.isDetached
-                ? GitRef(name: "HEAD", kind: .head, isCurrent: branch.isCurrent)
-                : GitRef(name: branch.name, kind: .localBranch, isCurrent: branch.isCurrent)
+                ? GitRef(name: branch.name, kind: .head)
+                : GitRef(name: branch.name, kind: .localBranch)
         }
+        currentRef = zip(updatedBranches, localBranchRefs)
+            .first(where: { $0.0.isCurrent })?.1
         remoteBranchRefs = updatedRemoteBranches.map {
             GitRef(name: $0.name, kind: .remoteBranch)
         }
@@ -304,7 +306,7 @@ struct CompareRevisionsView: View {
            let updatedBase = allRefs.first(where: { $0.id == baseRef.id }) {
             baseRef = updatedBase
         } else if baseRef.kind != .head {
-            baseRef = GitRef(name: "HEAD", kind: .head, isCurrent: true)
+            baseRef = currentRef ?? GitRef(name: "HEAD", kind: .head)
         }
 
         if let compareRef {

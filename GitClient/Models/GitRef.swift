@@ -10,7 +10,6 @@ struct GitRef: Hashable, Identifiable {
 
     var name: String
     var kind: Kind
-    var isCurrent = false
 
     var id: String {
         revision
