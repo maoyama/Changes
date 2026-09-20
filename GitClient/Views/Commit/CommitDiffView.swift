@@ -64,7 +64,7 @@ struct CommitDiffView: View {
                                 Image(systemName: "arrow.left.arrow.right")
                             }
                                 .buttonStyle(.plain)
-                                .help(selectionTitle == nil ? "Swap the Commits" : "Swap the Comparison")
+                                .help("Swap the Commits")
                         }
                         .padding(.horizontal)
                         Divider()

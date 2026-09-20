@@ -8,11 +8,11 @@ struct CompareRevisionsView: View {
     var folder: Folder
     @Environment(\.dismiss) private var dismiss
     @State private var tab = 0
-    @State private var branches: [Branch] = []
-    @State private var remoteBranches: [Branch] = []
-    @State private var tags: [String] = []
-    @State private var baseRevision = "HEAD"
-    @State private var compareRevision: String?
+    @State private var localBranchRefs: [GitRef] = []
+    @State private var remoteBranchRefs: [GitRef] = []
+    @State private var tagRefs: [GitRef] = []
+    @State private var baseRef = GitRef(name: "HEAD", kind: .head, isCurrent: true)
+    @State private var compareRef: GitRef?
     @State private var editingSide: ComparisonSide = .compare
     @State private var filterText = ""
     @State private var isLoading = true
@@ -20,39 +20,38 @@ struct CompareRevisionsView: View {
     @State private var diffRefreshID = UUID()
     @State private var error: Error?
 
-    private var filteredBranches: [Branch] {
-        branches.filter { filterText.isEmpty || $0.name.localizedCaseInsensitiveContains(filterText) }
+    private var filteredLocalRefs: [GitRef] {
+        localBranchRefs.filter { filterText.isEmpty || $0.name.localizedCaseInsensitiveContains(filterText) }
     }
 
-    private var filteredRemoteBranches: [Branch] {
-        remoteBranches.filter { filterText.isEmpty || $0.name.localizedCaseInsensitiveContains(filterText) }
+    private var filteredRemoteRefs: [GitRef] {
+        remoteBranchRefs.filter { filterText.isEmpty || $0.name.localizedCaseInsensitiveContains(filterText) }
     }
 
-    private var filteredTags: [String] {
-        tags.filter { filterText.isEmpty || $0.localizedCaseInsensitiveContains(filterText) }
+    private var filteredTagRefs: [GitRef] {
+        tagRefs.filter { filterText.isEmpty || $0.name.localizedCaseInsensitiveContains(filterText) }
     }
 
-    private var editingRevision: String? {
-        editingSide == .base ? baseRevision : compareRevision
+    private var editingRef: GitRef? {
+        editingSide == .base ? baseRef : compareRef
     }
 
-    private var listSelection: Binding<String?> {
+    private var listSelection: Binding<GitRef.ID?> {
         Binding {
-            guard let reference = editingRevision,
-                  reference.hasPrefix("refs/tags/") == (tab == 1) else { return nil }
-            return reference
-        } set: { reference in
-            guard let reference else { return }
+            guard let ref = editingRef, (ref.kind == .tag) == (tab == 1) else { return nil }
+            return ref.id
+        } set: { id in
+            guard let ref = allRefs.first(where: { $0.id == id }) else { return }
             if editingSide == .base {
-                baseRevision = reference
+                baseRef = ref
             } else {
-                compareRevision = reference
+                compareRef = ref
             }
         }
     }
 
-    private func revision(for branch: Branch) -> String {
-        branch.isDetached ? "HEAD" : "refs/heads/" + branch.name
+    private var allRefs: [GitRef] {
+        localBranchRefs + remoteBranchRefs + tagRefs
     }
 
     var body: some View {
@@ -107,44 +106,44 @@ struct CompareRevisionsView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if tab == 0 {
                     List(selection: listSelection) {
-                        if !filteredBranches.isEmpty {
+                        if !filteredLocalRefs.isEmpty {
                             Section("Local") {
-                                ForEach(filteredBranches) { branch in
+                                ForEach(filteredLocalRefs) { ref in
                                     HStack {
-                                        referenceRow(branch.name, systemImage: "arrow.triangle.branch")
+                                        referenceRow(ref.name, systemImage: ref.systemImage)
                                         Spacer()
-                                        if branch.isCurrent {
+                                        if ref.isCurrent {
                                             Text("Current")
                                                 .font(.caption)
                                                 .foregroundStyle(.secondary)
                                         }
                                     }
-                                    .tag(revision(for: branch))
+                                    .tag(ref.id)
                                 }
                             }
                         }
-                        if !filteredRemoteBranches.isEmpty {
+                        if !filteredRemoteRefs.isEmpty {
                             Section("Remotes") {
-                                ForEach(filteredRemoteBranches) { branch in
-                                    referenceRow(branch.name, systemImage: "arrow.triangle.branch")
-                                    .tag("refs/remotes/" + branch.name)
+                                ForEach(filteredRemoteRefs) { ref in
+                                    referenceRow(ref.name, systemImage: ref.systemImage)
+                                        .tag(ref.id)
                                 }
                             }
                         }
                     }
                     .overlay {
-                        if filteredBranches.isEmpty && filteredRemoteBranches.isEmpty {
+                        if filteredLocalRefs.isEmpty && filteredRemoteRefs.isEmpty {
                             Text(filterText.isEmpty ? "No Branches" : "No Results")
                                 .foregroundStyle(.secondary)
                         }
                     }
                 } else {
-                    List(filteredTags, id: \.self, selection: listSelection) { tag in
-                        referenceRow(tag, systemImage: "tag")
-                        .tag("refs/tags/" + tag)
+                    List(filteredTagRefs, selection: listSelection) { ref in
+                        referenceRow(ref.name, systemImage: ref.systemImage)
+                            .tag(ref.id)
                     }
                     .overlay {
-                        if filteredTags.isEmpty {
+                        if filteredTagRefs.isEmpty {
                             Text(filterText.isEmpty ? "No Tags" : "No Results")
                                 .foregroundStyle(.secondary)
                         }
@@ -165,12 +164,12 @@ struct CompareRevisionsView: View {
             .navigationSplitViewColumnWidth(min: 220, ideal: 260, max: 360)
         } detail: {
             Group {
-                if let compareRevision {
+                if let compareRef {
                     CommitDiffView(
-                        selectionLogID: baseRevision,
-                        subSelectionLogID: compareRevision,
-                        selectionTitle: referenceName(baseRevision),
-                        subSelectionTitle: referenceName(compareRevision),
+                        selectionLogID: baseRef.revision,
+                        subSelectionLogID: compareRef.revision,
+                        selectionTitle: baseRef.name,
+                        subSelectionTitle: compareRef.name,
                         showsComparisonControls: false
                     )
                     .environment(\.folder, folder.url)
@@ -200,7 +199,8 @@ struct CompareRevisionsView: View {
             defer { isLoading = false }
             do {
                 try await loadReferences()
-                baseRevision = branches.current.map { revision(for: $0) } ?? "HEAD"
+                baseRef = localBranchRefs.first(where: \.isCurrent)
+                    ?? GitRef(name: "HEAD", kind: .head, isCurrent: true)
             } catch {
                 self.error = error
             }
@@ -223,32 +223,29 @@ struct CompareRevisionsView: View {
     private var comparisonControls: some View {
         VStack(spacing: 8) {
             HStack(spacing: 6) {
-                comparisonSideButton(.base, title: "Base", reference: baseRevision)
+                comparisonSideButton(.base, title: "Base", ref: baseRef)
                 Button(action: swapComparison) {
                     Label("Swap the Comparison", systemImage: "arrow.up.arrow.down")
                         .labelStyle(.iconOnly)
                 }
                 .buttonStyle(.plain)
                 .help("Swap the Comparison")
-                .disabled(compareRevision == nil || isLoading)
+                .disabled(compareRef == nil || isLoading)
             }
-            comparisonSideButton(.compare, title: "Compare", reference: compareRevision)
+            comparisonSideButton(.compare, title: "Compare", ref: compareRef)
         }
         .padding(10)
     }
 
-    private func comparisonSideButton(_ side: ComparisonSide, title: String, reference: String?) -> some View {
+    private func comparisonSideButton(_ side: ComparisonSide, title: String, ref: GitRef?) -> some View {
         Button {
             editingSide = side
             revealEditingRevision()
         } label: {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    if let reference {
-                        referenceRow(
-                            referenceName(reference),
-                            systemImage: reference.hasPrefix("refs/tags/") ? "tag" : "arrow.triangle.branch"
-                        )
+                    if let ref {
+                        referenceRow(ref.name, systemImage: ref.systemImage)
                             .lineLimit(1)
                             .truncationMode(.middle)
                     } else {
@@ -267,31 +264,22 @@ struct CompareRevisionsView: View {
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(editingSide == side ? [.isSelected] : [])
-        .help(reference.map { referenceName($0) + "\nSelect a branch or tag below to change " + title }
+        .help(ref.map { $0.name + "\nSelect a branch or tag below to change " + title }
               ?? "Select a branch or tag below to change " + title)
         .disabled(isLoading)
     }
 
     private func revealEditingRevision() {
-        if let editingRevision {
-            tab = editingRevision.hasPrefix("refs/tags/") ? 1 : 0
+        if let editingRef {
+            tab = editingRef.kind == .tag ? 1 : 0
         }
-    }
-
-    private func referenceName(_ reference: String) -> String {
-        for prefix in ["refs/heads/", "refs/remotes/", "refs/tags/"] {
-            if reference.hasPrefix(prefix) {
-                return String(reference.dropFirst(prefix.count))
-            }
-        }
-        return reference
     }
 
     private func swapComparison() {
-        guard let compareRevision else { return }
-        let previousBase = baseRevision
-        baseRevision = compareRevision
-        self.compareRevision = previousBase
+        guard let compareRef else { return }
+        let previousBase = baseRef
+        baseRef = compareRef
+        self.compareRef = previousBase
         revealEditingRevision()
     }
 
@@ -300,23 +288,27 @@ struct CompareRevisionsView: View {
         let updatedRemoteBranches = try await Process.output(GitBranch(directory: folder.url, isRemote: true))
             .filter { !$0.name.contains(" -> ") }
         let updatedTags = try await Process.output(GitTag(directory: folder.url))
-        branches = updatedBranches
-        remoteBranches = updatedRemoteBranches
-        tags = updatedTags
-
-        if baseRevision != "HEAD",
-           !branches.contains(where: { revision(for: $0) == baseRevision }),
-           !remoteBranches.contains(where: { "refs/remotes/" + $0.name == baseRevision }),
-           !tags.contains(where: { "refs/tags/" + $0 == baseRevision }) {
-            baseRevision = "HEAD"
+        localBranchRefs = updatedBranches.map { branch in
+            branch.isDetached
+                ? GitRef(name: "HEAD", kind: .head, isCurrent: branch.isCurrent)
+                : GitRef(name: branch.name, kind: .localBranch, isCurrent: branch.isCurrent)
+        }
+        remoteBranchRefs = updatedRemoteBranches.map {
+            GitRef(name: $0.name, kind: .remoteBranch)
+        }
+        tagRefs = updatedTags.map {
+            GitRef(name: $0, kind: .tag)
         }
 
-        if let compareRevision,
-           compareRevision != "HEAD",
-           !branches.contains(where: { revision(for: $0) == compareRevision }),
-           !remoteBranches.contains(where: { "refs/remotes/" + $0.name == compareRevision }),
-           !tags.contains(where: { "refs/tags/" + $0 == compareRevision }) {
-            self.compareRevision = nil
+        if baseRef.kind != .head,
+           let updatedBase = allRefs.first(where: { $0.id == baseRef.id }) {
+            baseRef = updatedBase
+        } else if baseRef.kind != .head {
+            baseRef = GitRef(name: "HEAD", kind: .head, isCurrent: true)
+        }
+
+        if let compareRef {
+            self.compareRef = allRefs.first(where: { $0.id == compareRef.id })
         }
     }
 }
