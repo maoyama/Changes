@@ -18,7 +18,7 @@ struct DiffSummaryView: View {
     
     var body: some View {
         VStack {
-            if systemLanguageModelAvailability == .available && (!summary.isEmpty || summaryIsResponding) {
+            if systemLanguageModelAvailability == .available && (!summary.isEmpty || summaryIsResponding || summaryGenerationError != nil) {
                 VStack(spacing: 0) {
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
@@ -39,6 +39,8 @@ struct DiffSummaryView: View {
                             Button {
                                 generateSummaryTask?.cancel()
                                 summary = ""
+                                summaryGenerationError = nil
+                                summaryIsResponding = false
                             } label: {
                                 Image(systemName: "xmark")
                             }
