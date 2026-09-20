@@ -1,14 +1,19 @@
 import SwiftUI
 
 struct CompareRevisionsView: View {
+    private enum ComparisonSide {
+        case base, compare
+    }
+
     var folder: Folder
     @Environment(\.dismiss) private var dismiss
     @State private var tab = 0
     @State private var branches: [Branch] = []
     @State private var remoteBranches: [Branch] = []
     @State private var tags: [String] = []
-    @State private var selectedBranch: String?
-    @State private var selectedTag: String?
+    @State private var baseRevision = "HEAD"
+    @State private var compareRevision: String?
+    @State private var editingSide: ComparisonSide = .compare
     @State private var filterText = ""
     @State private var isLoading = true
     @State private var isFetching = false
@@ -27,18 +32,23 @@ struct CompareRevisionsView: View {
         tags.filter { filterText.isEmpty || $0.localizedCaseInsensitiveContains(filterText) }
     }
 
-    private var selection: String? {
-        if tab == 1 { return selectedTag }
-        guard let selectedBranch else { return nil }
-        if let branch = branches.first(where: { revision(for: $0) == selectedBranch }) {
-            return branch.name
-        }
-        return remoteBranches.first { "refs/remotes/" + $0.name == selectedBranch }?.name
+    private var editingRevision: String? {
+        editingSide == .base ? baseRevision : compareRevision
     }
 
-    private var selectedRevision: String? {
-        if tab == 1 { return selectedTag.map { "refs/tags/" + $0 } }
-        return selectedBranch
+    private var listSelection: Binding<String?> {
+        Binding {
+            guard let reference = editingRevision,
+                  reference.hasPrefix("refs/tags/") == (tab == 1) else { return nil }
+            return reference
+        } set: { reference in
+            guard let reference else { return }
+            if editingSide == .base {
+                baseRevision = reference
+            } else {
+                compareRevision = reference
+            }
+        }
     }
 
     private func revision(for branch: Branch) -> String {
@@ -48,6 +58,14 @@ struct CompareRevisionsView: View {
     var body: some View {
         NavigationSplitView {
             VStack(spacing: 0) {
+                Text("Compare")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .lineLimit(2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding([.horizontal, .top])
+                comparisonControls
+                Divider()
                 HStack {
                     Picker("References", selection: $tab) {
                         Text("Branches").tag(0)
@@ -84,25 +102,16 @@ struct CompareRevisionsView: View {
                 }
                 .padding()
 
-                HStack(spacing: 4) {
-                    Image(systemName: "line.3.horizontal.decrease")
-                    TextField("Filter", text: $filterText)
-                        .textFieldStyle(.roundedBorder)
-                }
-                .padding([.horizontal, .bottom])
-
-                Divider()
-
                 if isLoading {
                     ProgressView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if tab == 0 {
-                    List(selection: $selectedBranch) {
+                    List(selection: listSelection) {
                         if !filteredBranches.isEmpty {
                             Section("Local") {
                                 ForEach(filteredBranches) { branch in
                                     HStack {
-                                        Label(branch.name, systemImage: "arrow.triangle.branch")
+                                        referenceRow(branch.name, systemImage: "arrow.triangle.branch")
                                         Spacer()
                                         if branch.isCurrent {
                                             Text("Current")
@@ -117,8 +126,8 @@ struct CompareRevisionsView: View {
                         if !filteredRemoteBranches.isEmpty {
                             Section("Remotes") {
                                 ForEach(filteredRemoteBranches) { branch in
-                                    Label(branch.name, systemImage: "arrow.triangle.branch")
-                                        .tag("refs/remotes/" + branch.name)
+                                    referenceRow(branch.name, systemImage: "arrow.triangle.branch")
+                                    .tag("refs/remotes/" + branch.name)
                                 }
                             }
                         }
@@ -130,9 +139,9 @@ struct CompareRevisionsView: View {
                         }
                     }
                 } else {
-                    List(filteredTags, id: \.self, selection: $selectedTag) { tag in
-                        Label(tag, systemImage: "tag")
-                            .tag(tag)
+                    List(filteredTags, id: \.self, selection: listSelection) { tag in
+                        referenceRow(tag, systemImage: "tag")
+                        .tag("refs/tags/" + tag)
                     }
                     .overlay {
                         if filteredTags.isEmpty {
@@ -142,20 +151,32 @@ struct CompareRevisionsView: View {
                     }
                 }
             }
+            .safeAreaBar(edge: .bottom, spacing: 0) {
+                VStack(spacing: 0) {
+                    Divider()
+                    HStack(spacing: 4) {
+                        Image(systemName: "line.3.horizontal.decrease")
+                        TextField("Filter", text: $filterText)
+                            .textFieldStyle(.roundedBorder)
+                    }
+                    .padding()
+                }
+            }
             .navigationSplitViewColumnWidth(min: 220, ideal: 260, max: 360)
         } detail: {
             Group {
-                if let selection, let selectedRevision {
+                if let compareRevision {
                     CommitDiffView(
-                        selectionLogID: "HEAD",
-                        subSelectionLogID: selectedRevision,
-                        selectionTitle: branches.current.map { $0.isDetached ? "HEAD" : $0.name } ?? "HEAD",
-                        subSelectionTitle: selection
+                        selectionLogID: baseRevision,
+                        subSelectionLogID: compareRevision,
+                        selectionTitle: referenceName(baseRevision),
+                        subSelectionTitle: referenceName(compareRevision),
+                        showsComparisonControls: false
                     )
                     .environment(\.folder, folder.url)
                     .id(diffRefreshID)
                 } else {
-                    Text(tab == 0 ? "Select a Branch" : "Select a Tag")
+                    Text("Select a branch or tag for Compare")
                         .foregroundStyle(.secondary)
                 }
             }
@@ -179,12 +200,99 @@ struct CompareRevisionsView: View {
             defer { isLoading = false }
             do {
                 try await loadReferences()
-                selectedBranch = branches.current.map { revision(for: $0) }
+                baseRevision = branches.current.map { revision(for: $0) } ?? "HEAD"
             } catch {
                 self.error = error
             }
         }
         .errorSheet($error)
+    }
+
+    private func referenceRow(_ name: String, systemImage: String) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: systemImage)
+                .font(.system(size: 13))
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 16)
+                .accessibilityHidden(true)
+            Text(name)
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    private var comparisonControls: some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 6) {
+                comparisonSideButton(.base, title: "Base", reference: baseRevision)
+                Button(action: swapComparison) {
+                    Label("Swap the Comparison", systemImage: "arrow.up.arrow.down")
+                        .labelStyle(.iconOnly)
+                }
+                .buttonStyle(.plain)
+                .help("Swap the Comparison")
+                .disabled(compareRevision == nil || isLoading)
+            }
+            comparisonSideButton(.compare, title: "Compare", reference: compareRevision)
+        }
+        .padding(10)
+    }
+
+    private func comparisonSideButton(_ side: ComparisonSide, title: String, reference: String?) -> some View {
+        Button {
+            editingSide = side
+            revealEditingRevision()
+        } label: {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    if let reference {
+                        referenceRow(
+                            referenceName(reference),
+                            systemImage: reference.hasPrefix("refs/tags/") ? "tag" : "arrow.triangle.branch"
+                        )
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                    } else {
+                        Text("No Selection")
+                            .foregroundStyle(.secondary)
+                            .padding(.leading, 22)
+                    }
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(8)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(editingSide == side ? Color.accentColor.opacity(0.12) : Color.clear)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(editingSide == side ? [.isSelected] : [])
+        .help(reference.map { referenceName($0) + "\nSelect a branch or tag below to change " + title }
+              ?? "Select a branch or tag below to change " + title)
+        .disabled(isLoading)
+    }
+
+    private func revealEditingRevision() {
+        if let editingRevision {
+            tab = editingRevision.hasPrefix("refs/tags/") ? 1 : 0
+        }
+    }
+
+    private func referenceName(_ reference: String) -> String {
+        for prefix in ["refs/heads/", "refs/remotes/", "refs/tags/"] {
+            if reference.hasPrefix(prefix) {
+                return String(reference.dropFirst(prefix.count))
+            }
+        }
+        return reference
+    }
+
+    private func swapComparison() {
+        guard let compareRevision else { return }
+        let previousBase = baseRevision
+        baseRevision = compareRevision
+        self.compareRevision = previousBase
+        revealEditingRevision()
     }
 
     private func loadReferences() async throws {
@@ -196,13 +304,19 @@ struct CompareRevisionsView: View {
         remoteBranches = updatedRemoteBranches
         tags = updatedTags
 
-        if let selectedBranch,
-           !branches.contains(where: { revision(for: $0) == selectedBranch }),
-           !remoteBranches.contains(where: { "refs/remotes/" + $0.name == selectedBranch }) {
-            self.selectedBranch = nil
+        if baseRevision != "HEAD",
+           !branches.contains(where: { revision(for: $0) == baseRevision }),
+           !remoteBranches.contains(where: { "refs/remotes/" + $0.name == baseRevision }),
+           !tags.contains(where: { "refs/tags/" + $0 == baseRevision }) {
+            baseRevision = "HEAD"
         }
-        if let selectedTag, !tags.contains(selectedTag) {
-            self.selectedTag = nil
+
+        if let compareRevision,
+           compareRevision != "HEAD",
+           !branches.contains(where: { revision(for: $0) == compareRevision }),
+           !remoteBranches.contains(where: { "refs/remotes/" + $0.name == compareRevision }),
+           !tags.contains(where: { "refs/tags/" + $0 == compareRevision }) {
+            self.compareRevision = nil
         }
     }
 }

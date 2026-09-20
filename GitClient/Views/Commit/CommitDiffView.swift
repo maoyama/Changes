@@ -13,6 +13,7 @@ struct CommitDiffView: View {
     var subSelectionLogID: String
     var selectionTitle: String? = nil
     var subSelectionTitle: String? = nil
+    var showsComparisonControls = true
 
     @State private var commitFirst = ""
     @State private var commitSecond = ""
@@ -42,31 +43,33 @@ struct CommitDiffView: View {
             VStack(spacing: 0) {
                 DiffSummaryView(fileDiffs: filesChanges)
                 HStack(spacing: 0) {
-                    HStack {
-                        Text("Diff")
-                            .foregroundStyle(.secondary)
-                        Text(title(for: commitFirst))
-                            .lineLimit(1)
-                            .help(title(for: commitFirst))
-                        Image(systemName: "arrow.right")
-                            .foregroundStyle(.secondary)
-                        Text(title(for: commitSecond))
-                            .lineLimit(1)
-                            .help(title(for: commitSecond))
-                        Button {
-                            let first = commitFirst
-                            let second = commitSecond
-                            commitFirst = second
-                            commitSecond = first
-                        } label: {
-                            Image(systemName: "arrow.left.arrow.right")
+                    if showsComparisonControls {
+                        HStack {
+                            Text("Diff")
+                                .foregroundStyle(.secondary)
+                            Text(title(for: commitFirst))
+                                .lineLimit(1)
+                                .help(title(for: commitFirst))
+                            Image(systemName: "arrow.right")
+                                .foregroundStyle(.secondary)
+                            Text(title(for: commitSecond))
+                                .lineLimit(1)
+                                .help(title(for: commitSecond))
+                            Button {
+                                let first = commitFirst
+                                let second = commitSecond
+                                commitFirst = second
+                                commitSecond = first
+                            } label: {
+                                Image(systemName: "arrow.left.arrow.right")
+                            }
+                                .buttonStyle(.plain)
+                                .help(selectionTitle == nil ? "Swap the Commits" : "Swap the Comparison")
                         }
-                            .buttonStyle(.plain)
-                            .help(selectionTitle == nil ? "Swap the Commits" : "Swap the Comparison")
+                        .padding(.horizontal)
+                        Divider()
+                            .frame(height: 16)
                     }
-                    .padding(.horizontal)
-                    Divider()
-                        .frame(height: 16)
                     HStack {
                         Button {
                             filesChanges = filesChanges.map {
