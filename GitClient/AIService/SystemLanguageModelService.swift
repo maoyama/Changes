@@ -92,7 +92,11 @@ index abc1234..def5678 100644
 """
         let prompt = "Generate a concise summary for the following changes in 200 characters or less in language \(language): \(diff)"
         let session = LanguageModelSession(instructions: instructions)
-        return session.streamResponse(to: prompt, generating: GeneratedDiffSummary.self)
+        return session.streamResponse(
+            to: prompt,
+            generating: GeneratedDiffSummary.self,
+            options: .init(maximumResponseTokens: 512)
+        )
     }
 
     /// Prefer commitMessage(stagedDiff: String)
