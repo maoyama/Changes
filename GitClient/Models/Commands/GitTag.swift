@@ -14,6 +14,7 @@ struct GitTag: Git {
             "git",
             "tag",
             "--no-column",
+            "--sort=-creatordate",
         ]
     }
     var directory: URL
