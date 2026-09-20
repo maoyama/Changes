@@ -55,7 +55,6 @@ struct CompareRevisionsView: View {
                     }
                     .pickerStyle(.segmented)
                     .labelsHidden()
-
                     if isFetching {
                         ProgressView()
                             .scaleEffect(0.4)
@@ -162,14 +161,17 @@ struct CompareRevisionsView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .safeAreaBar(edge: .bottom) {
-                HStack {
-                    Spacer()
-                    Button("Close") {
-                        dismiss()
+                VStack(spacing: 0) {
+                    Divider()
+                    HStack {
+                        Spacer()
+                        Button("Close") {
+                            dismiss()
+                        }
+                        .keyboardShortcut(.cancelAction)
                     }
-                    .keyboardShortcut(.cancelAction)
+                    .padding()
                 }
-                .padding()
             }
         }
         .frame(width: 800, height: 700)
