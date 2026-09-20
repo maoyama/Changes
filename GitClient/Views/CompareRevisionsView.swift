@@ -11,10 +11,10 @@ struct CompareRevisionsView: View {
     @State private var localBranchRefs: [GitRef] = []
     @State private var remoteBranchRefs: [GitRef] = []
     @State private var tagRefs: [GitRef] = []
-    @State private var baseRef = GitRef(name: "HEAD", kind: .head)
+    @State private var baseRef: GitRef?
     @State private var compareRef: GitRef?
     @State private var currentRef: GitRef?
-    @State private var editingSide: ComparisonSide = .compare
+    @State private var editingSide: ComparisonSide = .base
     @State private var filterText = ""
     @State private var isLoading = true
     @State private var isFetching = false
@@ -165,7 +165,7 @@ struct CompareRevisionsView: View {
             .navigationSplitViewColumnWidth(min: 220, ideal: 260, max: 360)
         } detail: {
             Group {
-                if let compareRef {
+                if let baseRef, let compareRef {
                     CommitDiffView(
                         selectionLogID: baseRef.revision,
                         subSelectionLogID: compareRef.revision,
@@ -174,7 +174,9 @@ struct CompareRevisionsView: View {
                     .environment(\.folder, folder.url)
                     .id(diffRefreshID)
                 } else {
-                    Text("Select a branch or tag for Compare")
+                    Text(baseRef == nil
+                         ? "Select a branch or tag for Base"
+                         : "Select a branch or tag for Compare")
                         .foregroundStyle(.secondary)
                 }
             }
@@ -198,7 +200,7 @@ struct CompareRevisionsView: View {
             defer { isLoading = false }
             do {
                 try await loadReferences()
-                baseRef = currentRef ?? GitRef(name: "HEAD", kind: .head)
+                compareRef = currentRef ?? GitRef(name: "HEAD", kind: .head)
             } catch {
                 self.error = error
             }
@@ -228,7 +230,7 @@ struct CompareRevisionsView: View {
                 }
                 .buttonStyle(.plain)
                 .help("Swap the Comparison")
-                .disabled(compareRef == nil || isLoading)
+                .disabled(baseRef == nil || compareRef == nil || isLoading)
             }
             comparisonSideButton(.compare, title: "Compare", ref: compareRef)
         }
@@ -274,9 +276,9 @@ struct CompareRevisionsView: View {
     }
 
     private func swapComparison() {
-        guard let compareRef else { return }
+        guard let baseRef, let compareRef else { return }
         let previousBase = baseRef
-        baseRef = compareRef
+        self.baseRef = compareRef
         self.compareRef = previousBase
         revealEditingRevision()
     }
@@ -300,11 +302,8 @@ struct CompareRevisionsView: View {
             GitRef(name: $0, kind: .tag)
         }
 
-        if baseRef.kind != .head,
-           let updatedBase = allRefs.first(where: { $0.id == baseRef.id }) {
-            baseRef = updatedBase
-        } else if baseRef.kind != .head {
-            baseRef = currentRef ?? GitRef(name: "HEAD", kind: .head)
+        if let baseRef {
+            self.baseRef = allRefs.first(where: { $0.id == baseRef.id })
         }
 
         if let compareRef {
