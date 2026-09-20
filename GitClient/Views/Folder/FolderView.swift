@@ -466,7 +466,7 @@ struct FolderView: View {
         Button {
             showing.compareRevisions = true
         } label: {
-            Label("Compare Branches or Tags", systemImage: "plusminus")
+            Label("Compare Branches or Tags", systemImage: "plus.forwardslash.minus")
         }
         .help("Compare Branches or Tags")
     }
