@@ -5,6 +5,7 @@ struct CompareRevisionsView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var tab = 0
     @State private var branches: [Branch] = []
+    @State private var remoteBranches: [Branch] = []
     @State private var tags: [String] = []
     @State private var selectedBranch: String?
     @State private var selectedTag: String?
@@ -16,21 +17,30 @@ struct CompareRevisionsView: View {
         branches.filter { filterText.isEmpty || $0.name.localizedCaseInsensitiveContains(filterText) }
     }
 
+    private var filteredRemoteBranches: [Branch] {
+        remoteBranches.filter { filterText.isEmpty || $0.name.localizedCaseInsensitiveContains(filterText) }
+    }
+
     private var filteredTags: [String] {
         tags.filter { filterText.isEmpty || $0.localizedCaseInsensitiveContains(filterText) }
     }
 
     private var selection: String? {
-        tab == 0 ? selectedBranch : selectedTag
+        if tab == 1 { return selectedTag }
+        guard let selectedBranch else { return nil }
+        if let branch = branches.first(where: { revision(for: $0) == selectedBranch }) {
+            return branch.name
+        }
+        return remoteBranches.first { "refs/remotes/" + $0.name == selectedBranch }?.name
     }
 
     private var selectedRevision: String? {
-        guard let selection else { return nil }
-        if tab == 1 { return "refs/tags/" + selection }
-        if branches.first(where: { $0.name == selection })?.isDetached == true {
-            return "HEAD"
-        }
-        return "refs/heads/" + selection
+        if tab == 1 { return selectedTag.map { "refs/tags/" + $0 } }
+        return selectedBranch
+    }
+
+    private func revision(for branch: Branch) -> String {
+        branch.isDetached ? "HEAD" : "refs/heads/" + branch.name
     }
 
     var body: some View {
@@ -57,21 +67,33 @@ struct CompareRevisionsView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if tab == 0 {
                     List(selection: $selectedBranch) {
-                        ForEach(filteredBranches) { branch in
-                            HStack {
-                                Label(branch.name, systemImage: "arrow.triangle.branch")
-                                Spacer()
-                                if branch.isCurrent {
-                                    Text("Current")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
+                        if !filteredBranches.isEmpty {
+                            Section("Local") {
+                                ForEach(filteredBranches) { branch in
+                                    HStack {
+                                        Label(branch.name, systemImage: "arrow.triangle.branch")
+                                        Spacer()
+                                        if branch.isCurrent {
+                                            Text("Current")
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
+                                    .tag(revision(for: branch))
                                 }
                             }
-                            .tag(branch.name)
+                        }
+                        if !filteredRemoteBranches.isEmpty {
+                            Section("Remotes") {
+                                ForEach(filteredRemoteBranches) { branch in
+                                    Label(branch.name, systemImage: "arrow.triangle.branch")
+                                        .tag("refs/remotes/" + branch.name)
+                                }
+                            }
                         }
                     }
                     .overlay {
-                        if filteredBranches.isEmpty {
+                        if filteredBranches.isEmpty && filteredRemoteBranches.isEmpty {
                             Text(filterText.isEmpty ? "No Branches" : "No Results")
                                 .foregroundStyle(.secondary)
                         }
@@ -122,7 +144,9 @@ struct CompareRevisionsView: View {
             defer { isLoading = false }
             do {
                 branches = try await Process.output(GitBranch(directory: folder.url))
-                selectedBranch = branches.current?.name
+                selectedBranch = branches.current.map { revision(for: $0) }
+                remoteBranches = try await Process.output(GitBranch(directory: folder.url, isRemote: true))
+                    .filter { !$0.name.contains(" -> ") }
                 tags = try await Process.output(GitTag(directory: folder.url))
             } catch {
                 self.error = error
