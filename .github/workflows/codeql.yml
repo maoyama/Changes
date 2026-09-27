@@ -60,6 +60,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Resolve package dependencies
+      if: matrix.language == 'swift'
+      run: |
+        xcodebuild -resolvePackageDependencies -scheme GitClient -destination "platform=macOS,arch=arm64"
+
     # Add any setup steps before running the `github/codeql-action/init` action.
     # This includes steps like installing compilers or runtimes (`actions/setup-node`
     # or others). This is typically only required for manual builds.
@@ -89,7 +94,7 @@ jobs:
       shell: bash
       run: |
         xcodebuild -version
-        xcodebuild -scheme GitClient CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO -destination "platform=macOS" -disableAutomaticPackageResolution
+        xcodebuild -scheme GitClient CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO -destination "platform=macOS,arch=arm64" -disableAutomaticPackageResolution
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v4
