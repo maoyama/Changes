@@ -118,7 +118,7 @@ struct CommitCreateView: View {
                     .font(Font.system(.body, design: .monospaced))
             }
         }
-        .scrollEdgeEffectStyle(.soft, for: .vertical)
+        .scrollEdgeEffectStyle(.hard, for: .vertical)
         .safeAreaBar(edge: .bottom, content: {
             VStack(spacing: 0) {
                 HStack {

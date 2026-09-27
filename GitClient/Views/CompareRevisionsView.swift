@@ -67,10 +67,7 @@ struct CompareRevisionsView: View {
                 comparisonControls
                 Divider()
                 Group {
-                    if isLoading {
-                        ProgressView()
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    } else if tab == 0 {
+                    if tab == 0 {
                         List(selection: listSelection) {
                             if !filteredLocalBranchRefs.isEmpty {
                                 Section("Local") {
@@ -168,12 +165,16 @@ struct CompareRevisionsView: View {
         } detail: {
             Group {
                 if let baseRef, let compareRef {
-                    CommitDiffView(
-                        selectionLogID: baseRef.revision,
-                        subSelectionLogID: compareRef.revision,
-                        showsComparisonControls: false
-                    )
-                    .environment(\.folder, folder.url)
+                    NavigationStack {
+                        CompareRevisionContentView(
+                            baseRevision: baseRef.revision,
+                            compareRevision: compareRef.revision,
+                            directoryURL: folder.url
+                        )
+                        .navigationDestination(for: String.self) { commitHash in
+                            CommitDetailView(commitHash: commitHash, folder: folder)
+                        }
+                    }
                     .id(diffRefreshID)
                 } else {
                     Text(baseRef == nil
@@ -197,7 +198,15 @@ struct CompareRevisionsView: View {
                 }
             }
         }
-        .frame(width: 800, height: 700)
+        .presentationSizing(.fitted)
+        .frame(
+            minWidth: 650,
+            idealWidth: 800,
+            maxWidth: .infinity,
+            minHeight: 500,
+            idealHeight: 700,
+            maxHeight: .infinity
+        )
         .task {
             defer { isLoading = false }
             do {
@@ -214,7 +223,6 @@ struct CompareRevisionsView: View {
         HStack(spacing: 6) {
             Image(systemName: systemImage)
                 .font(.system(size: 13))
-                .foregroundStyle(Color.accentColor)
                 .frame(width: 16)
                 .accessibilityHidden(true)
             Text(name)
@@ -310,5 +318,65 @@ struct CompareRevisionsView: View {
         if let compareRef {
             self.compareRef = allRefs.first(where: { $0.id == compareRef.id })
         }
+    }
+}
+
+private struct CompareRevisionContentView: View {
+    var baseRevision: String
+    var compareRevision: String
+    var directoryURL: URL
+
+    @State private var tab = 0
+    @State private var commits: [Commit] = []
+    @State private var error: Error?
+
+    var body: some View {
+        Group {
+            if tab == 0 {
+                ScrollView {
+                    if commits.isEmpty {
+                        LazyVStack(alignment: .center) {
+                            Label("No Commits", systemImage: "clock")
+                                .foregroundStyle(.secondary)
+                                .padding()
+                                .padding()
+                                .padding(.vertical, 40)
+                        }
+                    } else {
+                        DiffCommitListView(commits: commits)
+                            .padding()
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(NSColor.textBackgroundColor))
+                .scrollEdgeEffectStyle(.hard, for: .vertical)
+            } else {
+                CommitDiffView(
+                    selectionLogID: baseRevision,
+                    subSelectionLogID: compareRevision,
+                    showsComparisonControls: false
+                )
+                .environment(\.folder, directoryURL)
+            }
+        }
+        .safeAreaBar(edge: .top, spacing: 0) {
+            DiffTabView(tab: $tab)
+                .padding()
+        }
+        .task(id: [baseRevision, compareRevision]) {
+            commits = []
+            do {
+                commits = try await Process.output(
+                    GitLog(
+                        directory: directoryURL,
+                        revisionRange: [baseRevision + "..." + compareRevision]
+                    )
+                )
+            } catch {
+                guard !Task.isCancelled else { return }
+                self.error = error
+            }
+        }
+        .errorSheet($error)
     }
 }

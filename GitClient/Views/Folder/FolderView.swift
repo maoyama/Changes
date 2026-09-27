@@ -60,7 +60,7 @@ struct FolderView: View {
                 )
             }
         }
-        .scrollEdgeEffectStyle(.soft, for: .bottom)
+        .scrollEdgeEffectStyle(.hard, for: .bottom)
         .safeAreaBar(edge: .bottom, spacing: 0) {
             HStack(spacing: 0) {
                 Spacer()

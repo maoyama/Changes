@@ -64,7 +64,7 @@ struct StashChangedContentView: View {
                     Spacer(minLength: 0)
                 }
             }
-            .scrollEdgeEffectStyle(.soft, for: .vertical)
+            .scrollEdgeEffectStyle(.hard, for: .vertical)
             .safeAreaBar(edge: .bottom, content: {
                 VStack (spacing: 0) {
                     DiffSummaryView(fileDiffs: fileDiffs)
@@ -113,7 +113,15 @@ struct StashChangedContentView: View {
         .task(id: selectionStashID, {
             await updateDiff()
         })
-        .frame(width: 800, height: 700)
+        .presentationSizing(.fitted)
+        .frame(
+            minWidth: 650,
+            idealWidth: 800,
+            maxWidth: .infinity,
+            minHeight: 500,
+            idealHeight: 700,
+            maxHeight: .infinity
+        )
         .errorSheet($error)
     }
 
