@@ -56,8 +56,11 @@ struct StashChangedContentView: View {
                     if selectionStashID != nil {
                         StashChangedDetailContentView(fileDiffs: $fileDiffs)
                     } else {
-                        Spacer()
-                        Text("No Selection")
+                        HStack {
+                            Spacer()
+                            Text("No Selection")
+                            Spacer()
+                        }
                             .foregroundStyle(.secondary)
                             .padding(.vertical, 250)
                     }
