@@ -8,12 +8,7 @@
 import SwiftUI
 
 struct FileNameView: View {
-    @Environment(\.folder) private var current
-
     var fileDiff: FileDiff
-    var fileURL: URL? {
-        current?.appending(path: fileDiff.toFilePath)
-    }
 
     var body: some View {
         HStack {
@@ -31,14 +26,7 @@ struct FileNameView: View {
                 .fontWeight(.bold)
                 .font(Font.system(.body, design: .default))
                 .help(fileDiff.header + "\n" + (fileDiff.extendedHeaderLines + fileDiff.fromFileToFileLines).joined(separator: "\n"))
-            Button(action: {
-                NSWorkspace.shared.open(fileURL!)
-            }) {
-                Image(systemName: "arrow.right.circle.fill")
-                    .foregroundStyle(.secondary)
-                    .help("Open " + (fileURL?.absoluteString ?? ""))
-            }
-            .buttonStyle(.plain)
+            OpenFileButton(filePath: fileDiff.toFilePath)
         }
     }
 }
