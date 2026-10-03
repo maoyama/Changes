@@ -28,7 +28,7 @@ jobs:
     #   - https://gh.io/supported-runners-and-hardware-resources
     #   - https://gh.io/using-larger-runners (GitHub.com only)
     # Consider using larger runners or machines with greater resources for possible analysis time improvements.
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-26') || 'ubuntu-latest' }}
+    runs-on: ${{ (matrix.language == 'swift' && 'xcode-27') || 'ubuntu-latest' }}
     permissions:
       # required for all workflows
       security-events: write
@@ -68,7 +68,7 @@ jobs:
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v4
+      uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
         build-mode: ${{ matrix.build-mode }}
@@ -88,10 +88,10 @@ jobs:
     - if: matrix.build-mode == 'manual'
       shell: bash
       run: |
-        sudo xcode-select -s /Applications/Xcode_26.6.app/Contents/Developer
-        xcodebuild -scheme GitClient CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO ASSETCATALOG_COMPILER_APPICON_NAME="" EXCLUDED_SOURCE_FILE_NAMES="AppIcon.icon" -destination "platform=macOS" -disableAutomaticPackageResolution
+        xcodebuild -version
+        xcodebuild -scheme GitClient CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO -destination "platform=macOS" -disableAutomaticPackageResolution
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v4
+      uses: github/codeql-action/analyze@v3
       with:
         category: "/language:${{matrix.language}}"
