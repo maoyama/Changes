@@ -39,6 +39,7 @@ struct CommitDiffView: View {
         .safeAreaBar(edge: .bottom, spacing: 0, content: {
             VStack(spacing: 0) {
                 DiffSummaryView(fileDiffs: filesChanges)
+                PixelDivider()
                 HStack(spacing: 0) {
                     if showsComparisonControls {
                         HStack {

@@ -70,8 +70,7 @@ struct DiffSummaryView: View {
                         }
                     }
                     .padding(.horizontal)
-                    PixelDivider()
-                        .padding(.top)
+                    .padding(.bottom)
                 }
             }
         }

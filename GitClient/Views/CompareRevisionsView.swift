@@ -177,10 +177,7 @@ struct CompareRevisionsView: View {
                     }
                     .id(diffRefreshID)
                 } else {
-                    Text(baseRef == nil
-                         ? "Select a branch or tag for Base"
-                         : "Select a branch or tag for Compare")
-                        .foregroundStyle(.secondary)
+                    CompareNoSelectionView(needsBaseSelection: baseRef == nil)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -321,6 +318,23 @@ struct CompareRevisionsView: View {
     }
 }
 
+private struct CompareNoSelectionView: View {
+    let needsBaseSelection: Bool
+
+    var body: some View {
+        VStack(spacing: 4) {
+            Text("No Selection")
+            Text(needsBaseSelection
+                 ? "Select a branch or tag for Base"
+                 : "Select a branch or tag for Compare")
+                .font(.callout)
+                .foregroundStyle(.tertiary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .foregroundStyle(.secondary)
+    }
+}
+
 private struct CompareRevisionContentView: View {
     var baseRevision: String
     var compareRevision: String
@@ -328,13 +342,14 @@ private struct CompareRevisionContentView: View {
 
     @State private var tab = 0
     @State private var commits: [Commit] = []
+    @State private var commitsLoadFailed = false
     @State private var error: Error?
 
     var body: some View {
         Group {
             if tab == 0 {
                 ScrollView {
-                    if commits.isEmpty {
+                    if commits.isEmpty && !commitsLoadFailed {
                         LazyVStack(alignment: .center) {
                             Label("No Commits", systemImage: "clock")
                                 .foregroundStyle(.secondary)
@@ -364,16 +379,20 @@ private struct CompareRevisionContentView: View {
                 .padding()
         }
         .task(id: [baseRevision, compareRevision]) {
-            commits = []
             do {
-                commits = try await Process.output(
+                let updatedCommits = try await Process.output(
                     GitLog(
                         directory: directoryURL,
                         revisionRange: [baseRevision + "..." + compareRevision]
                     )
                 )
+                try Task.checkCancellation()
+                commits = updatedCommits
+                commitsLoadFailed = false
             } catch {
                 guard !Task.isCancelled else { return }
+                commits = []
+                commitsLoadFailed = true
                 self.error = error
             }
         }

@@ -51,23 +51,25 @@ struct StashChangedContentView: View {
             }
             .navigationSplitViewColumnWidth(ideal: 200)
         } detail: {
-            ScrollView {
-                VStack(spacing: 0) {
-                    if selectionStashID != nil {
-                        StashChangedDetailContentView(fileDiffs: $fileDiffs)
-                    } else {
-                        Spacer()
-                        Text("No Selection")
-                            .foregroundStyle(.secondary)
-                            .padding(.vertical, 250)
+            Group {
+                if selectionStashID != nil {
+                    ScrollView {
+                        VStack(spacing: 0) {
+                            StashChangedDetailContentView(fileDiffs: $fileDiffs)
+                            Spacer(minLength: 0)
+                        }
                     }
-                    Spacer(minLength: 0)
+                    .scrollEdgeEffectStyle(.hard, for: .vertical)
+                } else {
+                    Text("No Selection")
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
-            .scrollEdgeEffectStyle(.hard, for: .vertical)
             .safeAreaBar(edge: .bottom, content: {
                 VStack (spacing: 0) {
                     DiffSummaryView(fileDiffs: fileDiffs)
+                    PixelDivider()
                     HStack {
                         Button {
                             fileDiffs = fileDiffs.map {
