@@ -41,7 +41,6 @@
 		614DE8142DA0BFC100FC582E /* GitShowShortstat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 614DE8132DA0BF9200FC582E /* GitShowShortstat.swift */; };
 		614DE8162DA0C2E700FC582E /* GitShowShortstatTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 614DE8152DA0C2E700FC582E /* GitShowShortstatTests.swift */; };
 		614DE81A2DA2238A00FC582E /* FileNameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 614DE8192DA2238A00FC582E /* FileNameView.swift */; };
-		C0212A012F1234567890ABCD /* OpenFileButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0212A022F1234567890ABCD /* OpenFileButton.swift */; };
 		614DE81C2DA345E700FC582E /* GitBranchDelete.swift in Sources */ = {isa = PBXBuildFile; fileRef = 614DE81B2DA345DB00FC582E /* GitBranchDelete.swift */; };
 		6154D69C2C6739C700448AB4 /* CommitMessageSnippetSuggestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6154D69B2C6739C700448AB4 /* CommitMessageSnippetSuggestionView.swift */; };
 		6154EEF82DE3228500103692 /* AuthorInitialIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6154EEF72DE3228500103692 /* AuthorInitialIcon.swift */; };
@@ -110,7 +109,6 @@
 		61A5DF522D9DFB2100FAF078 /* SearchTokensHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61A5DF512D9DFB0A00FAF078 /* SearchTokensHandler.swift */; };
 		61A5DF542D9DFD1B00FAF078 /* SearchTokensHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61A5DF532D9DFD1B00FAF078 /* SearchTokensHandlerTests.swift */; };
 		61A6F2F92E80BBFE0051A51E /* DiffSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61A6F2F82E80BBFE0051A51E /* DiffSummaryView.swift */; };
-		C89D71362F00112233445566 /* PixelDivider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C89D71352F00112233445566 /* PixelDivider.swift */; };
 		61AC65812DA9F83700D80470 /* LogStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61AC65802DA9F82E00D80470 /* LogStoreTests.swift */; };
 		61AF934A2E08FAE700C656AE /* SearchArguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61AF93492E08FAE700C656AE /* SearchArguments.swift */; };
 		61B3C55E2CB4A74C00021B36 /* GitShow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61B3C55D2CB4A74700021B36 /* GitShow.swift */; };
@@ -155,6 +153,8 @@
 		61FAF49A2C68812F000B7ACB /* AppStorageDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61FAF4992C68812F000B7ACB /* AppStorageDefaults.swift */; };
 		61FAF49C2C688181000B7ACB /* WindowID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61FAF49B2C688181000B7ACB /* WindowID.swift */; };
 		61FAF49E2C68DBFB000B7ACB /* GitCommitAmend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61FAF49D2C68DBFB000B7ACB /* GitCommitAmend.swift */; };
+		C0212A012F1234567890ABCD /* OpenFileButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0212A022F1234567890ABCD /* OpenFileButton.swift */; };
+		C89D71362F00112233445566 /* PixelDivider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C89D71352F00112233445566 /* PixelDivider.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -207,7 +207,6 @@
 		614DE8132DA0BF9200FC582E /* GitShowShortstat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitShowShortstat.swift; sourceTree = "<group>"; };
 		614DE8152DA0C2E700FC582E /* GitShowShortstatTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitShowShortstatTests.swift; sourceTree = "<group>"; };
 		614DE8192DA2238A00FC582E /* FileNameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileNameView.swift; sourceTree = "<group>"; };
-		C0212A022F1234567890ABCD /* OpenFileButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenFileButton.swift; sourceTree = "<group>"; };
 		614DE81B2DA345DB00FC582E /* GitBranchDelete.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitBranchDelete.swift; sourceTree = "<group>"; };
 		6154D69B2C6739C700448AB4 /* CommitMessageSnippetSuggestionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommitMessageSnippetSuggestionView.swift; sourceTree = "<group>"; };
 		6154EEF72DE3228500103692 /* AuthorInitialIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthorInitialIcon.swift; sourceTree = "<group>"; };
@@ -277,7 +276,6 @@
 		61A5DF512D9DFB0A00FAF078 /* SearchTokensHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTokensHandler.swift; sourceTree = "<group>"; };
 		61A5DF532D9DFD1B00FAF078 /* SearchTokensHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTokensHandlerTests.swift; sourceTree = "<group>"; };
 		61A6F2F82E80BBFE0051A51E /* DiffSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiffSummaryView.swift; sourceTree = "<group>"; };
-		C89D71352F00112233445566 /* PixelDivider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelDivider.swift; sourceTree = "<group>"; };
 		61AC65802DA9F82E00D80470 /* LogStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogStoreTests.swift; sourceTree = "<group>"; };
 		61AF93492E08FAE700C656AE /* SearchArguments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchArguments.swift; sourceTree = "<group>"; };
 		61B3C55D2CB4A74700021B36 /* GitShow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitShow.swift; sourceTree = "<group>"; };
@@ -321,6 +319,8 @@
 		61FAF4992C68812F000B7ACB /* AppStorageDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStorageDefaults.swift; sourceTree = "<group>"; };
 		61FAF49B2C688181000B7ACB /* WindowID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowID.swift; sourceTree = "<group>"; };
 		61FAF49D2C68DBFB000B7ACB /* GitCommitAmend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitCommitAmend.swift; sourceTree = "<group>"; };
+		C0212A022F1234567890ABCD /* OpenFileButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenFileButton.swift; sourceTree = "<group>"; };
+		C89D71352F00112233445566 /* PixelDivider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelDivider.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1061,7 +1061,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 2.4;
+				MARKETING_VERSION = 2.5;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.aoyama.changes;
 				PRODUCT_NAME = Changes;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1094,7 +1094,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 2.4;
+				MARKETING_VERSION = 2.5;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.aoyama.changes;
 				PRODUCT_NAME = Changes;
 				PROVISIONING_PROFILE_SPECIFIER = "";
