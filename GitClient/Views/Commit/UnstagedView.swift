@@ -59,11 +59,11 @@ struct UnstagedView: View {
                             }
                             .buttonStyle(.plain)
                             .help("Stage This File")
-                            .padding(.horizontal)
                         }
                     }
                 }
-                .padding(.horizontal)
+                .padding(.leading, 12)
+                .padding(.trailing, 2)
                 .padding(.bottom)
             }
         } label: {
