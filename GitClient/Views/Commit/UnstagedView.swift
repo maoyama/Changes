@@ -49,6 +49,7 @@ struct UnstagedView: View {
                         HStack {
                             Text(file)
                                 .fontWeight(.bold)
+                            OpenFileButton(filePath: file)
                             Spacer()
                             Button {
                                 onSelectUntrackedFile?(file)
