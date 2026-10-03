@@ -177,10 +177,7 @@ struct CompareRevisionsView: View {
                     }
                     .id(diffRefreshID)
                 } else {
-                    Text(baseRef == nil
-                         ? "Select a branch or tag for Base"
-                         : "Select a branch or tag for Compare")
-                        .foregroundStyle(.secondary)
+                    CompareNoSelectionView(needsBaseSelection: baseRef == nil)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -318,6 +315,23 @@ struct CompareRevisionsView: View {
         if let compareRef {
             self.compareRef = allRefs.first(where: { $0.id == compareRef.id })
         }
+    }
+}
+
+private struct CompareNoSelectionView: View {
+    let needsBaseSelection: Bool
+
+    var body: some View {
+        VStack(spacing: 4) {
+            Text("No Selection")
+            Text(needsBaseSelection
+                 ? "Select a branch or tag for Base"
+                 : "Select a branch or tag for Compare")
+                .font(.callout)
+                .foregroundStyle(.tertiary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .foregroundStyle(.secondary)
     }
 }
 
