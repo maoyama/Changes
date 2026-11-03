@@ -10,6 +10,7 @@ import SwiftUI
 
 struct ContentView: View {
     @AppStorage(AppStorageKey.folder.rawValue) var folders: Data?
+    @AppStorage(AppStorageKey.lastSelectedFolderURL.rawValue) private var lastSelectedFolderURL = ""
     @Environment(\.appearsActive) private var appearsActive
     private var decodedFolders: [Folder] {
         guard let folders else { return [] }
@@ -137,8 +138,18 @@ struct ContentView: View {
             }
         }
         .frame(minWidth: 700, minHeight: 300)
+        .onChange(of: decodedFolders, initial: true) {
+            guard selectionFolder == nil else { return }
+            selectionFolderURL = decodedFolders.first {
+                $0.url.absoluteString == lastSelectedFolderURL
+            }?.url ?? (decodedFolders.count == 1 ? decodedFolders.first?.url : nil)
+            lastSelectedFolderURL = selectionFolderURL?.absoluteString ?? ""
+        }
         .onChange(of: selectionFolder, {
             selectionLog = nil
+            if let selectionFolder {
+                lastSelectedFolderURL = selectionFolder.url.absoluteString
+            }
         })
         .onChange(of: appearsActive) {
             systemLanguageModelAvailability = SystemLanguageModelService().availability
